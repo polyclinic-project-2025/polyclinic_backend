@@ -1,6 +1,8 @@
 ﻿namespace PolyclinicCore;
 
-public class Class1
+public enum RoleUser
 {
 
 }
+
+
