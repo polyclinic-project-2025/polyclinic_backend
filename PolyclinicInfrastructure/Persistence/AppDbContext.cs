@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<ExternalMedicalPost> ExternalMedicalPosts { get; set; }
     public DbSet<Nursing> Nursing { get; set; }
     public DbSet<Warehouse> Warehouse { get; set; }
+    public DbSet<Medicine> Medicines {get; set;}
 
 
     public DbSet<User> Users { get; set; }
@@ -112,6 +113,37 @@ public class AppDbContext : DbContext
 
         });
         //Setting EmergencyRoom
+        // Medicine configuration
+        modelBuilder.Entity<Medicine>(entity =>
+        {
+            entity.HasKey(m => m.IdMed);
+
+            entity.Property(m => m.Format)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(m => m.CommercialName)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(m => m.CommercialCompany)
+                .HasMaxLength(150);
+
+            entity.Property(m => m.ScientificName)
+                .HasMaxLength(150);
+
+            entity.Property(m => m.BatchNumber)
+                .HasMaxLength(100);
+
+            entity.Property(m => m.ExpirationDate)
+                .IsRequired();
+
+            // Restricción CHECK en PostgreSQL
+            entity.ToTable(t => t.HasCheckConstraint(
+                "CK_Medicine_Quantities_NonNegative",
+                "\"QuantityA\" >= 0 AND \"QuantityNurse\" >= 0"
+            ));
+        });
 
     }
 }
