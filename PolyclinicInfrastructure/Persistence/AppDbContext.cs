@@ -73,11 +73,6 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
 
-            entity.HasOne(e => e.Boss)
-                .WithOne()
-                .HasForeignKey<Nursing>(e => e.BossId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(200);
