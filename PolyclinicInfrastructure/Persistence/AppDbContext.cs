@@ -15,6 +15,12 @@ public class AppDbContext : DbContext
     public DbSet<ExternalMedicalPost> ExternalMedicalPosts { get; set; }
     public DbSet<Nursing> Nursing { get; set; }
     public DbSet<Warehouse> Warehouse { get; set; }
+    public DbSet<Department> Departments { get; set; }
+    public DbSet<MedicalStaff> MedicalStaffs { get; set; }
+    public DbSet<EmergencyRoomCare> EmergencyDepartmentCares { get; set; }
+    public DbSet<MedicationRequest> MedicationRequests { get; set; }
+    public DbSet<WarehouseRequest> WarehouseRequests { get; set; }
+    public DbSet<Medicine> Medicines {get; set;}
 
 
     public DbSet<User> Users { get; set; }
@@ -24,6 +30,7 @@ public class AppDbContext : DbContext
         // Setting Employee
         modelBuilder.Entity<Employee>(entity =>
         {
+            entity.ToTable("Employee");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Name)
@@ -41,6 +48,7 @@ public class AppDbContext : DbContext
         // Setting User
         modelBuilder.Entity<User>(entity =>
         {
+            entity.ToTable("User");
             entity.HasKey(u => u.Email);
 
             entity.Property(u => u.Password)
@@ -55,6 +63,7 @@ public class AppDbContext : DbContext
         // Setting Nurse
         modelBuilder.Entity<Nurse>(entity =>
         {
+            entity.ToTable("Nurse");
 
             entity.HasOne<Employee>()
                 .WithOne()
@@ -71,6 +80,7 @@ public class AppDbContext : DbContext
         // Setting Nursing
         modelBuilder.Entity<Nursing>(entity =>
         {
+            entity.ToTable("Nursing");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Name)
@@ -81,6 +91,7 @@ public class AppDbContext : DbContext
         // Setting ExternalMedicalPost
         modelBuilder.Entity<ExternalMedicalPost>(entity =>
         {
+            entity.ToTable("ExternalMedicalPost");
             entity.HasKey(e => e.Id);
 
             entity.Property(e => e.Name)
@@ -94,6 +105,7 @@ public class AppDbContext : DbContext
         // Setting Warehouse
         modelBuilder.Entity<Warehouse>(entity =>
         {
+            entity.ToTable("Warehouse");
             entity.HasKey(e => e.Id);
 
             entity.HasOne(e => e.Boss)
@@ -107,6 +119,179 @@ public class AppDbContext : DbContext
 
         });
         //Setting EmergencyRoom
+        // Medicine configuration
+        modelBuilder.Entity<Medicine>(entity =>
+        {
+            entity.HasKey(m => m.IdMed);
 
-    }
+            entity.Property(m => m.Format)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(m => m.CommercialName)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(m => m.CommercialCompany)
+                .HasMaxLength(150);
+
+            entity.Property(m => m.ScientificName)
+                .HasMaxLength(150);
+
+            entity.Property(m => m.BatchNumber)
+                .HasMaxLength(100);
+
+            entity.Property(m => m.ExpirationDate)
+                .IsRequired();
+
+            // Restricción CHECK en PostgreSQL
+            entity.ToTable(t => t.HasCheckConstraint(
+                "CK_Medicine_Quantities_NonNegative",
+                "\"QuantityA\" >= 0 AND \"QuantityNurse\" >= 0"
+            ));
+        });
+
+        // ============================
+        // Department
+        // ============================
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.ToTable("Department");
+            
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.HasOne(e => e.Boss)
+                .WithOne()
+                .HasForeignKey<Department>(e => e.BossId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(e => e.MedicalStaff)
+                .WithOne(ms => ms.Department)
+                .HasForeignKey(ms => ms.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ============================
+        // MedicalStaff
+        // ============================
+        modelBuilder.Entity<MedicalStaff>(entity =>
+        {
+            entity.ToTable("MedicalStaff");
+            entity.HasOne<Employee>()
+                .WithOne()
+                .HasForeignKey<MedicalStaff>(ms => ms.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Department)
+                .WithMany(d => d.MedicalStaff)
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ============================
+        // EmergencyRoomCare
+        // ============================
+        modelBuilder.Entity<EmergencyRoomCare>(entity =>
+        {
+            entity.ToTable("EmergencyRoomCare");
+            entity.HasKey(e => new { e.DoctorId, e.PatientId, e.CareDate, e.GuardDate });
+
+            entity.Property(e => e.Diagnosis)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(e => e.CareDate).IsRequired();
+            entity.Property(e => e.GuardDate).IsRequired();
+
+            entity.HasOne(e => e.Doctor)
+                .WithMany()
+                .HasForeignKey(e => e.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Patient)
+                .WithMany()
+                .HasForeignKey(e => e.PacientId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ============================
+        // MedicationRequest
+        // ============================
+        modelBuilder.Entity<MedicationRequest>(entity =>
+        {
+            entity.ToTable("MedicationRequest");
+            entity.HasKey(e => new { e.MedicationId, e.DepartmentId, e.RequestDate });
+
+            entity.HasOne(e => e.Department)
+                .WithMany()
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Medication)
+                .WithMany()
+                .HasForeignKey(e => e.MedicationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(e => e.RequestDate).IsRequired();
+            entity.Property(e => e.Quantity).IsRequired(false);
+        });
+
+        // ============================
+        // WarehouseRequest
+        // ============================
+        modelBuilder.Entity<WarehouseRequest>(entity =>
+        {
+            entity.ToTable("WarehouseRequest");
+            entity.HasKey(e => new { e.WarehouseId, e.DepartmentId, e.RequestDate });
+
+            entity.Property(e => e.Status)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.RequestDate)
+                .IsRequired();
+
+            entity.HasOne(e => e.Department)
+                .WithMany()
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Boss)
+                .WithMany()
+                .HasForeignKey(e => e.BossId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            entity.HasOne(e => e.Warehouse)
+                .WithMany()
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // ============================
+        // Doctor
+        // ============================
+        modelBuilder.Entity<Doctor>(entity =>
+        {   
+            entity.ToTable("Doctor");
+            entity.HasOne<MedicalStaff>()
+                .WithOne()
+                .HasForeignKey<Doctor>(d => d.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        // ============================
+        // Boss
+        // ============================
+        modelBuilder.Entity<Boss>(entity =>
+        {
+            entity.ToTable("Boss");
+            entity.HasOne<Employee>()
+                .WithOne()
+                .HasForeignKey<Boss>(b => b.Id)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+    }       
 }

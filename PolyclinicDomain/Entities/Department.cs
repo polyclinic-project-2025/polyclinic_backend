@@ -1,16 +1,16 @@
-
-using System.Collections.Specialized;
-
 namespace PolyclinicDomain.Entities;
 
-public class Warehouse
+public class Department
 {
     public Guid Id { get; private set; }
     public string Name { get; private set; }
+
     public Boss? Boss { get; private set; }
     public Guid BossId { get; private set; }
 
-    public Warehouse(Guid id, string name, Guid bossId)
+    public ICollection<MedicalStaff> MedicalStaff { get; private set; } = new List<MedicalStaff>();
+
+    public Department(Guid id, string name, Guid bossId)
     {
         Id = id;
         Name = name;

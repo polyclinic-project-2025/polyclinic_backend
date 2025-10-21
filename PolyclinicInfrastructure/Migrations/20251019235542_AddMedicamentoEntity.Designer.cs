@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PolyclinicInfrastructure.Persistence;
@@ -11,9 +12,11 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251019235542_AddMedicamentoEntity")]
+    partial class AddMedicamentoEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,12 +133,18 @@ namespace PolyclinicInfrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("BossId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BossId")
+                        .IsUnique();
 
                     b.ToTable("Nursing");
                 });
@@ -191,6 +200,16 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("NursingId");
 
                     b.HasDiscriminator().HasValue("Nurse");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
+                {
+                    b.HasOne("PolyclinicDomain.Entities.Employee", "Boss")
+                        .WithOne()
+                        .HasForeignKey("PolyclinicDomain.Entities.Nursing", "BossId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Boss");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Warehouse", b =>
