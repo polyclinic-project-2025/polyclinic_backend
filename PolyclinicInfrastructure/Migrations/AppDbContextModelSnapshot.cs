@@ -262,7 +262,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("IdMed");
 
-                    b.ToTable("Medicines", t =>
+                    b.ToTable("Medications", t =>
                         {
                             t.HasCheckConstraint("CK_Medicine_Quantities_NonNegative", "\"QuantityA\" >= 0 AND \"QuantityNurse\" >= 0");
                         });
@@ -340,7 +340,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.ToTable("Patient", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Patient_Age", "Age >= 0 AND Age < 130");
+                            t.HasCheckConstraint("CK_Patient_Age", "\"Age\" >= 0 AND \"Age\" < 130");
                         });
                 });
 
@@ -640,7 +640,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
                         .WithMany()
                         .HasForeignKey("BossId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Boss");

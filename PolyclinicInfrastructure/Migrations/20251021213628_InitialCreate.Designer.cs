@@ -12,8 +12,8 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251021201231_Consultation_Patient")]
-    partial class Consultation_Patient
+    [Migration("20251021213628_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -52,9 +52,6 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<Guid?>("PatientId1")
-                        .HasColumnType("uuid");
-
                     b.HasKey("DoctorId", "DepartmentToId", "PatientId", "DateTimeDer", "DateTimeCDer", "DepartmentFromId");
 
                     b.HasIndex("BossId");
@@ -64,8 +61,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DepartmentToId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientId1");
 
                     b.ToTable("Consultation Derivation", (string)null);
                 });
@@ -97,9 +92,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("BossId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("PatientId1")
-                        .HasColumnType("uuid");
-
                     b.HasKey("DoctorId", "ExternalMedicalPostId", "PatientId", "DateTimeRem", "DateTimeCRem", "DepartmentToId", "Diagnosis");
 
                     b.HasIndex("BossId");
@@ -109,8 +101,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("ExternalMedicalPostId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientId1");
 
                     b.ToTable("Consultation Referral", (string)null);
                 });
@@ -151,16 +141,11 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("DepartmentToId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("PatientId1")
-                        .HasColumnType("uuid");
-
                     b.HasKey("DepartmentFromId", "PatientId", "DateTimeDer");
 
                     b.HasIndex("DepartmentToId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientId1");
 
                     b.ToTable("Derivation", (string)null);
                 });
@@ -280,7 +265,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("IdMed");
 
-                    b.ToTable("Medicines", t =>
+                    b.ToTable("Medications", t =>
                         {
                             t.HasCheckConstraint("CK_Medicine_Quantities_NonNegative", "\"QuantityA\" >= 0 AND \"QuantityNurse\" >= 0");
                         });
@@ -330,7 +315,7 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Patient", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("PatientId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -351,14 +336,14 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PatientId");
 
                     b.HasIndex("Contact")
                         .IsUnique();
 
                     b.ToTable("Patient", null, t =>
                         {
-                            t.HasCheckConstraint("CK_Patient_Age", "Age >= 0 AND Age < 130");
+                            t.HasCheckConstraint("CK_Patient_Age", "\"Age\" >= 0 AND \"Age\" < 130");
                         });
                 });
 
@@ -376,16 +361,11 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("DepartmentToId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("PatientId1")
-                        .HasColumnType("uuid");
-
                     b.HasKey("ExternalMedicalPostId", "PatientId", "DateTimeRem");
 
                     b.HasIndex("DepartmentToId");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("PatientId1");
 
                     b.ToTable("Referral", (string)null);
                 });
@@ -498,7 +478,7 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Employee", "Boss")
+                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
                         .WithMany()
                         .HasForeignKey("BossId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -516,21 +496,17 @@ namespace PolyclinicInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PolyclinicDomain.Entities.Employee", "Doctor")
+                    b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("ConsultationDerivations")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Patient", null)
-                        .WithMany("ConsultationDerivations")
-                        .HasForeignKey("PatientId1");
 
                     b.Navigation("Boss");
 
@@ -545,7 +521,7 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationReferral", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Employee", "Boss")
+                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
                         .WithMany()
                         .HasForeignKey("BossId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -557,7 +533,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PolyclinicDomain.Entities.Employee", "Doctor")
+                    b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -570,14 +546,10 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("ConsultationReferrals")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Patient", null)
-                        .WithMany("ConsultationReferrals")
-                        .HasForeignKey("PatientId1");
 
                     b.Navigation("Boss");
 
@@ -616,14 +588,10 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("Derivations")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Patient", null)
-                        .WithMany("Derivations")
-                        .HasForeignKey("PatientId1");
 
                     b.Navigation("DepartmentFrom");
 
@@ -675,7 +643,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
                         .WithMany()
                         .HasForeignKey("BossId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Boss");
@@ -696,14 +664,10 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("Referrals")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Patient", null)
-                        .WithMany("Referrals")
-                        .HasForeignKey("PatientId1");
 
                     b.Navigation("DepartmentTo");
 

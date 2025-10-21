@@ -20,7 +20,7 @@ public class AppDbContext : DbContext
     public DbSet<EmergencyRoomCare> EmergencyRoomCares { get; set; }
     public DbSet<MedicationRequest> MedicationRequests { get; set; }
     public DbSet<WarehouseRequest> WarehouseRequests { get; set; }
-    public DbSet<Medication> Medicines { get; set; }
+    public DbSet<Medication> Medications { get; set; }
     public DbSet<Doctor> Doctors { get; set; }
     public DbSet<Boss> Bosses { get; set; }
     public DbSet<Patient> Patients { get; set; }
@@ -53,7 +53,7 @@ public class AppDbContext : DbContext
 
             entity.ToTable(tb =>
             {
-                tb.HasCheckConstraint("CK_Patient_Age", "Age >= 0 AND Age < 130");
+                tb.HasCheckConstraint("CK_Patient_Age", "\"Age\" >= 0 AND \"Age\" < 130");
             });
 
             entity.Property(p => p.Address)
@@ -275,6 +275,10 @@ public class AppDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(200);
 
+            entity.HasOne(e => e.Boss)
+                .WithMany()
+                .HasForeignKey(e => e.BossId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
         // Setting ExternalMedicalPost
         modelBuilder.Entity<ExternalMedicalPost>(entity =>
