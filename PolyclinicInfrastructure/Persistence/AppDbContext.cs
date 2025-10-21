@@ -23,12 +23,198 @@ public class AppDbContext : DbContext
     public DbSet<Medication> Medicines { get; set; }
     public DbSet<Doctor> Doctors { get; set; }
     public DbSet<Boss> Bosses { get; set; }
+    public DbSet<Patient> Patients { get; set; }
+    public DbSet<Derivation> Derivations { get; set; }
+    public DbSet<Referral> Referrals { get; set; }
+    public DbSet<ConsultationDerivation> ConsultationDerivations { get; set; }
+    public DbSet<ConsultationReferral> ConsultationReferrals { get; set; }
 
 
     public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Setting Patient
+        modelBuilder.Entity<Patient>(entity =>
+        {
+            entity.ToTable("Patient");
+
+            entity.HasKey(p => p.PatientId);
+
+            entity.Property(p => p.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+            entity.HasIndex(p => p.Contact)
+                    .IsUnique();
+
+            entity.Property(p => p.Age)
+                    .IsRequired();
+
+            entity.ToTable(tb =>
+            {
+                tb.HasCheckConstraint("CK_Patient_Age", "Age >= 0 AND Age < 130");
+            });
+
+            entity.Property(p => p.Address)
+                    .HasMaxLength(400);
+        });
+
+        // Setting Derivation
+        modelBuilder.Entity<Derivation>(entity =>
+        {
+            entity.ToTable("Derivation");
+
+            // PRIMARY KEY (ID_Dpt1, ID_Pac, DateTime_Der)
+            entity.HasKey(d => new { d.DepartmentFromId, d.PatientId, d.DateTimeDer });
+
+            // FKs
+            entity.HasOne(d => d.Patient)
+                    .WithMany(e => e.Derivations)
+                    .HasForeignKey(d => d.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(d => d.DepartmentFrom)
+                    .WithMany()
+                    .HasForeignKey(d => d.DepartmentFromId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(d => d.DepartmentTo)
+                    .WithMany()
+                    .HasForeignKey(d => d.DepartmentToId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+        });
+
+        // Setting Referral
+        modelBuilder.Entity<Referral>(entity =>
+        {
+            entity.ToTable("Referral");
+
+            // PRIMARY KEY (ID_Ext, ID_Pac, DateTime_Rem)
+            entity.HasKey(r => new { r.ExternalMedicalPostId, r.PatientId, r.DateTimeRem });
+
+            // FKs
+            entity.HasOne(r => r.Patient)
+                    .WithMany(e => e.Referrals)
+                    .HasForeignKey(r => r.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(r => r.DepartmentTo)
+                    .WithMany()
+                    .HasForeignKey(r => r.DepartmentToId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(r => r.ExternalMedicalPost)
+                    .WithMany()
+                    .HasForeignKey(r => r.ExternalMedicalPostId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+        });
+ 
+        // Setting ConsulationDerivaiton
+        modelBuilder.Entity<ConsultationDerivation>(entity =>
+        {
+            entity.ToTable("Consultation Derivation");
+
+            // PRIMARY KEY (ID_Doc, ID_Dpt2, ID_Pac, DateTime_Der, DateTime_CDer, ID_Dpt1)
+            entity.HasKey(c => new
+            {
+                c.DoctorId,
+                c.DepartmentToId,
+                c.PatientId,
+                c.DateTimeDer,
+                c.DateTimeCDer,
+                c.DepartmentFromId
+            });
+
+            entity.Property(c => c.Diagnosis)
+                    .HasMaxLength(1000);
+
+            // FKs
+            entity.HasOne(c => c.Patient)
+                    .WithMany(e => e.ConsultationDerivations)
+                    .HasForeignKey(c => c.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(c => c.DepartmentFrom)
+                    .WithMany()
+                    .HasForeignKey(c => c.DepartmentFromId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(c => c.DepartmentTo)
+                    .WithMany()
+                    .HasForeignKey(c => c.DepartmentToId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(c => c.Doctor)
+                    .WithMany()
+                    .HasForeignKey(c => c.DoctorId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(c => c.Boss)
+                    .WithMany()
+                    .HasForeignKey(c => c.BossId)
+                    .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // Setting ConsultationRefferal
+        modelBuilder.Entity<ConsultationReferral>(entity =>
+        {
+            entity.ToTable("Consultation Referral");
+
+            // PRIMARY KEY (ID_Doc, ID_Ext, ID_Pac, DateTime_Rem, DateTime_CRem, ID_Dpt2, Diagnóstico_Rem)
+            entity.HasKey(c => new
+            {
+                c.DoctorId,
+                c.ExternalMedicalPostId,
+                c.PatientId,
+                c.DateTimeRem,
+                c.DateTimeCRem,
+                c.DepartmentToId,
+                c.Diagnosis
+            });
+
+            entity.Property(c => c.Diagnosis)
+                    .HasMaxLength(1000);
+
+            // FKs
+            entity.HasOne(c => c.Patient)
+                    .WithMany(e => e.ConsultationReferrals)
+                    .HasForeignKey(c => c.PatientId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(c => c.ExternalMedicalPost)
+                    .WithMany()
+                    .HasForeignKey(c => c.ExternalMedicalPostId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(c => c.DepartmentTo)
+                    .WithMany()
+                    .HasForeignKey(c => c.DepartmentToId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+            entity.HasOne(c => c.Doctor)
+                    .WithMany()
+                    .HasForeignKey(c => c.DoctorId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(c => c.Boss)
+                    .WithMany()
+                    .HasForeignKey(c => c.BossId)
+                    .OnDelete(DeleteBehavior.SetNull);
+        });
+
         // Setting Employee
         modelBuilder.Entity<Employee>(entity =>
         {
@@ -216,7 +402,7 @@ public class AppDbContext : DbContext
 
             entity.HasOne(e => e.Patient)
                 .WithMany()
-                .HasForeignKey(e => e.PacientId)
+                .HasForeignKey(e => e.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
