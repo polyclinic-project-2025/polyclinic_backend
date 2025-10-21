@@ -1,14 +1,16 @@
 namespace PolyclinicDomain.Entities;
 
-public class Nursing
+public class Department
 {
     public Guid Id { get; private set; }
     public string Name { get; private set; }
-    public Employee? Boss { get; private set; }
-    public Guid BossId { get; private set; }
-    public ICollection<Nurse> Nurses { get; set; }
 
-    public Nursing(Guid id, string name, Guid bossId)
+    public Boss? Boss { get; private set; }
+    public Guid BossId { get; private set; }
+
+    public ICollection<MedicalStaff> MedicalStaff { get; private set; } = new List<MedicalStaff>();
+
+    public Department(Guid id, string name, Guid bossId)
     {
         Id = id;
         Name = name;
