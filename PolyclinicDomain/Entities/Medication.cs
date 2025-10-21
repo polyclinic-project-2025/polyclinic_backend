@@ -1,6 +1,6 @@
 namespace PolyclinicDomain.Entities;
 
-public class Medicine
+public class Medication
 {
     public Guid IdMed { get; private set; }
     public string Format { get; private set; }
@@ -12,7 +12,7 @@ public class Medicine
     public int QuantityA { get; private set; }
     public int QuantityNurse { get; private set; }
 
-    public Medicine(
+    public Medication(
         Guid idMed,
         string format,
         string commercialName,

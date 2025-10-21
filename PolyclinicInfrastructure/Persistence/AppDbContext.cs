@@ -17,10 +17,12 @@ public class AppDbContext : DbContext
     public DbSet<Warehouse> Warehouse { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<MedicalStaff> MedicalStaffs { get; set; }
-    public DbSet<EmergencyRoomCare> EmergencyDepartmentCares { get; set; }
+    public DbSet<EmergencyRoomCare> EmergencyRoomCares { get; set; }
     public DbSet<MedicationRequest> MedicationRequests { get; set; }
     public DbSet<WarehouseRequest> WarehouseRequests { get; set; }
-    public DbSet<Medicine> Medicines {get; set;}
+    public DbSet<Medication> Medicines { get; set; }
+    public DbSet<Doctor> Doctors { get; set; }
+    public DbSet<Boss> Bosses { get; set; }
 
 
     public DbSet<User> Users { get; set; }
@@ -120,7 +122,7 @@ public class AppDbContext : DbContext
         });
         //Setting EmergencyRoom
         // Medicine configuration
-        modelBuilder.Entity<Medicine>(entity =>
+        modelBuilder.Entity<Medication>(entity =>
         {
             entity.HasKey(m => m.IdMed);
 
