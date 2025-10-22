@@ -28,6 +28,7 @@ public class AppDbContext : DbContext
     public DbSet<Referral> Referrals { get; set; }
     public DbSet<ConsultationDerivation> ConsultationDerivations { get; set; }
     public DbSet<ConsultationReferral> ConsultationReferrals { get; set; }
+    public DbSet<EmergencyRoom> EmergencyRooms { get; set; }
 
 
     public DbSet<User> Users { get; set; }
@@ -311,6 +312,20 @@ public class AppDbContext : DbContext
 
         });
         //Setting EmergencyRoom
+        modelBuilder.Entity<EmergencyRoom>(entity =>
+        {
+            entity.ToTable("EmergencyRoom");
+            entity.HasKey(e => new { e.DoctorId, e.GuardDate });
+
+            entity.HasOne(e => e.Doctor)
+                .WithMany(d => d.EmergencyRooms)
+                .HasForeignKey(e => e.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(e => e.GuardDate)
+                .IsRequired();
+        });
+
         // Medicine configuration
         modelBuilder.Entity<Medication>(entity =>
         {
@@ -395,6 +410,11 @@ public class AppDbContext : DbContext
             entity.Property(e => e.Diagnosis)
                 .IsRequired()
                 .HasMaxLength(500);
+
+            entity.HasOne(e => e.EmergencyRoom)
+                .WithMany()
+                .HasForeignKey(e => new { e.DoctorId, e.GuardDate })
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.Property(e => e.CareDate).IsRequired();
             entity.Property(e => e.GuardDate).IsRequired();

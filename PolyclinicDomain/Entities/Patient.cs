@@ -11,7 +11,6 @@ public class Patient
     public ICollection<Referral> Referrals { get; set; } = new List<Referral>();
     public ICollection<ConsultationDerivation> ConsultationDerivations { get; set; } = new List<ConsultationDerivation>();
     public ICollection<ConsultationReferral> ConsultationReferrals { get; set; } = new List<ConsultationReferral>();
-    // public ICollection<EmergencyRoom> EmergencyRooms { get; set; } = new List<EmergencyRoom>();
 
     public Patient(Guid patientId, string name, int age, string contact, string address)
     {
