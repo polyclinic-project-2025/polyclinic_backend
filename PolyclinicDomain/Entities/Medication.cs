@@ -11,6 +11,10 @@ public class Medication
     public string ScientificName { get; private set; }
     public int QuantityA { get; private set; }
     public int QuantityNurse { get; private set; }
+    public ICollection<MedicationDerivation> ConsultationDer {get; set;}
+    public ICollection<MedicationReferral> ConsultationRem {get;set;}
+    public ICollection<MedicationEmergency> Emergency {get; set;}
+    public ICollection<StockDepartment> Stock {get;set;}
 
     public Medication(
         Guid idMed,

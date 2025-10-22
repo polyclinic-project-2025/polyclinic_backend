@@ -28,6 +28,10 @@ public class AppDbContext : DbContext
     public DbSet<Referral> Referrals { get; set; }
     public DbSet<ConsultationDerivation> ConsultationDerivations { get; set; }
     public DbSet<ConsultationReferral> ConsultationReferrals { get; set; }
+    public DbSet<MedicationDerivation> MedicationDerivations {get; set;}
+    public DbSet<MedicationReferral> MedicationReferrals {get;set;}
+    public DbSet<MedicationEmergency> MedicationEmergency {get;set;}
+    public DbSet<StockDepartment> StockDepartments {get;set;}
     public DbSet<EmergencyRoom> EmergencyRooms { get; set; }
 
 
@@ -164,6 +168,9 @@ public class AppDbContext : DbContext
                     .WithMany()
                     .HasForeignKey(c => c.BossId)
                     .OnDelete(DeleteBehavior.SetNull);
+            
+            entity.HasMany(c => c.MedDer)
+                .WithOne(md => md.Consulta);
         });
 
         // Setting ConsultationRefferal
@@ -214,6 +221,9 @@ public class AppDbContext : DbContext
                     .WithMany()
                     .HasForeignKey(c => c.BossId)
                     .OnDelete(DeleteBehavior.SetNull);
+            
+            entity.HasMany(c => c.MedRem)
+                .WithOne(mr => mr.Consulta);
         });
 
         // Setting Employee
@@ -351,11 +361,18 @@ public class AppDbContext : DbContext
             entity.Property(m => m.ExpirationDate)
                 .IsRequired();
 
-            // Restricción CHECK en PostgreSQL
-            entity.ToTable(t => t.HasCheckConstraint(
-                "CK_Medicine_Quantities_NonNegative",
-                "\"QuantityA\" >= 0 AND \"QuantityNurse\" >= 0"
-            ));
+            entity.HasMany(m => m.ConsultationDer)
+                .WithOne(md => md.Medication);
+            
+            entity.HasMany(m => m.ConsultationRem)
+                .WithOne(mr => mr.Medication);
+            
+            entity.HasMany(m => m.Emergency)
+                .WithOne(me => me.Medication);
+            
+            entity.HasMany(m => m.Stock)
+                .WithOne(sd => sd.Medication);
+
         });
 
         // ============================
@@ -380,6 +397,9 @@ public class AppDbContext : DbContext
                 .WithOne(ms => ms.Department)
                 .HasForeignKey(ms => ms.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+            
+            entity.HasMany(d => d.Stock)
+                .WithOne(sd => sd.Department);
         });
 
         // ============================
@@ -428,6 +448,9 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.PatientId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(e => e.MedEmergency)
+                .WithOne(me => me.Emergency);
         });
 
         // ============================
@@ -504,6 +527,99 @@ public class AppDbContext : DbContext
                 .WithOne()
                 .HasForeignKey<Boss>(b => b.Id)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+        //Medication Derivation
+        modelBuilder.Entity<MedicationDerivation>(entity =>
+        {
+            entity.HasKey(md => new{
+                md.DepartmentToId,
+                md.DepartmentFromId,
+                md.PatientId,
+                md.DateTimeDer,
+                md.DateTimeCDer,
+                md.DoctorId,
+                md.IdMed
+                });
+            entity.HasOne(md=> md.Medication)
+                .WithMany(m => m.ConsultationDer)
+                .HasForeignKey(md => md.IdMed);
+            
+            entity.HasOne(md => md.Consulta)
+                .WithMany(c => c.MedDer)
+                .HasForeignKey(md => new{
+                    md.DepartmentToId,
+                    md.DepartmentFromId,
+                    md.PatientId,
+                    md.DateTimeDer,
+                    md.DateTimeCDer,
+                    md.DoctorId
+                    });
+        });
+        //Medication Referral
+        modelBuilder.Entity<MedicationReferral>(entity =>
+        {
+            entity.HasKey(mr => new{
+                mr.DoctorId,
+                mr.ExternalMedicalPostId,
+                mr.PatientId,
+                mr.DateTimeRem,
+                mr.DateTimeCRem,
+                mr.DepartmentToId,
+                mr.Diagnosis,
+                mr.IdMed
+            });
+            entity.HasOne(mr => mr.Medication)
+                .WithMany(m => m.ConsultationRem)
+                .HasForeignKey(mr => mr.IdMed);
+            
+            entity.HasOne(mr => mr.Consulta)
+                .WithMany(c => c.MedRem)
+                .HasForeignKey(mr => new{
+                    mr.DoctorId,
+                    mr.ExternalMedicalPostId,
+                    mr.PatientId,
+                    mr.DateTimeRem,
+                    mr.DateTimeCRem,
+                    mr.DepartmentToId,
+                    mr.Diagnosis
+                });
+        });
+        //Medication Emergency
+        modelBuilder.Entity<MedicationEmergency>(entity =>
+        {
+            entity.HasKey(me => new{
+                me.DoctorId,
+                me.PatientId,
+                me.CareDate,
+                me.GuardDate,
+                me.IdMed
+            });
+            
+            entity.HasOne(me => me.Medication)
+                .WithMany(m => m.Emergency)
+                .HasForeignKey(me => me.IdMed);
+            
+            entity.HasOne(me => me.Emergency)
+                .WithMany(e => e.MedEmergency)
+                .HasForeignKey(me => new{
+                    me.DoctorId,
+                    me.PatientId,
+                    me.CareDate,
+                    me.GuardDate
+                });
+        });
+        //Stock Department
+        modelBuilder.Entity<StockDepartment>(entity =>
+        {
+            entity.HasKey(sd => new{sd.Id, sd.IdMed});
+            
+            entity.HasOne(sd => sd.Medication)
+                .WithMany(m => m.Stock)
+                .HasForeignKey(sd => sd.IdMed);
+            
+            entity.HasOne(sd => sd.Department)
+                .WithMany(d => d.Stock)
+                .HasForeignKey(sd => sd.Id);
         });
     }       
 }

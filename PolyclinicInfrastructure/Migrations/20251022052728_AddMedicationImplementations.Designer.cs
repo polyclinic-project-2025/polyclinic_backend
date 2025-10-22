@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PolyclinicInfrastructure.Persistence;
@@ -11,9 +12,11 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251022052728_AddMedicationImplementations")]
+    partial class AddMedicationImplementations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -147,19 +150,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("Derivation", (string)null);
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoom", b =>
-                {
-                    b.Property<Guid>("DoctorId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateOnly>("GuardDate")
-                        .HasColumnType("date");
-
-                    b.HasKey("DoctorId", "GuardDate");
-
-                    b.ToTable("EmergencyRoom", (string)null);
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoomCare", b =>
                 {
                     b.Property<Guid>("DoctorId")
@@ -182,8 +172,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasKey("DoctorId", "PatientId", "CareDate", "GuardDate");
 
                     b.HasIndex("PatientId");
-
-                    b.HasIndex("DoctorId", "GuardDate");
 
                     b.ToTable("EmergencyRoomCare", (string)null);
                 });
@@ -723,17 +711,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoom", b =>
-                {
-                    b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
-                        .WithMany("EmergencyRooms")
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Doctor");
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoomCare", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
@@ -748,15 +725,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PolyclinicDomain.Entities.EmergencyRoom", "EmergencyRoom")
-                        .WithMany()
-                        .HasForeignKey("DoctorId", "GuardDate")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Doctor");
-
-                    b.Navigation("EmergencyRoom");
 
                     b.Navigation("Patient");
                 });
@@ -1031,11 +1000,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Derivations");
 
                     b.Navigation("Referrals");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
-                {
-                    b.Navigation("EmergencyRooms");
                 });
 #pragma warning restore 612, 618
         }
