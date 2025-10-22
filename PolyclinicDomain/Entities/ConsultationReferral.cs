@@ -15,7 +15,7 @@ public class ConsultationReferral
     public Doctor? Doctor { get; private set; }
     public ExternalMedicalPost? ExternalMedicalPost { get; private set; }
     public Department? DepartmentTo { get; private set; }
-
+    public ICollection<MedicationReferral> MedRem {get;set;}
     public ConsultationReferral(Guid bossId, Guid externalMedicalPostId, Guid patientId, DateTime dateTimeRem, DateTime dateTimeCRem, Guid? departmentToId = null, Guid? doctorId = null, string? diagnosis = null)
     {
         BossId = bossId;

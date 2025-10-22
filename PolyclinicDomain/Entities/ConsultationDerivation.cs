@@ -15,7 +15,7 @@ public class ConsultationDerivation
     public Doctor? Doctor { get; private set; }
     public Department? DepartmentFrom { get; private set; }
     public Department? DepartmentTo { get; private set; }
-
+    public ICollection<MedicationDerivation> MedDer {get; set;}
     public ConsultationDerivation(Guid bossId, Guid departmentToId, Guid patientId, DateTime dateTimeDer, DateTime dateTimeCDer, Guid? departmentFromId = null, Guid? doctorId = null, string? diagnosis = null)
     {
         BossId = bossId;

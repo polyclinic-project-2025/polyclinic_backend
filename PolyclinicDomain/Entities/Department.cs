@@ -9,6 +9,7 @@ public class Department
     public Guid BossId { get; private set; }
 
     public ICollection<MedicalStaff> MedicalStaff { get; private set; } = new List<MedicalStaff>();
+    public ICollection<StockDepartment> Stock {get;set;} 
 
     public Department(Guid id, string name, Guid bossId)
     {
