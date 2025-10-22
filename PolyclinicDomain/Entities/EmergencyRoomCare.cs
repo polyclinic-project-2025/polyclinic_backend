@@ -14,6 +14,8 @@ public class EmergencyRoomCare
     public string Diagnosis { get; private set; }
     public ICollection<MedicationEmergency> MedEmergency {get;set;}
 
+    public EmergencyRoom? EmergencyRoom { get; set; }
+
     public EmergencyRoomCare(Guid doctorId, Guid patientId, DateTime careDate, DateOnly guardDate, string diagnosis)
     {
         DoctorId = doctorId;
