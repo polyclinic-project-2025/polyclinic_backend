@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using PolyclinicDomain.Entities;
 
 namespace PolyclinicInfrastructure.Persistence;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -34,11 +36,45 @@ public class AppDbContext : DbContext
     public DbSet<StockDepartment> StockDepartments {get;set;}
     public DbSet<EmergencyRoom> EmergencyRooms { get; set; }
 
-
-    public DbSet<User> Users { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<IdentityUser>(entity =>
+        {
+            entity.ToTable(name: "Users");
+        });
+
+        modelBuilder.Entity<IdentityRole>(entity =>
+        {
+            entity.ToTable(name: "Roles");
+        });
+
+        modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+        {
+            entity.ToTable("UserRoles");
+        });
+
+        modelBuilder.Entity<IdentityUserClaim<string>>(entity =>
+        {
+            entity.ToTable("UserClaims");
+        });
+
+        modelBuilder.Entity<IdentityUserLogin<string>>(entity =>
+        {
+            entity.ToTable("UserLogins");
+        });
+
+        modelBuilder.Entity<IdentityRoleClaim<string>>(entity =>
+        {
+           entity.ToTable("RoleClaims");
+        });
+
+        modelBuilder.Entity<IdentityUserToken<string>>(entity =>
+        {
+            entity.ToTable("UserTokens");
+        }); 
+
         // Setting Patient
         modelBuilder.Entity<Patient>(entity =>
         {
@@ -49,9 +85,10 @@ public class AppDbContext : DbContext
             entity.Property(p => p.Name)
                     .IsRequired()
                     .HasMaxLength(200);
-
-            entity.HasIndex(p => p.Contact)
-                    .IsUnique();
+            entity.Property(p => p.Identification)
+                .IsRequired();
+            entity.HasIndex(p => p.Identification)
+                .IsUnique();
 
             entity.Property(p => p.Age)
                     .IsRequired();
@@ -232,6 +269,12 @@ public class AppDbContext : DbContext
             entity.ToTable("Employee");
             entity.HasKey(e => e.Id);
 
+            entity.Property(e => e.Identification)
+                .IsRequired();
+            
+            entity.HasIndex(e => e.Identification)
+                .IsUnique();
+
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(200);
@@ -242,21 +285,6 @@ public class AppDbContext : DbContext
 
             entity.Property(e => e.EmploymentStatus)
                 .IsRequired();
-        });
-
-        // Setting User
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.ToTable("User");
-            entity.HasKey(u => u.Email);
-
-            entity.Property(u => u.Password)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            entity.Property(u => u.Role)
-                .IsRequired()
-                .HasConversion<string>();
         });
 
         // Setting Nurse
