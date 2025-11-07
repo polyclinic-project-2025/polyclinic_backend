@@ -21,11 +21,6 @@ public class AuthController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Registra un nuevo usuario en el sistema
-    /// </summary>
-    /// <param name="registerDto">Datos de registro del usuario</param>
-    /// <returns>Información del usuario y token JWT</returns>
     [HttpPost("register")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
@@ -48,11 +43,6 @@ public class AuthController : ControllerBase
         return Ok(result.Value);
     }
 
-    /// <summary>
-    /// Inicia sesión de un usuario existente
-    /// </summary>
-    /// <param name="loginDto">Credenciales de inicio de sesión</param>
-    /// <returns>Información del usuario y token JWT</returns>
     [HttpPost("login")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]

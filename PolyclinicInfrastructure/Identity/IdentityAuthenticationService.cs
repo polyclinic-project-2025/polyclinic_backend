@@ -4,10 +4,6 @@ using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicInfrastructure.Identity;
 
-/// <summary>
-/// Implementación del servicio de identidad usando ASP.NET Core Identity
-/// Esta clase encapsula toda la interacción con Identity
-/// </summary>
 public class IdentityAuthenticationService : IIdentityService
 {
     private readonly UserManager<IdentityUser> _userManager;

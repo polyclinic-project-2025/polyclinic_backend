@@ -10,10 +10,6 @@ using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicInfrastructure.Identity;
 
-/// <summary>
-/// Implementación del servicio de tokens JWT
-/// Encapsula toda la lógica de generación y validación de tokens
-/// </summary>
 public class JwtTokenService : ITokenService
 {
     private readonly IConfiguration _configuration;

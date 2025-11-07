@@ -12,28 +12,33 @@ public class AppDbContext : IdentityDbContext
     }
 
     // DbSets declaration (TABLES)
+    // Usando Table-Per-Type (TPT) - cada entidad Employee en su propia tabla
     public DbSet<Employee> Employees { get; set; }
+    public DbSet<Doctor> Doctors { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
+    public DbSet<MedicalStaff> MedicalStaffs { get; set; }
+    public DbSet<DepartmentHead> DepartmentHeads { get; set; }
+    public DbSet<WarehouseManager> WarehouseManagers { get; set; }
+    public DbSet<NursingHead> NursingHeads { get; set; }
+    
+    // Otras entidades
     public DbSet<ExternalMedicalPost> ExternalMedicalPosts { get; set; }
     public DbSet<Nursing> Nursing { get; set; }
     public DbSet<Warehouse> Warehouse { get; set; }
     public DbSet<Department> Departments { get; set; }
-    public DbSet<MedicalStaff> MedicalStaffs { get; set; }
     public DbSet<EmergencyRoomCare> EmergencyRoomCares { get; set; }
     public DbSet<MedicationRequest> MedicationRequests { get; set; }
     public DbSet<WarehouseRequest> WarehouseRequests { get; set; }
     public DbSet<Medication> Medications { get; set; }
-    public DbSet<Doctor> Doctors { get; set; }
-    public DbSet<Boss> Bosses { get; set; }
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Derivation> Derivations { get; set; }
     public DbSet<Referral> Referrals { get; set; }
     public DbSet<ConsultationDerivation> ConsultationDerivations { get; set; }
     public DbSet<ConsultationReferral> ConsultationReferrals { get; set; }
-    public DbSet<MedicationDerivation> MedicationDerivations {get; set;}
-    public DbSet<MedicationReferral> MedicationReferrals {get;set;}
-    public DbSet<MedicationEmergency> MedicationEmergency {get;set;}
-    public DbSet<StockDepartment> StockDepartments {get;set;}
+    public DbSet<MedicationDerivation> MedicationDerivations { get; set; }
+    public DbSet<MedicationReferral> MedicationReferrals { get; set; }
+    public DbSet<MedicationEmergency> MedicationEmergency { get; set; }
+    public DbSet<StockDepartment> StockDepartments { get; set; }
     public DbSet<EmergencyRoom> EmergencyRooms { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -201,9 +206,9 @@ public class AppDbContext : IdentityDbContext
                     .HasForeignKey(c => c.DoctorId)
                     .OnDelete(DeleteBehavior.SetNull);
 
-            entity.HasOne(c => c.Boss)
+            entity.HasOne(c => c.ApprovedByHead)
                     .WithMany()
-                    .HasForeignKey(c => c.BossId)
+                    .HasForeignKey(c => c.ApprovedByHeadId)
                     .OnDelete(DeleteBehavior.SetNull);
             
             entity.HasMany(c => c.MedDer)
@@ -254,16 +259,18 @@ public class AppDbContext : IdentityDbContext
                     .HasForeignKey(c => c.DoctorId)
                     .OnDelete(DeleteBehavior.SetNull);
 
-            entity.HasOne(c => c.Boss)
+            entity.HasOne(c => c.ApprovedByHead)
                     .WithMany()
-                    .HasForeignKey(c => c.BossId)
+                    .HasForeignKey(c => c.ApprovedByHeadId)
                     .OnDelete(DeleteBehavior.SetNull);
             
             entity.HasMany(c => c.MedRem)
                 .WithOne(mr => mr.Consulta);
         });
 
-        // Setting Employee
+        // ============================
+        // Employee - Table-Per-Type (TPT)
+        // ============================
         modelBuilder.Entity<Employee>(entity =>
         {
             entity.ToTable("Employee");
@@ -279,31 +286,76 @@ public class AppDbContext : IdentityDbContext
                 .IsRequired()
                 .HasMaxLength(200);
 
-            entity.Property(e => e.Role)
-                .IsRequired()
-                .HasConversion<string>();
-
             entity.Property(e => e.EmploymentStatus)
                 .IsRequired();
         });
 
-        // Setting Nurse
+        // Setting MedicalStaff - TPT
+        modelBuilder.Entity<MedicalStaff>(entity =>
+        {
+            entity.ToTable("MedicalStaff");
+
+            entity.HasOne(e => e.Department)
+                .WithMany(d => d.MedicalStaff)
+                .HasForeignKey(e => e.DepartmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Setting Doctor - TPT
+        modelBuilder.Entity<Doctor>(entity =>
+        {
+            entity.ToTable("Doctor");
+
+            entity.HasMany(d => d.EmergencyRooms)
+                .WithOne(er => er.Doctor)
+                .HasForeignKey(er => er.DoctorId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Setting Nurse - TPT
         modelBuilder.Entity<Nurse>(entity =>
         {
             entity.ToTable("Nurse");
 
-            entity.HasOne<Employee>()
-                .WithOne()
-                .HasForeignKey<Nurse>(n => n.Id)
-                .OnDelete(DeleteBehavior.Cascade);
-
             entity.HasOne(e => e.Nursing)
                 .WithMany(e => e.Nurses)
-                .HasForeignKey(e => e.NursingId) 
+                .HasForeignKey(e => e.NursingId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        }
-        );
+        // Setting DepartmentHead - TPT
+        modelBuilder.Entity<DepartmentHead>(entity =>
+        {
+            entity.ToTable("DepartmentHead");
+
+            entity.HasOne(e => e.ManagedDepartment)
+                .WithOne(d => d.Head)
+                .HasForeignKey<Department>(d => d.HeadId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Setting WarehouseManager - TPT
+        modelBuilder.Entity<WarehouseManager>(entity =>
+        {
+            entity.ToTable("WarehouseManager");
+
+            entity.HasOne(e => e.ManagedWarehouse)
+                .WithOne(w => w.Manager)
+                .HasForeignKey<Warehouse>(w => w.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Setting NursingHead - TPT
+        modelBuilder.Entity<NursingHead>(entity =>
+        {
+            entity.ToTable("NursingHead");
+
+            entity.HasOne(e => e.ManagedNursing)
+                .WithOne(n => n.Head)
+                .HasForeignKey<Nursing>(n => n.HeadId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         // Setting Nursing
         modelBuilder.Entity<Nursing>(entity =>
         {
@@ -314,11 +366,12 @@ public class AppDbContext : IdentityDbContext
                 .IsRequired()
                 .HasMaxLength(200);
 
-            entity.HasOne(e => e.Boss)
-                .WithMany()
-                .HasForeignKey(e => e.BossId)
+            entity.HasOne(e => e.Head)
+                .WithOne(h => h.ManagedNursing)
+                .HasForeignKey<Nursing>(e => e.HeadId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
         // Setting ExternalMedicalPost
         modelBuilder.Entity<ExternalMedicalPost>(entity =>
         {
@@ -331,25 +384,25 @@ public class AppDbContext : IdentityDbContext
 
             entity.Property(e => e.Address)
                 .HasMaxLength(400);
-
         });
+
         // Setting Warehouse
         modelBuilder.Entity<Warehouse>(entity =>
         {
             entity.ToTable("Warehouse");
             entity.HasKey(e => e.Id);
 
-            entity.HasOne(e => e.Boss)
-                .WithOne()
-                .HasForeignKey<Warehouse>(e => e.BossId)
+            entity.HasOne(e => e.Manager)
+                .WithOne(m => m.ManagedWarehouse)
+                .HasForeignKey<Warehouse>(e => e.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(200);
-
         });
-        //Setting EmergencyRoom
+
+        // Setting EmergencyRoom
         modelBuilder.Entity<EmergencyRoom>(entity =>
         {
             entity.ToTable("EmergencyRoom");
@@ -400,7 +453,6 @@ public class AppDbContext : IdentityDbContext
             
             entity.HasMany(m => m.Stock)
                 .WithOne(sd => sd.Medication);
-
         });
 
         // ============================
@@ -416,9 +468,9 @@ public class AppDbContext : IdentityDbContext
                 .IsRequired()
                 .HasMaxLength(200);
 
-            entity.HasOne(e => e.Boss)
-                .WithOne()
-                .HasForeignKey<Department>(e => e.BossId)
+            entity.HasOne(e => e.Head)
+                .WithOne(h => h.ManagedDepartment)
+                .HasForeignKey<Department>(e => e.HeadId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasMany(e => e.MedicalStaff)
@@ -428,23 +480,6 @@ public class AppDbContext : IdentityDbContext
             
             entity.HasMany(d => d.Stock)
                 .WithOne(sd => sd.Department);
-        });
-
-        // ============================
-        // MedicalStaff
-        // ============================
-        modelBuilder.Entity<MedicalStaff>(entity =>
-        {
-            entity.ToTable("MedicalStaff");
-            entity.HasOne<Employee>()
-                .WithOne()
-                .HasForeignKey<MedicalStaff>(ms => ms.Id)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(e => e.Department)
-                .WithMany(d => d.MedicalStaff)
-                .HasForeignKey(e => e.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // ============================
@@ -527,39 +562,17 @@ public class AppDbContext : IdentityDbContext
                 .HasForeignKey(e => e.BossId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
             entity.HasOne(e => e.Warehouse)
                 .WithMany()
                 .HasForeignKey(e => e.WarehouseId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
-        // ============================
-        // Doctor
-        // ============================
-        modelBuilder.Entity<Doctor>(entity =>
-        {   
-            entity.ToTable("Doctor");
-            entity.HasOne<MedicalStaff>()
-                .WithOne()
-                .HasForeignKey<Doctor>(d => d.Id)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-        // ============================
-        // Boss
-        // ============================
-        modelBuilder.Entity<Boss>(entity =>
-        {
-            entity.ToTable("Boss");
-            entity.HasOne<Employee>()
-                .WithOne()
-                .HasForeignKey<Boss>(b => b.Id)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
-        //Medication Derivation
+        // Medication Derivation
         modelBuilder.Entity<MedicationDerivation>(entity =>
         {
-            entity.HasKey(md => new{
+            entity.HasKey(md => new
+            {
                 md.DepartmentToId,
                 md.DepartmentFromId,
                 md.PatientId,
@@ -567,26 +580,30 @@ public class AppDbContext : IdentityDbContext
                 md.DateTimeCDer,
                 md.DoctorId,
                 md.IdMed
-                });
-            entity.HasOne(md=> md.Medication)
+            });
+
+            entity.HasOne(md => md.Medication)
                 .WithMany(m => m.ConsultationDer)
                 .HasForeignKey(md => md.IdMed);
             
             entity.HasOne(md => md.Consulta)
                 .WithMany(c => c.MedDer)
-                .HasForeignKey(md => new{
+                .HasForeignKey(md => new
+                {
                     md.DepartmentToId,
                     md.DepartmentFromId,
                     md.PatientId,
                     md.DateTimeDer,
                     md.DateTimeCDer,
                     md.DoctorId
-                    });
+                });
         });
-        //Medication Referral
+
+        // Medication Referral
         modelBuilder.Entity<MedicationReferral>(entity =>
         {
-            entity.HasKey(mr => new{
+            entity.HasKey(mr => new
+            {
                 mr.DoctorId,
                 mr.ExternalMedicalPostId,
                 mr.PatientId,
@@ -596,13 +613,15 @@ public class AppDbContext : IdentityDbContext
                 mr.Diagnosis,
                 mr.IdMed
             });
+
             entity.HasOne(mr => mr.Medication)
                 .WithMany(m => m.ConsultationRem)
                 .HasForeignKey(mr => mr.IdMed);
             
             entity.HasOne(mr => mr.Consulta)
                 .WithMany(c => c.MedRem)
-                .HasForeignKey(mr => new{
+                .HasForeignKey(mr => new
+                {
                     mr.DoctorId,
                     mr.ExternalMedicalPostId,
                     mr.PatientId,
@@ -612,10 +631,12 @@ public class AppDbContext : IdentityDbContext
                     mr.Diagnosis
                 });
         });
-        //Medication Emergency
+
+        // Medication Emergency
         modelBuilder.Entity<MedicationEmergency>(entity =>
         {
-            entity.HasKey(me => new{
+            entity.HasKey(me => new
+            {
                 me.DoctorId,
                 me.PatientId,
                 me.CareDate,
@@ -629,17 +650,19 @@ public class AppDbContext : IdentityDbContext
             
             entity.HasOne(me => me.Emergency)
                 .WithMany(e => e.MedEmergency)
-                .HasForeignKey(me => new{
+                .HasForeignKey(me => new
+                {
                     me.DoctorId,
                     me.PatientId,
                     me.CareDate,
                     me.GuardDate
                 });
         });
-        //Stock Department
+
+        // Stock Department
         modelBuilder.Entity<StockDepartment>(entity =>
         {
-            entity.HasKey(sd => new{sd.Id, sd.IdMed});
+            entity.HasKey(sd => new { sd.Id, sd.IdMed });
             
             entity.HasOne(sd => sd.Medication)
                 .WithMany(m => m.Stock)

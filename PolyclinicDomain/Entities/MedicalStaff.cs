@@ -1,14 +1,23 @@
-using PolyclinicCore;
+using PolyclinicCore.Constants;
+
 namespace PolyclinicDomain.Entities;
 
+/// <summary>
+/// Clase base para personal médico que trabaja en un departamento.
+/// </summary>
 public class MedicalStaff : Employee
 {
     public Department? Department { get; private set; }
     public Guid DepartmentId { get; private set; }
 
-    public MedicalStaff(Guid id, string name, RoleUser role, string employmentStatus, int identification, Guid departmentId)
-        : base(id, name, role, employmentStatus, identification)
+    public MedicalStaff(Guid id, string name, string employmentStatus, int identification, Guid departmentId)
+        : base(id, name, employmentStatus, identification)
     {
         DepartmentId = departmentId;
     }
+
+    // Constructor sin parámetros para EF Core
+    protected MedicalStaff() { }
+
+    public override string GetPrimaryRole() => ApplicationRoles.MedicalStaff;
 }

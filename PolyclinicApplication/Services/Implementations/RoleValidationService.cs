@@ -4,10 +4,6 @@ using PolyclinicCore.Constants;
 
 namespace PolyclinicApplication.Services.Implementations;
 
-/// <summary>
-/// Implementación del servicio de validación de roles
-/// Contiene la lógica de negocio para validar roles y sus combinaciones
-/// </summary>
 public class RoleValidationService : IRoleValidationService
 {
     private readonly IIdentityService _identityService;

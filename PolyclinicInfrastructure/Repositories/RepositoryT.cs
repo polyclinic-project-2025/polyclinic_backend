@@ -31,7 +31,7 @@ public class Repository<T> : IRepository<T> where T : class
     }
 
     // READ
-    public async Task<T> GetByIdAsync(Guid id)
+    public async Task<T?> GetByIdAsync(string id)
     {
         return await _dbSet.FindAsync(id);
     }
@@ -66,7 +66,7 @@ public class Repository<T> : IRepository<T> where T : class
         await _context.SaveChangesAsync();
     }
     
-    public async Task DeleteByIdAsync(Guid id)
+    public async Task DeleteByIdAsync(string id)
     {
         var entity = await GetByIdAsync(id);
         if (entity != null)

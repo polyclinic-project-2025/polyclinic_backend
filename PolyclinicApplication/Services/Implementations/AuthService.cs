@@ -6,10 +6,6 @@ using PolyclinicApplication.Common.Interfaces;
 
 namespace PolyclinicApplication.Services.Implementations;
 
-/// <summary>
-/// Servicio de autenticación refactorizado siguiendo Clean Architecture
-/// Orquesta las operaciones de autenticación usando abstracciones
-/// </summary>
 public class AuthService : IAuthService
 {
     private readonly IIdentityService _identityService;

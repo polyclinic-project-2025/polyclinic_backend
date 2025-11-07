@@ -1,9 +1,5 @@
 namespace PolyclinicCore.Constants;
 
-/// <summary>
-/// Define los roles disponibles en el sistema de la policlínica.
-/// Estos roles se utilizan para autorización y control de acceso.
-/// </summary>
 public static class ApplicationRoles
 {
     // ==========================================
@@ -42,11 +38,16 @@ public static class ApplicationRoles
     /// Encargado de gestión de almacén
     /// </summary>
     public const string WarehouseManager = "WarehouseManager";
-    
+
     /// <summary>
     /// Jefe de departamento médico
     /// </summary>
     public const string DepartmentHead = "DepartmentHead";
+    
+    /// <summary>
+    /// Jefe de enfermería
+    /// </summary>
+    public const string NursingHead = "NursingHead";
     
     /// <summary>
     /// Personal de sala de emergencias
@@ -71,10 +72,7 @@ public static class ApplicationRoles
     // COLECCIONES DE ROLES
     // ==========================================
     
-    /// <summary>
-    /// Todos los roles disponibles en el sistema
-    /// </summary>
-    public static readonly string[] AllRoles = 
+    public static readonly string[] AllRoles =
     {
         Admin,
         Doctor,
@@ -84,12 +82,10 @@ public static class ApplicationRoles
         DepartmentHead,
         EmergencyStaff,
         Receptionist,
-        Patient
+        Patient,
+        NursingHead
     };
     
-    /// <summary>
-    /// Roles médicos
-    /// </summary>
     public static readonly string[] MedicalRoles = 
     {
         Doctor,
@@ -98,19 +94,14 @@ public static class ApplicationRoles
         EmergencyStaff
     };
     
-    /// <summary>
-    /// Roles con capacidad de gestión y administración
-    /// </summary>
-    public static readonly string[] ManagementRoles = 
+    public static readonly string[] ManagementRoles =
     {
         Admin,
         DepartmentHead,
-        WarehouseManager
+        WarehouseManager,
+        NursingHead
     };
     
-    /// <summary>
-    /// Roles que pueden prescribir medicamentos
-    /// </summary>
     public static readonly string[] PrescriptionRoles = 
     {
         Doctor,
@@ -121,33 +112,21 @@ public static class ApplicationRoles
     // MÉTODOS DE UTILIDAD
     // ==========================================
     
-    /// <summary>
-    /// Verifica si un rol es válido en el sistema
-    /// </summary>
     public static bool IsValidRole(string role)
     {
         return AllRoles.Contains(role);
     }
     
-    /// <summary>
-    /// Verifica si un rol es un rol médico
-    /// </summary>
     public static bool IsMedicalRole(string role)
     {
         return MedicalRoles.Contains(role);
     }
     
-    /// <summary>
-    /// Verifica si un rol es un rol de gestión
-    /// </summary>
     public static bool IsManagementRole(string role)
     {
         return ManagementRoles.Contains(role);
     }
     
-    /// <summary>
-    /// Verifica si un rol puede prescribir medicamentos
-    /// </summary>
     public static bool CanPrescribe(string role)
     {
         return PrescriptionRoles.Contains(role);
