@@ -12,7 +12,7 @@ public class EmergencyRoomCare
     public DateOnly GuardDate { get; private set; }
 
     public string Diagnosis { get; private set; }
-    public ICollection<MedicationEmergency> MedEmergency {get;set;}
+    public ICollection<MedicationEmergency>? MedEmergency {get;set;}
 
     public EmergencyRoom? EmergencyRoom { get; set; }
 

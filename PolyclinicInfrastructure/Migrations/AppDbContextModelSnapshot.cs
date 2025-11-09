@@ -22,6 +22,202 @@ namespace PolyclinicInfrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("Roles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("UserTokens", (string)null);
+                });
+
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
                     b.Property<Guid?>("DoctorId")
@@ -42,7 +238,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid?>("DepartmentFromId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BossId")
+                    b.Property<Guid>("ApprovedByHeadId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Diagnosis")
@@ -51,7 +247,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("DoctorId", "DepartmentToId", "PatientId", "DateTimeDer", "DateTimeCDer", "DepartmentFromId");
 
-                    b.HasIndex("BossId");
+                    b.HasIndex("ApprovedByHeadId");
 
                     b.HasIndex("DepartmentFromId");
 
@@ -86,12 +282,12 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<Guid>("BossId")
+                    b.Property<Guid>("ApprovedByHeadId")
                         .HasColumnType("uuid");
 
                     b.HasKey("DoctorId", "ExternalMedicalPostId", "PatientId", "DateTimeRem", "DateTimeCRem", "DepartmentToId", "Diagnosis");
 
-                    b.HasIndex("BossId");
+                    b.HasIndex("ApprovedByHeadId");
 
                     b.HasIndex("DepartmentToId");
 
@@ -108,7 +304,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BossId")
+                    b.Property<Guid?>("HeadId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -118,7 +314,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BossId")
+                    b.HasIndex("HeadId")
                         .IsUnique();
 
                     b.ToTable("Department", (string)null);
@@ -198,16 +394,18 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Identification")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
+
+                    b.HasIndex("Identification")
+                        .IsUnique();
 
                     b.ToTable("Employee", (string)null);
 
@@ -403,7 +601,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BossId")
+                    b.Property<Guid?>("HeadId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -413,7 +611,8 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BossId");
+                    b.HasIndex("HeadId")
+                        .IsUnique();
 
                     b.ToTable("Nursing", (string)null);
                 });
@@ -436,6 +635,9 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Identification")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -443,7 +645,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("PatientId");
 
-                    b.HasIndex("Contact")
+                    b.HasIndex("Identification")
                         .IsUnique();
 
                     b.ToTable("Patient", null, t =>
@@ -493,32 +695,13 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("StockDepartments");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.User", b =>
-                {
-                    b.Property<string>("Email")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Email");
-
-                    b.ToTable("User", (string)null);
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.Warehouse", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BossId")
+                    b.Property<Guid?>("ManagerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -528,7 +711,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BossId")
+                    b.HasIndex("ManagerId")
                         .IsUnique();
 
                     b.ToTable("Warehouse", (string)null);
@@ -561,11 +744,14 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("WarehouseRequest", (string)null);
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.Boss", b =>
+            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
 
-                    b.ToTable("Boss", (string)null);
+                    b.Property<Guid?>("ManagedDepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.ToTable("DepartmentHead", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicalStaff", b =>
@@ -592,6 +778,26 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("Nurse", (string)null);
                 });
 
+            modelBuilder.Entity("PolyclinicDomain.Entities.NursingHead", b =>
+                {
+                    b.HasBaseType("PolyclinicDomain.Entities.Employee");
+
+                    b.Property<Guid?>("ManagedNursingId")
+                        .HasColumnType("uuid");
+
+                    b.ToTable("NursingHead", (string)null);
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
+                {
+                    b.HasBaseType("PolyclinicDomain.Entities.Employee");
+
+                    b.Property<Guid?>("ManagedWarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.ToTable("WarehouseManager", (string)null);
+                });
+
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.MedicalStaff");
@@ -599,11 +805,62 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("Doctor", (string)null);
                 });
 
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "ApprovedByHead")
                         .WithMany()
-                        .HasForeignKey("BossId")
+                        .HasForeignKey("ApprovedByHeadId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
@@ -631,7 +888,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Boss");
+                    b.Navigation("ApprovedByHead");
 
                     b.Navigation("DepartmentFrom");
 
@@ -644,9 +901,9 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationReferral", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "ApprovedByHead")
                         .WithMany()
-                        .HasForeignKey("BossId")
+                        .HasForeignKey("ApprovedByHeadId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
@@ -674,7 +931,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Boss");
+                    b.Navigation("ApprovedByHead");
 
                     b.Navigation("DepartmentTo");
 
@@ -687,13 +944,12 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Department", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
-                        .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.Department", "BossId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "Head")
+                        .WithOne("ManagedDepartment")
+                        .HasForeignKey("PolyclinicDomain.Entities.Department", "HeadId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Boss");
+                    b.Navigation("Head");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
@@ -839,13 +1095,12 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
-                        .WithMany()
-                        .HasForeignKey("BossId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("PolyclinicDomain.Entities.NursingHead", "Head")
+                        .WithOne("ManagedNursing")
+                        .HasForeignKey("PolyclinicDomain.Entities.Nursing", "HeadId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Boss");
+                    b.Navigation("Head");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Referral", b =>
@@ -896,18 +1151,17 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Warehouse", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
-                        .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.Warehouse", "BossId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("PolyclinicDomain.Entities.WarehouseManager", "Manager")
+                        .WithOne("ManagedWarehouse")
+                        .HasForeignKey("PolyclinicDomain.Entities.Warehouse", "ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Boss");
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseRequest", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Boss", "Boss")
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "Boss")
                         .WithMany()
                         .HasForeignKey("BossId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -932,11 +1186,11 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Warehouse");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.Boss", b =>
+            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Employee", null)
                         .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.Boss", "Id")
+                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -973,6 +1227,24 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Nursing");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.NursingHead", b =>
+                {
+                    b.HasOne("PolyclinicDomain.Entities.Employee", null)
+                        .WithOne()
+                        .HasForeignKey("PolyclinicDomain.Entities.NursingHead", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
+                {
+                    b.HasOne("PolyclinicDomain.Entities.Employee", null)
+                        .WithOne()
+                        .HasForeignKey("PolyclinicDomain.Entities.WarehouseManager", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
@@ -1031,6 +1303,21 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Derivations");
 
                     b.Navigation("Referrals");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
+                {
+                    b.Navigation("ManagedDepartment");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.NursingHead", b =>
+                {
+                    b.Navigation("ManagedNursing");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
+                {
+                    b.Navigation("ManagedWarehouse");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
