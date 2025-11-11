@@ -13,6 +13,7 @@ using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Service.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
+using PolyclinicApplication.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -157,6 +158,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IIdentityService, IdentityAuthenticationService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
+builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
 
 var app = builder.Build();
 

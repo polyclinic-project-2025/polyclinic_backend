@@ -9,6 +9,7 @@ public class Nurse : Employee
 {
     public Nursing? Nursing { get; private set; }
     public Guid NursingId { get; private set; }
+    public string? UserId { get; set; }
 
     public Nurse(Guid id, string name, string employmentStatus, int identification, Guid nursingId)
         : base(id, name, employmentStatus, identification)
