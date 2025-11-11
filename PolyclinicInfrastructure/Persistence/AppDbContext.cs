@@ -296,6 +296,9 @@ public class AppDbContext : IdentityDbContext
                 .WithMany(d => d.MedicalStaff)
                 .HasForeignKey(e => e.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // DepartmentId es required en la entidad (Guid no nullable)
+            entity.Property(e => e.DepartmentId).IsRequired();     
         });
 
         // Setting Doctor - TPT
@@ -403,15 +406,25 @@ public class AppDbContext : IdentityDbContext
         modelBuilder.Entity<EmergencyRoom>(entity =>
         {
             entity.ToTable("EmergencyRoom");
-            entity.HasKey(e => new { e.DoctorId, e.GuardDate });
+
+            // Usar Id surrogate como PK
+            entity.HasKey(e => e.Id);
+
+            // Mantener unicidad por Doctor + GuardDate si se requiere (evita duplicados lógicos)
+            entity.HasIndex(e => new { e.DoctorId, e.GuardDate }).IsUnique();
+
+            entity.Property(e => e.GuardDate).IsRequired();
 
             entity.HasOne(e => e.Doctor)
                 .WithMany(d => d.EmergencyRooms)
                 .HasForeignKey(e => e.DoctorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.Property(e => e.GuardDate)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
+
+            entity.HasMany(e => e.Cares)
+                .WithOne(c => c.EmergencyRoom)
+                .HasForeignKey(c => c.EmergencyRoomId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Medicine configuration
@@ -485,29 +498,28 @@ public class AppDbContext : IdentityDbContext
         modelBuilder.Entity<EmergencyRoomCare>(entity =>
         {
             entity.ToTable("EmergencyRoomCare");
-            entity.HasKey(e => new { e.DoctorId, e.PatientId, e.CareDate, e.GuardDate });
+
+            // Usar Id surrogate como PK (coincide con la clase EmergencyRoomCare)
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.CareDate).IsRequired();
 
             entity.Property(e => e.Diagnosis)
                 .IsRequired()
                 .HasMaxLength(500);
 
+            // FK normalizado a EmergencyRoom por su Id
             entity.HasOne(e => e.EmergencyRoom)
-                .WithMany()
-                .HasForeignKey(e => new { e.DoctorId, e.GuardDate })
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.Property(e => e.CareDate).IsRequired();
-            entity.Property(e => e.GuardDate).IsRequired();
-
-            entity.HasOne(e => e.Doctor)
-                .WithMany()
-                .HasForeignKey(e => e.DoctorId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .WithMany(er => er.Cares)
+                .HasForeignKey(e => e.EmergencyRoomId)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
 
             entity.HasOne(e => e.Patient)
                 .WithMany()
                 .HasForeignKey(e => e.PatientId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
 
             entity.HasMany(e => e.MedEmergency)
                 .WithOne(me => me.Emergency);
@@ -519,12 +531,18 @@ public class AppDbContext : IdentityDbContext
         modelBuilder.Entity<MedicationRequest>(entity =>
         {
             entity.ToTable("MedicationRequest");
-            entity.HasKey(e => new { e.MedicationId, e.DepartmentId, e.RequestDate });
+
+            // usar Id surrogate como PK
+            entity.HasKey(e => e.Id);
+
+            // si la combinación Medication + Department + RequestDate debe seguir siendo única
+            entity.HasIndex(e => new { e.MedicationId, e.DepartmentId, e.RequestDate })
+                  .IsUnique();
 
             entity.HasOne(e => e.Department)
                 .WithMany()
                 .HasForeignKey(e => e.DepartmentId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Medication)
                 .WithMany()
@@ -541,7 +559,13 @@ public class AppDbContext : IdentityDbContext
         modelBuilder.Entity<WarehouseRequest>(entity =>
         {
             entity.ToTable("WarehouseRequest");
-            entity.HasKey(e => new { e.WarehouseId, e.DepartmentId, e.RequestDate });
+
+            // usar Id surrogate como PK
+            entity.HasKey(e => e.Id);
+
+            // si la combinación Warehouse + Department + RequestDate debe ser única, preservar con índice único
+            entity.HasIndex(e => new { e.WarehouseId, e.DepartmentId, e.RequestDate })
+                  .IsUnique();
 
             entity.Property(e => e.Status)
                 .HasMaxLength(50);
@@ -552,17 +576,20 @@ public class AppDbContext : IdentityDbContext
             entity.HasOne(e => e.Department)
                 .WithMany()
                 .HasForeignKey(e => e.DepartmentId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
 
             entity.HasOne(e => e.Boss)
                 .WithMany()
                 .HasForeignKey(e => e.BossId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
 
             entity.HasOne(e => e.Warehouse)
                 .WithMany()
                 .HasForeignKey(e => e.WarehouseId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
         });
 
         // Medication Derivation

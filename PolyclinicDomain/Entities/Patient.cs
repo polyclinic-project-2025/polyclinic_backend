@@ -8,6 +8,7 @@ public class Patient
     public int Age { get; private set; } // Edad
     public string Contact { get; private set; } // Contacto 
     public string Address { get; private set; } // Dirección_Pac
+    public string? UserId { get; set; }
     public ICollection<Derivation> Derivations { get; set; } = new List<Derivation>();
     public ICollection<Referral> Referrals { get; set; } = new List<Referral>();
     public ICollection<ConsultationDerivation> ConsultationDerivations { get; set; } = new List<ConsultationDerivation>();

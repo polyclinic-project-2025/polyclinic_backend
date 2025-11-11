@@ -62,11 +62,16 @@ public static class ApplicationRoles
     /// Recepcionista con acceso a registro de pacientes
     /// </summary>
     public const string Receptionist = "Receptionist";
-    
+
     /// <summary>
     /// Paciente con acceso limitado a su información
     /// </summary>
     public const string Patient = "Patient";
+    
+    /// <summary>
+    /// Rol por defecto para nuevos usuarios
+    /// </summary>
+    public const string Client = "Client";
     
     // ==========================================
     // COLECCIONES DE ROLES
@@ -83,7 +88,8 @@ public static class ApplicationRoles
         EmergencyStaff,
         Receptionist,
         Patient,
-        NursingHead
+        NursingHead,
+        Client
     };
     
     public static readonly string[] MedicalRoles = 
