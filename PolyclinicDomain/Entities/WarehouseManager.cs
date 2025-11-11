@@ -11,7 +11,7 @@ public class WarehouseManager : Employee
     public Guid? ManagedWarehouseId { get; private set; }
     public Warehouse? ManagedWarehouse { get; private set; }
 
-    public WarehouseManager(Guid id, string name, string employmentStatus, int identification, Guid? managedWarehouseId = null)
+    public WarehouseManager(Guid id, string name, string employmentStatus, string identification, Guid? managedWarehouseId = null)
         : base(id, name, employmentStatus, identification)
     {
         ManagedWarehouseId = managedWarehouseId;

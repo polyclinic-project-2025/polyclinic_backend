@@ -6,7 +6,6 @@ using PolyclinicDomain.Entities;
 
 namespace PolyclinicDomain.IRepositories;
 
-public interface INursingHeadRepository : IRepository<NursingHead>
+public interface IDoctorRepository : IRepository<Doctor>
 {
-    Task<IEnumerable<NursingHead>> GetByManagedNursingId(Guid managedNursingId);
 }

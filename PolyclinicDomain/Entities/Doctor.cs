@@ -10,7 +10,7 @@ public class Doctor : MedicalStaff
 {
     public ICollection<EmergencyRoom>? EmergencyRooms { get; set; }
 
-    public Doctor(Guid id, string name, string employmentStatus, int identification, Guid departmentId)
+    public Doctor(Guid id, string name, string employmentStatus, string identification, Guid departmentId)
         : base(id, name, employmentStatus, identification, departmentId)
     {
     }

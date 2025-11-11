@@ -10,7 +10,7 @@ public class MedicalStaff : Employee
     public Department? Department { get; private set; }
     public Guid DepartmentId { get; private set; }
 
-    public MedicalStaff(Guid id, string name, string employmentStatus, int identification, Guid departmentId)
+    public MedicalStaff(Guid id, string name, string employmentStatus, string identification, Guid departmentId)
         : base(id, name, employmentStatus, identification)
     {
         DepartmentId = departmentId;

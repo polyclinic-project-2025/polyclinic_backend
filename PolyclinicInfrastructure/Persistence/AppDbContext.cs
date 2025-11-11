@@ -168,11 +168,10 @@ public class AppDbContext : IdentityDbContext
         {
             entity.ToTable("Consultation Derivation");
 
-            // PRIMARY KEY (ID_Doc, ID_Dpt2, ID_Pac, DateTime_Der, DateTime_CDer, ID_Dpt1)
+            // PRIMARY KEY (ID_Doc, ID_Pac, DateTime_Der, DateTime_CDer, ID_Dpt1)
             entity.HasKey(c => new
             {
                 c.DoctorId,
-                c.DepartmentToId,
                 c.PatientId,
                 c.DateTimeDer,
                 c.DateTimeCDer,
@@ -220,16 +219,14 @@ public class AppDbContext : IdentityDbContext
         {
             entity.ToTable("Consultation Referral");
 
-            // PRIMARY KEY (ID_Doc, ID_Ext, ID_Pac, DateTime_Rem, DateTime_CRem, ID_Dpt2, Diagnóstico_Rem)
+            // PRIMARY KEY (ID_Doc, ID_Ext, ID_Pac, DateTime_Rem, DateTime_CRem)
             entity.HasKey(c => new
             {
                 c.DoctorId,
                 c.ExternalMedicalPostId,
                 c.PatientId,
                 c.DateTimeRem,
-                c.DateTimeCRem,
-                c.DepartmentToId,
-                c.Diagnosis
+                c.DateTimeCRem
             });
 
             entity.Property(c => c.Diagnosis)
@@ -590,12 +587,11 @@ public class AppDbContext : IdentityDbContext
                 .WithMany(c => c.MedDer)
                 .HasForeignKey(md => new
                 {
-                    md.DepartmentToId,
-                    md.DepartmentFromId,
+                    md.DoctorId,
                     md.PatientId,
                     md.DateTimeDer,
                     md.DateTimeCDer,
-                    md.DoctorId
+                    md.DepartmentFromId
                 });
         });
 
@@ -620,15 +616,13 @@ public class AppDbContext : IdentityDbContext
             
             entity.HasOne(mr => mr.Consulta)
                 .WithMany(c => c.MedRem)
-                .HasForeignKey(mr => new
+                .HasForeignKey(c => new
                 {
-                    mr.DoctorId,
-                    mr.ExternalMedicalPostId,
-                    mr.PatientId,
-                    mr.DateTimeRem,
-                    mr.DateTimeCRem,
-                    mr.DepartmentToId,
-                    mr.Diagnosis
+                    c.DoctorId,
+                    c.ExternalMedicalPostId,
+                    c.PatientId,
+                    c.DateTimeRem,
+                    c.DateTimeCRem
                 });
         });
 

@@ -7,7 +7,7 @@ namespace PolyclinicInfrastructure.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {
-    private readonly AppDbContext _context;
+    protected readonly AppDbContext _context;
     private readonly DbSet<T> _dbSet;
 
     public Repository(AppDbContext context)
@@ -31,7 +31,7 @@ public class Repository<T> : IRepository<T> where T : class
     }
 
     // READ
-    public async Task<T?> GetByIdAsync(string id)
+    public async Task<T?> GetByIdAsync(Guid id)
     {
         return await _dbSet.FindAsync(id);
     }
@@ -66,7 +66,7 @@ public class Repository<T> : IRepository<T> where T : class
         await _context.SaveChangesAsync();
     }
     
-    public async Task DeleteByIdAsync(string id)
+    public async Task DeleteByIdAsync(Guid id)
     {
         var entity = await GetByIdAsync(id);
         if (entity != null)
