@@ -16,7 +16,6 @@ namespace PolyclinicApplication.DTOs.Request.Auth
         [Compare("Password", ErrorMessage = "Las contraseñas no coinciden")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        [Phone(ErrorMessage = "El número de teléfono no es válido.")]
         public string? PhoneNumber { get; set; } = string.Empty;
         
         [Required(ErrorMessage = "Indique al menos un rol de usuario.")]

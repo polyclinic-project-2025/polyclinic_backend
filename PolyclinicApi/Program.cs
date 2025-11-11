@@ -167,7 +167,7 @@ using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    
+
     // Crear roles si no existen
     foreach (var role in ApplicationRoles.AllRoles)
     {
@@ -176,11 +176,39 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole(role));
         }
     }
-    
+
+    //Crear paciente por defecto para testing
+    var name = "Oscar";
+    var identificationNumber = "1234567890";
+    var age = 30;
+    var contactNumber = "0987654321";
+    var address = "Calle Falsa 123";
+    var patient = await scope.ServiceProvider
+        .GetRequiredService<IRepository<PolyclinicDomain.Entities.Patient>>()
+        .FindAsync(p => p.Identification.ToString() == identificationNumber);
+    if (!patient.Any())
+    {
+        var newPatient = new PolyclinicDomain.Entities.Patient(
+            Guid.NewGuid(),
+            name,
+            int.Parse(identificationNumber),
+            age,
+            contactNumber,
+            address);
+        await scope.ServiceProvider
+            .GetRequiredService<IRepository<PolyclinicDomain.Entities.Patient>>()
+            .AddAsync(newPatient);
+        Console.WriteLine("✓ Paciente de prueba creado: Oscar");
+    }
+    else
+    {
+        Console.WriteLine("✓ Paciente de prueba ya existe: Oscar");
+    }
+
     // Crear usuario administrador por defecto
     var adminEmail = "admin@polyclinic.com";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    
+
     if (adminUser == null)
     {
         var defaultAdmin = new IdentityUser
@@ -189,10 +217,10 @@ using (var scope = app.Services.CreateScope())
             Email = adminEmail,
             EmailConfirmed = true
         };
-        
+
         // Contraseña por defecto: Admin123!
         var result = await userManager.CreateAsync(defaultAdmin, "Admin123!");
-        
+
         if (result.Succeeded)
         {
             await userManager.AddToRoleAsync(defaultAdmin, ApplicationRoles.Admin);
@@ -212,6 +240,7 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"✓ Usuario administrador ya existe: {adminEmail}");
     }
+    
 }
 
 // ==========================================
@@ -228,9 +257,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(policy => policy
+    .WithOrigins("http://localhost:3000") // URL del frontend
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials());
 
-// IMPORTANTE: El orden de los middleware es crítico
-app.UseCors("AllowFrontend");
 app.UseAuthentication(); // Debe ir antes de UseAuthorization
 app.UseAuthorization();
 

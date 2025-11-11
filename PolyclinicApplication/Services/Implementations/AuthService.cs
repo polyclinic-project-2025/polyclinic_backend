@@ -46,9 +46,9 @@ public class AuthService : IAuthService
             registerDto.Roles,
             registerDto.ValidationData);
         
-        if (!requiredDataResult.IsSuccess)
+        if (!requiredDataResult.Result.IsSuccess)
         {
-            return Result<AuthResponse>.Failure(requiredDataResult.ErrorMessage!);
+            return Result<AuthResponse>.Failure(requiredDataResult.Result.ErrorMessage!);
         }
 
         // 4. Verificar que el usuario no existe
@@ -134,7 +134,8 @@ public class AuthService : IAuthService
             Email = email,
             PhoneNumber = phoneNumber,
             Token = token!,
-            ExpiresAt = expiresAt
+            ExpiresAt = expiresAt,
+            Roles = userRoles
         });
     }
 }

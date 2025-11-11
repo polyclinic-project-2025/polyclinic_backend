@@ -8,5 +8,5 @@ public interface IRoleValidationService
     
     Result<bool> ValidateRolesCombination(IList<string> roles, Dictionary<string, string>? validationData = null);
 
-    Result<bool> ValidateRequiredDataForRoles(IList<string> roles, Dictionary<string, string>? validationData);
+    Task<Result<bool>> ValidateRequiredDataForRoles(IList<string> roles, Dictionary<string, string>? validationData);
 }

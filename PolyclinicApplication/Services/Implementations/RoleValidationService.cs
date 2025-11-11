@@ -1,20 +1,41 @@
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Common.Results;
 using PolyclinicCore.Constants;
+using PolyclinicDomain.Entities;
+using PolyclinicDomain.IRepositories;
 
 namespace PolyclinicApplication.Services.Implementations;
 
 public class RoleValidationService : IRoleValidationService
 {
     private readonly IIdentityService _identityService;
-
-    public RoleValidationService(IIdentityService identityService)
+    private readonly IRepository<Doctor> _doctorRepository;
+    private readonly IRepository<Nurse> _nurseRepository;
+    private readonly IRepository<MedicalStaff> _medicalStaffRepository;
+    private readonly IRepository<WarehouseManager> _warehouseManagerRepository;
+    private readonly IRepository<DepartmentHead> _departmentHeadRepository;
+    private readonly IRepository<Patient> _patientRepository;
+    public RoleValidationService(IIdentityService identityService,
+        IRepository<Doctor> doctorRepository,
+        IRepository<Nurse> nurseRepository,
+        IRepository<MedicalStaff> medicalStaffRepository,
+        IRepository<WarehouseManager> warehouseManagerRepository,
+        IRepository<DepartmentHead> departmentHeadRepository,
+        IRepository<Patient> patientRepository)
     {
         _identityService = identityService;
+        _doctorRepository = doctorRepository;
+        _nurseRepository = nurseRepository;
+        _medicalStaffRepository = medicalStaffRepository;
+        _warehouseManagerRepository = warehouseManagerRepository;
+        _departmentHeadRepository = departmentHeadRepository;
+        _patientRepository = patientRepository;
     }
 
     public async Task<Result<bool>> ValidateRolesExistAsync(IList<string> roles)
     {
+        Console.WriteLine("Validating roles existence...");
+        Console.WriteLine($"Roles to validate: {string.Join(", ", roles)}");
         if (roles == null || !roles.Any())
         {
             return Result<bool>.Failure("Debe proporcionar al menos un rol.");
@@ -68,33 +89,115 @@ public class RoleValidationService : IRoleValidationService
         return Result<bool>.Success(true);
     }
 
-    public Result<bool> ValidateRequiredDataForRoles(IList<string> roles, Dictionary<string, string>? validationData)
+    public async Task<Result<bool>> ValidateRequiredDataForRoles(IList<string> roles, Dictionary<string, string>? validationData)
     {
+        Console.WriteLine("Validating required data for roles...");
+        Console.WriteLine($"Roles to validate: {string.Join(", ", roles)}");
+        Console.WriteLine($"Validation data provided: {validationData != null && validationData.Any()}");
         if (roles == null || !roles.Any())
         {
             return Result<bool>.Failure("Debe proporcionar al menos un rol.");
         }
 
-        if (validationData == null)
+        foreach (var role in ApplicationRoles.AllRoles)
         {
-            validationData = new Dictionary<string, string>();
-        }
-
-        var missingData = new List<string>();
-        //se deberia crear un validador segun la data necesaria para el rol
-        // Validar datos requeridos para roles
-        if (ApplicationRoles.MedicalRoles.Any(mr => roles.Contains(mr)))
-        {
-            if (!validationData.ContainsKey("IdentificationNumber"))
+            if (role != ApplicationRoles.Client && roles.Contains(role))
             {
-                missingData.Add("Número de identificación: (IdentificationNumber)");
+                if (validationData == null || !validationData.Any())
+                {
+                    return Result<bool>.Failure(
+                        $"Se requieren datos adicionales para el rol {role}.");
+                }
             }
         }
 
-        if (missingData.Any())
+        if (validationData != null && validationData.Any())
         {
-            return Result<bool>.Failure(
-                $"Faltan los siguientes datos requeridos: {string.Join(", ", missingData)}");
+            var data = validationData["IdentificationNumber"];
+            var validationErrors = new List<string>();
+            foreach (var role in roles)
+            {
+
+                switch (role)
+                {
+                    case ApplicationRoles.Doctor:
+
+                        var doctors = await _doctorRepository.FindAsync(
+                            d => d.Identification.ToString() == data);
+
+                        if (!doctors.Any())
+                        {
+                            validationErrors.Add(
+                                $"No existe un Doctor con el número de identificación: {data}");
+                        }
+                        break;
+
+                    case ApplicationRoles.Nurse:
+
+                        var nurses = await _nurseRepository.FindAsync(
+                            n => n.Identification.ToString() == data);
+
+                        if (!nurses.Any())
+                        {
+                            validationErrors.Add(
+                                $"No existe un Enfermero con el número de identificación: {data}");
+                        }
+                        break;
+
+                    case ApplicationRoles.Patient:
+
+                        var patients = await _patientRepository.FindAsync(
+                            p => p.Identification.ToString() == data);
+
+                        if (!patients.Any())
+                        {
+                            validationErrors.Add(
+                                $"No existe un Paciente con el número de identificación: {data}");
+                        }
+                        break;
+
+                    case ApplicationRoles.MedicalStaff:
+
+                        var staff = await _medicalStaffRepository.FindAsync(
+                            s => s.Identification.ToString() == data);
+
+                        if (!staff.Any())
+                        {
+                            validationErrors.Add(
+                                $"No existe Personal Médico con el número de identificación: {data}");
+                        }
+                        break;
+
+                    case ApplicationRoles.WarehouseManager:
+
+                        var managers = await _warehouseManagerRepository.FindAsync(
+                            w => w.Identification.ToString() == data);
+
+                        if (!managers.Any())
+                        {
+                            validationErrors.Add(
+                                $"No existe un Encargado de Almacén con el número de identificación: {data}");
+                        }
+                        break;
+
+                    case ApplicationRoles.DepartmentHead:
+
+                        var heads = await _departmentHeadRepository.FindAsync(
+                            d => d.Identification.ToString() == data);
+
+                        if (!heads.Any())
+                        {
+                            validationErrors.Add(
+                                $"No existe un Jefe de Departamento con el número de identificación: {data}");
+                        }
+                        break;
+                }
+            }
+
+            if (validationErrors.Any())
+            {
+                return Result<bool>.Failure(string.Join(" ", validationErrors));
+            }
         }
 
         return Result<bool>.Success(true);
