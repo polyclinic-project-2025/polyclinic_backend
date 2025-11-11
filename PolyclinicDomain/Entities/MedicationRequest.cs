@@ -2,6 +2,7 @@ namespace PolyclinicDomain.Entities;
 
 public class MedicationRequest
 {
+    public Guid Id { get; private set; }
     public Department? Department { get; private set; }
     public Guid DepartmentId { get; private set; }
 
@@ -12,6 +13,7 @@ public class MedicationRequest
 
     public int? Quantity { get; private set; }
 
+    private MedicationRequest() { }
     public MedicationRequest(Guid medicationId, Guid departmentId, DateTime requestDate, int? quantity)
     {
         MedicationId = medicationId;
