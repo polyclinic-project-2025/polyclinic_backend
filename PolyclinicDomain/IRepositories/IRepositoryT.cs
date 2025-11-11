@@ -12,7 +12,7 @@ public interface IRepository<T> where T : class
     Task AddRangeAsync(IEnumerable<T> entities);
 
     // READ
-    Task<T?> GetByIdAsync(string id);
+    Task<T?> GetByIdAsync(Guid id);
     Task<IEnumerable<T>> GetAllAsync();
     Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
 
@@ -22,7 +22,7 @@ public interface IRepository<T> where T : class
 
     // DELETE
     Task DeleteAsync(T entity);
-    Task DeleteByIdAsync(string id);
+    Task DeleteByIdAsync(Guid id);
     Task DeleteRangeAsync(IEnumerable<T> entities);
 
     // Others

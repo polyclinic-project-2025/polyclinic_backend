@@ -15,7 +15,7 @@ namespace PolyclinicApplication.Services.Implementations
 
         public async Task<Result<BossResponse?>> GetByIdAsync(Guid id)
         {
-            var departmentHead = await _departmentHeadRepository.GetByIdAsync(id.ToString());
+            var departmentHead = await _departmentHeadRepository.GetByIdAsync(id);
             if (departmentHead == null)
             {
                 return Result<BossResponse?>.Failure("Jefe de Departamento no encontrado.");
@@ -62,7 +62,7 @@ namespace PolyclinicApplication.Services.Implementations
 
         public async Task<Result<BossResponse>> UpdateAsync(Guid id, BossDto dto)
         {
-            var departmentHead = await _departmentHeadRepository.GetByIdAsync(id.ToString());
+            var departmentHead = await _departmentHeadRepository.GetByIdAsync(id);
             if (departmentHead == null)
             {
                 return Result<BossResponse>.Failure("Jefe de Departamento no encontrado.");
@@ -83,7 +83,7 @@ namespace PolyclinicApplication.Services.Implementations
 
         public async Task<Result<string>> DeleteAsync(Guid id)
         {
-            var departmentHead = await _departmentHeadRepository.GetByIdAsync(id.ToString());
+            var departmentHead = await _departmentHeadRepository.GetByIdAsync(id);
             if (departmentHead == null)
             {
                 return Result<string>.Failure("Jefe de Departamento no encontrado.");

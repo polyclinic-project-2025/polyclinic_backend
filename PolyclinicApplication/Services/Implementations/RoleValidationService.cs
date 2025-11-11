@@ -202,4 +202,122 @@ public class RoleValidationService : IRoleValidationService
 
         return Result<bool>.Success(true);
     }
+
+    public async Task<Result<Guid>> ValidateEntityNotLinkedAsync(IList<string> roles, Dictionary<string, string>? validationData)
+    {
+        if (roles == null || !roles.Any())
+        {
+            return Result<Guid>.Failure("Debe proporcionar al menos un rol.");
+        }
+
+        if (validationData == null || !validationData.Any())
+        {
+            return Result<Guid>.Success(Guid.Empty);
+        }
+
+        Guid entityId = Guid.Empty;
+
+        foreach (var role in roles)
+        {
+            switch (role)
+            {
+                case ApplicationRoles.Doctor:
+                    if (validationData.TryGetValue("IdentificationNumber", out var doctorId))
+                    {
+                        var doctors = await _doctorRepository.FindAsync(
+                            d => d.Identification.ToString() == doctorId);
+                        
+                        var doctor = doctors.FirstOrDefault();
+                        if (doctor == null)
+                        {
+                            return Result<Guid>.Failure(
+                                $"No existe un Doctor con el número de identificación: {doctorId}");
+                        }
+                        
+                        if (!string.IsNullOrEmpty(doctor.UserId))
+                        {
+                            return Result<Guid>.Failure(
+                                "Este doctor ya tiene una cuenta de usuario asociada.");
+                        }
+                        
+                        entityId = doctor.Id;
+                    }
+                    break;
+
+                case ApplicationRoles.Nurse:
+                    if (validationData.TryGetValue("IdentificationNumber", out var nurseId))
+                    {
+                        var nurses = await _nurseRepository.FindAsync(
+                            n => n.Identification.ToString() == nurseId);
+                        
+                        var nurse = nurses.FirstOrDefault();
+                        if (nurse == null)
+                        {
+                            return Result<Guid>.Failure(
+                                $"No existe un Enfermero con el número de identificación: {nurseId}");
+                        }
+                        
+                        if (!string.IsNullOrEmpty(nurse.UserId))
+                        {
+                            return Result<Guid>.Failure(
+                                "Este enfermero ya tiene una cuenta de usuario asociada.");
+                        }
+                        
+                        entityId = nurse.Id;
+                    }
+                    break;
+
+                case ApplicationRoles.Patient:
+                    if (validationData.TryGetValue("IdentificationNumber", out var patientId))
+                    {
+                        Console.WriteLine($"Validating Patient with IdentificationNumber: {patientId}");
+                        var patients = await _patientRepository.FindAsync(
+                            p => p.Identification.ToString() == patientId);
+
+                        var patient = patients.FirstOrDefault();
+                        Console.WriteLine($"Patient found: {patient != null}");
+                        if (patient == null)
+                        {
+                            return Result<Guid>.Failure(
+                                $"No existe un Paciente con el número de identificación: {patientId}");
+                        }
+                        Console.WriteLine($"Patient UserId: {patient.UserId}");
+                        if (!string.IsNullOrEmpty(patient.UserId))
+                        {
+                            return Result<Guid>.Failure(
+                                "Este paciente ya tiene una cuenta de usuario asociada.");
+                        }
+
+                        entityId = patient.PatientId;
+                        
+                    }
+                    break;
+
+                case ApplicationRoles.MedicalStaff:
+                    if (validationData.TryGetValue("IdentificationNumber", out var staffId))
+                    {
+                        var staff = await _medicalStaffRepository.FindAsync(
+                            s => s.Identification.ToString() == staffId);
+                        
+                        var medicalStaff = staff.FirstOrDefault();
+                        if (medicalStaff == null)
+                        {
+                            return Result<Guid>.Failure(
+                                $"No existe Personal Médico con el número de identificación: {staffId}");
+                        }
+                        
+                        if (!string.IsNullOrEmpty(medicalStaff.UserId))
+                        {
+                            return Result<Guid>.Failure(
+                                "Este personal médico ya tiene una cuenta de usuario asociada.");
+                        }
+                        
+                        entityId = medicalStaff.Id;
+                    }
+                    break;
+            }
+        }
+
+        return Result<Guid>.Success(entityId);
+    }
 }
