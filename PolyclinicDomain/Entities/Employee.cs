@@ -7,11 +7,11 @@ namespace PolyclinicDomain.Entities;
 public abstract class Employee
 {
     public Guid Id { get; private set; }
-    public int Identification { get; private set; }
+    public string Identification { get; private set; }
     public string? Name { get; private set; }
     public string? EmploymentStatus { get; private set; }
 
-    protected Employee(Guid id, string name, string employmentStatus, int identification)
+    protected Employee(Guid id, string name, string employmentStatus, string identification)
     {
         Id = id;
         Name = name;

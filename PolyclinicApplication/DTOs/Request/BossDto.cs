@@ -9,6 +9,6 @@ public class BossDto
     public string EmploymentStatus { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "La identificación es obligatoria.")]
-    public int Identification { get; set; }
+    public string Identification { get; set; }
 
 }

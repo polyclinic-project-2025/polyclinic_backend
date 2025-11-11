@@ -11,7 +11,7 @@ public class NursingHead : Employee
     public Guid? ManagedNursingId { get; private set; }
     public Nursing? ManagedNursing { get; private set; }
 
-    public NursingHead(Guid id, string name, string employmentStatus, int identification, Guid? managedNursingId = null)
+    public NursingHead(Guid id, string name, string employmentStatus, string identification, Guid? managedNursingId = null)
         : base(id, name, employmentStatus, identification)
     {
         ManagedNursingId = managedNursingId;
