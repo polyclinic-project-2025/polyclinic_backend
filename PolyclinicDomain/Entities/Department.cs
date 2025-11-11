@@ -22,13 +22,4 @@ public class Department
     // Constructor sin parámetros para EF Core
     private Department() { }
 
-    public void AssignHead(Guid headId)
-    {
-        HeadId = headId;
-    }
-
-    public void RemoveHead()
-    {
-        HeadId = null;
-    }
 }
