@@ -106,8 +106,8 @@ namespace PolyclinicApplication.Services.Implementations
         // -------------------------------
         public async Task DeleteAsync(Guid id)
         {
-            var exists = await _repository.ExistsAsync(id);
-            if (!exists)
+            var exists = await _repository.GetByIdAsync(id);
+            if (exists == null)
                 throw new KeyNotFoundException("Department not found.");
 
             await _repository.DeleteByIdAsync(id);
