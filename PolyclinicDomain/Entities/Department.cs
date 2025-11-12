@@ -22,4 +22,18 @@ public class Department
     // Constructor sin parámetros para EF Core
     private Department() { }
 
+    public void ChangeName(string name)
+    {
+        // puedes añadir validaciones internas aquí
+        Name = name;
+    }
+
+    public void AssignHead(Guid headId)
+    {
+        HeadId = headId;
+    }
+    public void RemoveHead()
+    {
+        HeadId = null;
+    }   
 }
