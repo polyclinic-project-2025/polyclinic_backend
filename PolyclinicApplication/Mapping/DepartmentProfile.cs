@@ -8,8 +8,9 @@ namespace PolyclinicApplication.Mappings
     {
         public DepartmentProfile()
         {
-            CreateMap<Department, CreateDepartmentDto>().ReverseMap();
-            CreateMap<Department, UpdateDepartmentDto>().ReverseMap();
+            CreateMap<Department, DepartmentDto>().ReverseMap();
+            CreateMap<CreateDepartmentDto, Department>();
+            CreateMap<UpdateDepartmentDto, Department>();
         }
     }
 }

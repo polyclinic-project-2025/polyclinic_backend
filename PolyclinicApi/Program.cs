@@ -174,13 +174,13 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 
 builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
-builder.Services.AddScoped<INurseRepository, NurseRepository>();
-builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
+// builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+// builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+// builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
+// builder.Services.AddScoped<INurseRepository, NurseRepository>();
+// builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
+// builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -222,7 +222,7 @@ using (var scope = app.Services.CreateScope())
     var address = "Calle Falsa 123";
     var patient = await scope.ServiceProvider
         .GetRequiredService<IRepository<PolyclinicDomain.Entities.Patient>>()
-        .FindAsync(p => p.Identification.ToString() == identificationNumber);
+        .FindAsync(p => p.Identification == identificationNumber);
     if (!patient.Any())
     {
         var newPatient = new PolyclinicDomain.Entities.Patient(

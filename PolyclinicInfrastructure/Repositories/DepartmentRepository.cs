@@ -7,7 +7,7 @@ namespace PolyclinicInfrastructure.Repositories;
 
 public class DepartmentRepository : Repository<Department>, IDepartmentRepository
 {
-    private readonly AppDbContext _context;
+    new private readonly AppDbContext _context;
     private readonly DbSet<Department> _dbSet;
 
     public DepartmentRepository(AppDbContext context) : base(context)

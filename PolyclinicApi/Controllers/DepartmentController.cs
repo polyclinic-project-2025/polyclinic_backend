@@ -3,9 +3,6 @@ using PolyclinicApplication.DTOs.Departments;
 using PolyclinicApplication.Services.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using PolyclinicApplication.DTOs.Departments;
-using PolyclinicApplication.Services.Interfaces;
 
 namespace PolyclinicAPI.Controllers
 {
