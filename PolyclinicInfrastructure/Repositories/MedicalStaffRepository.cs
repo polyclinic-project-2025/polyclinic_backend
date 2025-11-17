@@ -5,7 +5,7 @@ using PolyclinicInfrastructure.Persistence;
 
 namespace PolyclinicInfrastructure.Repositories;
 
-public class MedicalStaffRepository : Repository<MedicalStaff>, IMedicalStaff
+public class MedicalStaffRepository : Repository<MedicalStaff>, IMedicalStaffRepository
 {
     public MedicalStaffRepository(AppDbContext context) : base(context) { }
 
@@ -14,3 +14,4 @@ public class MedicalStaffRepository : Repository<MedicalStaff>, IMedicalStaff
             .Where(m => m.DepartmentId == departmentId)
             .ToListAsync();
 }
+

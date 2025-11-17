@@ -13,13 +13,13 @@ public class WarehouseManager : Employee
 
     public string? UserId { get; set; }
 
-    public WarehouseManager(Guid id, string name, string employmentStatus, int identification, Guid? managedWarehouseId = null)
-        : base(id, name, employmentStatus, identification)
+    public WarehouseManager(Guid id, string identification, string name, string employmentStatus, Guid? managedWarehouseId = null)
+        : base(id, identification, name, employmentStatus)
     {
         ManagedWarehouseId = managedWarehouseId;
     }
 
-    // Constructor sin parámetros para EF Core
+    // Constructor sin parámetros para EF Core 
     private WarehouseManager() { }
 
     public override string GetPrimaryRole() => ApplicationRoles.WarehouseManager;

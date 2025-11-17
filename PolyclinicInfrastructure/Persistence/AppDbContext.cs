@@ -658,26 +658,17 @@ public class AppDbContext : IdentityDbContext
         {
             entity.HasKey(me => new
             {
-                me.DoctorId,
-                me.PatientId,
-                me.CareDate,
-                me.GuardDate,
+                me.EmergencyRoomCareId,
                 me.IdMed
             });
-            
+
             entity.HasOne(me => me.Medication)
                 .WithMany(m => m.Emergency)
                 .HasForeignKey(me => me.IdMed);
-            
+
             entity.HasOne(me => me.Emergency)
                 .WithMany(e => e.MedEmergency)
-                .HasForeignKey(me => new
-                {
-                    me.DoctorId,
-                    me.PatientId,
-                    me.CareDate,
-                    me.GuardDate
-                });
+                .HasForeignKey(me => me.EmergencyRoomCareId);
         });
 
         // Stock Department

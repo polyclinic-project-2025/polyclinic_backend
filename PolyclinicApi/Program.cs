@@ -11,9 +11,12 @@ using PolyclinicInfrastructure.Identity;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Service.Interfaces;
+using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
-using PolyclinicApplication.Services.Interfaces;
+using Application.Services.Interfaces;
+using Application.Services.Implementations;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -149,6 +152,16 @@ builder.Services.AddAuthorization(options =>
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+// Repositorios específicos de empleados
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+// builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<INurseRepository, NurseRepository>();
+builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
+builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
+builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
+// builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -159,6 +172,14 @@ builder.Services.AddScoped<IIdentityService, IdentityAuthenticationService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
+// Servicios de empleados
+builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<INurseService, NurseService>();
+builder.Services.AddScoped<INursingHeadService, NursingHeadService>();
+builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
+builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
+
 
 var app = builder.Build();
 
@@ -187,13 +208,13 @@ using (var scope = app.Services.CreateScope())
     var address = "Calle Falsa 123";
     var patient = await scope.ServiceProvider
         .GetRequiredService<IRepository<PolyclinicDomain.Entities.Patient>>()
-        .FindAsync(p => p.Identification.ToString() == identificationNumber);
+        .FindAsync(p => p.Identification == identificationNumber);
     if (!patient.Any())
     {
         var newPatient = new PolyclinicDomain.Entities.Patient(
             Guid.NewGuid(),
             name,
-            int.Parse(identificationNumber),
+            identificationNumber,
             age,
             contactNumber,
             address);

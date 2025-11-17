@@ -6,9 +6,12 @@ public class MedicationEmergency{
     public DateOnly GuardDate { get; private set; }
     public Guid IdMed { get; private set; }
     public int? Quantity {get; private set;}
-    public EmergencyRoomCare Emergency {get;private set;}
-    public Medication Medication {get; private set;}
-    public MedicationEmergency(Guid doctorId, Guid patientId, DateTime careDate,DateOnly guardDate,Guid idMed,int? quantity){
+    public EmergencyRoomCare Emergency { get; private set; }
+    public Guid EmergencyRoomCareId { get; private set; }
+    public Medication Medication { get; private set; }
+    
+    public MedicationEmergency(Guid emergencyRoomCareId, Guid doctorId, Guid patientId, DateTime careDate,DateOnly guardDate,Guid idMed,int? quantity){
+        EmergencyRoomCareId = emergencyRoomCareId;
         DoctorId = doctorId;
         PatientId = patientId;
         CareDate = careDate;

@@ -6,7 +6,7 @@ using PolyclinicDomain.Entities;
 
 namespace PolyclinicDomain.IRepositories;
 
-public interface IMedicalStaff : IRepository<MedicalStaff>
+public interface IMedicalStaffRepository : IRepository<MedicalStaff>
 {
     Task<IEnumerable<MedicalStaff>> GetByDepartmentAsync(Guid departmentId);
 }
