@@ -106,7 +106,6 @@ namespace Application.Services.Implementations
 
             // Guardar en base de datos
             await _repository.AddAsync(entity);
-            // await _repository.SaveChangesAsync(); // ✅ CRÍTICO: Commitear cambios
 
             // Retornar respuesta con datos completos
             var response = new DepartmentHeadDto
