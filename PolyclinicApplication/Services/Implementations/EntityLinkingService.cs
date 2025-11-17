@@ -66,6 +66,9 @@ public class EntityLinkingService : IEntityLinkingService
                     staff.UserId = userId;
                     await _medicalStaffRepository.UpdateAsync(staff);
                     break;
+                case ApplicationRoles.Client:
+                    // Los clientes no requieren vinculación con una entidad específica
+                    break;
 
                 default:
                     return Result<bool>.Failure($"Rol no soportado para vinculación: {role}");

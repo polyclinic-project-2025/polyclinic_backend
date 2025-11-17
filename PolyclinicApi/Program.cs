@@ -15,6 +15,9 @@ using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
 using Application.Services.Interfaces;
+using PolyclinicApplication.Mappings;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Application.Services.Implementations;
 
 
@@ -28,7 +31,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Swagger con soporte para JWT
+// ==========================================
+// SWAGGER con soporte para JWT
+// ==========================================
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -132,16 +137,16 @@ builder.Services.AddAuthorization(options =>
     // Políticas basadas en roles
     options.AddPolicy("RequireAdminRole", policy =>
         policy.RequireRole(ApplicationRoles.Admin));
-    
+
     options.AddPolicy("RequireDoctorRole", policy =>
         policy.RequireRole(ApplicationRoles.Doctor));
-    
+
     options.AddPolicy("RequireMedicalStaff", policy =>
         policy.RequireRole(
             ApplicationRoles.Doctor,
             ApplicationRoles.Nurse,
             ApplicationRoles.MedicalStaff));
-    
+
     options.AddPolicy("RequireManagement", policy =>
         policy.RequireRole(
             ApplicationRoles.Admin,
@@ -149,8 +154,35 @@ builder.Services.AddAuthorization(options =>
 });
 
 // ==========================================
+// APPLICATION - MAPPING PROFILES
+// ==========================================
+
+// AutoMapper escaneará todos los perfiles en el ensamblado PolyclinicApplication
+builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
+
+// ==========================================
+// APPLICATION - VALIDATION (FluentValidation)
+// ==========================================
+
+// Esta sección habilita la validación automática de DTOs con FluentValidation.
+// ASP.NET ejecutará los validadores correspondientes antes de los controladores.
+// Todos los validadores del ensamblado PolyclinicApplication serán registrados automáticamente.
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Departments.CreateDepartmentValidator>();
+
+
+// ==========================================
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
+
+builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+// builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+// builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+// builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
+// builder.Services.AddScoped<INurseRepository, NurseRepository>();
+// builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
+// builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // Repositorios específicos de empleados
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -172,6 +204,9 @@ builder.Services.AddScoped<IIdentityService, IdentityAuthenticationService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
+
+// Servicios de dominio
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 // Servicios de empleados
 builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
@@ -280,6 +315,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseCors(policy => policy
     .WithOrigins("http://localhost:3000") // URL del frontend
     .AllowAnyMethod()
