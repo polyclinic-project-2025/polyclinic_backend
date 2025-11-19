@@ -3,7 +3,7 @@ namespace Application.DTOs.Response
     /// <summary>
     /// DTO de respuesta con datos completos del jefe de departamento
     /// </summary>
-    public record DepartmentHeadDto
+    public record DepartmentHeadResponseDto
     {
         public Guid Id { get; init; }
         public string Identification { get; init; } = string.Empty;

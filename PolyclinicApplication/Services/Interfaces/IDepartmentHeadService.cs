@@ -6,10 +6,10 @@ namespace Application.Services.Interfaces
 {
     public interface IDepartmentHeadService
     {
-        Task<Result<DepartmentHeadDto>> GetByIdAsync(Guid id);
-        Task<Result<IEnumerable<DepartmentHeadDto>>> GetAllAsync();
-        Task<Result<DepartmentHeadDto>> CreateAsync(CreateDepartmentHeadDto dto); // ✅ Cambio aquí
-        Task<Result<DepartmentHeadDto>> UpdateAsync(Guid id, CreateDepartmentHeadDto dto); // ✅ Cambio aquí
+        Task<Result<DepartmentHeadResponseDto>> GetByIdAsync(Guid id);
+        Task<Result<IEnumerable<DepartmentHeadResponseDto>>> GetAllAsync();
+        Task<Result<DepartmentHeadResponseDto>> CreateAsync(DepartmentHeadDto dto); // ✅ Cambio aquí
+        Task<Result<DepartmentHeadResponseDto>> UpdateAsync(Guid id, DepartmentHeadDto dto); // ✅ Cambio aquí
         Task<Result<bool>> DeleteAsync(Guid id);
     }
 }

@@ -48,7 +48,7 @@ namespace PolyclinicAPI.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Create([FromBody] CreateDepartmentHeadDto dto)
+        public async Task<IActionResult> Create([FromBody] DepartmentHeadDto dto)
         {
             var result = await _departmentHeadService.CreateAsync(dto);
             if (!result.IsSuccess)
@@ -64,7 +64,7 @@ namespace PolyclinicAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] CreateDepartmentHeadDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] DepartmentHeadDto dto)
         {
             var result = await _departmentHeadService.UpdateAsync(id, dto);
             if (!result.IsSuccess)

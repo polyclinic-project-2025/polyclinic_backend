@@ -20,11 +20,11 @@ namespace Application.Services.Implementations
             _departmentRepository = departmentRepository;
         }
 
-        public async Task<Result<DepartmentHeadDto>> GetByIdAsync(Guid id)
+        public async Task<Result<DepartmentHeadResponseDto>> GetByIdAsync(Guid id)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
-                return Result<DepartmentHeadDto>.Failure("Jefe de departamento no encontrado");
+                return Result<DepartmentHeadResponseDto>.Failure("Jefe de departamento no encontrado");
 
             // Obtener el departamento si existe
             Department? department = null;
@@ -33,7 +33,7 @@ namespace Application.Services.Implementations
                 department = await _departmentRepository.GetByIdAsync(entity.ManagedDepartmentId.Value);
             }
 
-            var response = new DepartmentHeadDto
+            var response = new DepartmentHeadResponseDto
             {
                 Id = entity.Id,
                 Identification = entity.Identification,
@@ -45,10 +45,10 @@ namespace Application.Services.Implementations
                 UserId = entity.UserId
             };
 
-            return Result<DepartmentHeadDto>.Success(response);
+            return Result<DepartmentHeadResponseDto>.Success(response);
         }
 
-        public async Task<Result<IEnumerable<DepartmentHeadDto>>> GetAllAsync()
+        public async Task<Result<IEnumerable<DepartmentHeadResponseDto>>> GetAllAsync()
         {
             var entities = await _repository.GetAllAsync();
             var responseTasks = entities.Select(async e =>
@@ -59,7 +59,7 @@ namespace Application.Services.Implementations
                     department = await _departmentRepository.GetByIdAsync(e.ManagedDepartmentId.Value);
                 }
 
-                return new DepartmentHeadDto
+                return new DepartmentHeadResponseDto
                 {
                     Id = e.Id,
                     Identification = e.Identification,
@@ -73,27 +73,27 @@ namespace Application.Services.Implementations
             });
 
             var list = await Task.WhenAll(responseTasks);
-            return Result<IEnumerable<DepartmentHeadDto>>.Success(list);
+            return Result<IEnumerable<DepartmentHeadResponseDto>>.Success(list);
         }
 
-        public async Task<Result<DepartmentHeadDto>> CreateAsync(CreateDepartmentHeadDto dto)
+        public async Task<Result<DepartmentHeadResponseDto>> CreateAsync(DepartmentHeadDto dto)
         {
             // Validaciones
             if (string.IsNullOrWhiteSpace(dto.Identification))
-                return Result<DepartmentHeadDto>.Failure("El número de identificación es obligatorio");
+                return Result<DepartmentHeadResponseDto>.Failure("El número de identificación es obligatorio");
 
             if (string.IsNullOrWhiteSpace(dto.Name))
-                return Result<DepartmentHeadDto>.Failure("El nombre es obligatorio");
+                return Result<DepartmentHeadResponseDto>.Failure("El nombre es obligatorio");
 
             // Verificar que el departamento existe
             var department = await _departmentRepository.GetByIdAsync(dto.ManagedDepartmentId);
             if (department == null)
-                return Result<DepartmentHeadDto>.Failure($"No existe el departamento con ID {dto.ManagedDepartmentId}");
+                return Result<DepartmentHeadResponseDto>.Failure($"No existe el departamento con ID {dto.ManagedDepartmentId}");
 
             // Verificar que no exista otro jefe con la misma identificación
             var existingHeads = await _repository.FindAsync(h => h.Identification == dto.Identification);
             if (existingHeads.Any())
-                return Result<DepartmentHeadDto>.Failure("Ya existe un jefe de departamento con ese número de identificación");
+                return Result<DepartmentHeadResponseDto>.Failure("Ya existe un jefe de departamento con ese número de identificación");
 
             // Crear la entidad con TODOS los datos
             var entity = new DepartmentHead(
@@ -108,7 +108,7 @@ namespace Application.Services.Implementations
             await _repository.AddAsync(entity);
 
             // Retornar respuesta con datos completos
-            var response = new DepartmentHeadDto
+            var response = new DepartmentHeadResponseDto
             {
                 Id = entity.Id,
                 Identification = entity.Identification,
@@ -120,19 +120,19 @@ namespace Application.Services.Implementations
                 UserId = entity.UserId
             };
 
-            return Result<DepartmentHeadDto>.Success(response);
+            return Result<DepartmentHeadResponseDto>.Success(response);
         }
 
-        public async Task<Result<DepartmentHeadDto>> UpdateAsync(Guid id, CreateDepartmentHeadDto dto)
+        public async Task<Result<DepartmentHeadResponseDto>> UpdateAsync(Guid id, DepartmentHeadDto dto)
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null)
-                return Result<DepartmentHeadDto>.Failure("Jefe de departamento no encontrado");
+                return Result<DepartmentHeadResponseDto>.Failure("Jefe de departamento no encontrado");
 
             // Verificar que el departamento existe
             var department = await _departmentRepository.GetByIdAsync(dto.ManagedDepartmentId);
             if (department == null)
-                return Result<DepartmentHeadDto>.Failure($"No existe el departamento con ID {dto.ManagedDepartmentId}");
+                return Result<DepartmentHeadResponseDto>.Failure($"No existe el departamento con ID {dto.ManagedDepartmentId}");
 
             // Actualizar el departamento asignado
             entity.AssignDepartment(dto.ManagedDepartmentId);
@@ -140,7 +140,7 @@ namespace Application.Services.Implementations
             await _repository.UpdateAsync(entity);
             // await _repository.SaveChangesAsync();
 
-            var response = new DepartmentHeadDto
+            var response = new DepartmentHeadResponseDto
             {
                 Id = entity.Id,
                 Identification = entity.Identification,
@@ -152,7 +152,7 @@ namespace Application.Services.Implementations
                 UserId = entity.UserId
             };
 
-            return Result<DepartmentHeadDto>.Success(response);
+            return Result<DepartmentHeadResponseDto>.Success(response);
         }
 
         public async Task<Result<bool>> DeleteAsync(Guid id)
