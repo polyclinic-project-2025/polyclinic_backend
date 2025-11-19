@@ -11,15 +11,15 @@ public abstract class Employee
     public string? Name { get; private set; }
     public string? EmploymentStatus { get; private set; }
 
-    protected Employee(Guid id, string name, string employmentStatus, string identification)
+    protected Employee(Guid id, string identification, string name, string employmentStatus)
     {
         Id = id;
+        Identification = identification;
         Name = name;
         EmploymentStatus = employmentStatus;
-        Identification = identification;
     }
 
-    // Constructor sin parámetros para EF Core
+    // Constructor sin parámetros para EF Core 
     protected Employee() { }
 
     /// <summary>

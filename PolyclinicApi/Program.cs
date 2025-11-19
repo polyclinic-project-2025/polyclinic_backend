@@ -11,12 +11,15 @@ using PolyclinicInfrastructure.Identity;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Service.Interfaces;
+using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
-using PolyclinicApplication.Services.Interfaces;
+using Application.Services.Interfaces;
 using PolyclinicApplication.Mappings;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Application.Services.Implementations;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -181,6 +184,16 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 // builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
 // builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+// Repositorios específicos de empleados
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+// builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<INurseRepository, NurseRepository>();
+builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
+builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
+builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
+// builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -194,6 +207,14 @@ builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
 
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+// Servicios de empleados
+builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<INurseService, NurseService>();
+builder.Services.AddScoped<INursingHeadService, NursingHeadService>();
+builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
+builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
+
 
 var app = builder.Build();
 
