@@ -68,11 +68,6 @@ public static class ApplicationRoles
     /// </summary>
     public const string Patient = "Patient";
     
-    /// <summary>
-    /// Rol por defecto para nuevos usuarios
-    /// </summary>
-    public const string Client = "Client";
-    
     // ==========================================
     // COLECCIONES DE ROLES
     // ==========================================
@@ -88,8 +83,7 @@ public static class ApplicationRoles
         EmergencyStaff,
         Receptionist,
         Patient,
-        NursingHead,
-        Client
+        NursingHead
     };
     
     public static readonly string[] MedicalRoles = 

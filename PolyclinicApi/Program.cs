@@ -1,5 +1,6 @@
 
 using System.Text;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,6 @@ using PolyclinicInfrastructure.Repositories;
 using PolyclinicInfrastructure.Identity;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Common.Interfaces;
-using PolyclinicApplication.Service.Interfaces;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
@@ -19,8 +19,9 @@ using PolyclinicApplication.Mappings;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Application.Services.Implementations;
+using Microsoft.IdentityModel.Logging;
 
-
+IdentityModelEventSource.ShowPII = true; // ⚠️ Solo en desarrollo
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================
@@ -43,15 +44,12 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API para gestión de policlínica con autenticación JWT"
     });
 
-    // Configurar autenticación JWT en Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
+        Scheme = "bearer",
         BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Ingrese 'Bearer' seguido de un espacio y el token JWT"
+        Description = "Ingrese el token JWT. Swagger agregará automáticamente el prefijo 'Bearer '."
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -65,7 +63,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            new string[] {}  // Array vacío, no List<string>()
         }
     });
 });
@@ -116,6 +114,41 @@ builder.Services.AddAuthentication(options =>
 {
     options.SaveToken = true;
     options.RequireHttpsMetadata = false; // En producción, cambiar a true
+    options.IncludeErrorDetails = true;
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"❌ ERROR DE AUTENTICACIÓN:");
+            Console.WriteLine($"   Excepción: {context.Exception?.GetType().Name}");
+            Console.WriteLine($"   Mensaje: {context.Exception?.Message}");
+            
+            if (context.Request.Headers.ContainsKey("Authorization"))
+            {
+                var authHeader = context.Request.Headers["Authorization"].ToString();
+                Console.WriteLine($"   Header presente: {(authHeader.Length > 20 ? authHeader.Substring(0, 20) + "..." : authHeader)}");
+            }
+            else
+            {
+                Console.WriteLine($"   ⚠️ No hay header Authorization");
+            }
+            
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roles = context.Principal?.FindAll(ClaimTypes.Role).Select(c => c.Value);
+            Console.WriteLine($"✅ Token validado - Usuario: {userId}, Roles: {string.Join(", ", roles ?? Array.Empty<string>())}");
+            return Task.CompletedTask;
+        },
+        OnMessageReceived = context =>
+        {
+            var authHeader = context.Request.Headers["Authorization"].ToString();
+            Console.WriteLine($"📨 Token recibido: {authHeader.Substring(0, Math.Min(50, authHeader.Length))}...");
+            return Task.CompletedTask;
+        }
+    };
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -125,7 +158,11 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.FromSeconds(5),
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = ClaimTypes.NameIdentifier,
+        ValidateActor = false,
+        ValidateTokenReplay = false
     };
 });
 
@@ -200,10 +237,11 @@ builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerReposito
 // ==========================================
 // Servicios de autenticación
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IIdentityService, IdentityAuthenticationService>();
+builder.Services.AddScoped<IIdentityRepository, IdentityUserRepository>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
@@ -314,15 +352,16 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
 app.UseHttpsRedirection();
 
 app.UseCors(policy => policy
-    .WithOrigins("http://localhost:3000") // URL del frontend
+    .WithOrigins("http://localhost:3000")
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
 
-app.UseAuthentication(); // Debe ir antes de UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

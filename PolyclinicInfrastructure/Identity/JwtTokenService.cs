@@ -65,14 +65,14 @@ public class JwtTokenService : ITokenService
         }
 
         // Crear la clave de seguridad
-        var key = Encoding.ASCII.GetBytes(_secretKey);
+        var key = Encoding.UTF8.GetBytes(_secretKey);
         // Crear el token
         var token = new JwtSecurityToken(
             issuer: _issuer,
             audience: _audience,
             claims: claims,
             expires: DateTime.UtcNow.AddHours(_expirationHours),
-            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
         );
 
         // Retornar el token como string
@@ -90,7 +90,7 @@ public class JwtTokenService : ITokenService
         //validate signature
         try
         {
-            var key = Encoding.ASCII.GetBytes(_secretKey);
+            var key = Encoding.UTF8.GetBytes(_secretKey);
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenValidationParameters = new TokenValidationParameters
             {
@@ -100,7 +100,9 @@ public class JwtTokenService : ITokenService
                 ValidateIssuerSigningKey = true,
                 ValidIssuer = _issuer,
                 ValidAudience = _audience,
-                IssuerSigningKey = new SymmetricSecurityKey(key)
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                RoleClaimType = ClaimTypes.Role,
+                NameClaimType = ClaimTypes.NameIdentifier
             };
 
             tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken tokenValidated);

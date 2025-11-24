@@ -5,7 +5,7 @@
 namespace PolyclinicInfrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class zfinal : Migration
+    public partial class fixMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

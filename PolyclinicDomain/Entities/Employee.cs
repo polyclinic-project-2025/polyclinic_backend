@@ -10,6 +10,7 @@ public abstract class Employee
     public string Identification { get; private set; }
     public string? Name { get; private set; }
     public string? EmploymentStatus { get; private set; }
+    public string? UserId { get; set; }
 
     protected Employee(Guid id, string identification, string name, string employmentStatus)
     {

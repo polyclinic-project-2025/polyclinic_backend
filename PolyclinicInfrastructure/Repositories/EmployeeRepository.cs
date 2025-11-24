@@ -38,5 +38,6 @@ namespace PolyclinicInfrastructure.Repositories
             return await _context.Employees
                 .FirstOrDefaultAsync(e => e.GetPrimaryRole() == primaryRole);
         }
+
     }
 }

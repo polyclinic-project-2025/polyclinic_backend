@@ -268,24 +268,36 @@ public class AppDbContext : IdentityDbContext
         // ============================
         // Employee - Table-Per-Type (TPT)
         // ============================
-        modelBuilder.Entity<Employee>(entity =>
-        {
-            entity.ToTable("Employee");
-            entity.HasKey(e => e.Id);
+modelBuilder.Entity<Employee>(entity =>
+{
+    entity.ToTable("Employee");
+    entity.HasKey(e => e.Id);
 
-            entity.Property(e => e.Identification)
-                .IsRequired();
-            
-            entity.HasIndex(e => e.Identification)
-                .IsUnique();
+    entity.Property(e => e.Identification)
+        .IsRequired();
+    
+    entity.HasIndex(e => e.Identification)
+        .IsUnique();
 
-            entity.Property(e => e.Name)
-                .IsRequired()
-                .HasMaxLength(200);
+    entity.Property(e => e.Name)
+        .IsRequired()
+        .HasMaxLength(200);
 
-            entity.Property(e => e.EmploymentStatus)
-                .IsRequired();
-        });
+    entity.Property(e => e.EmploymentStatus)
+        .IsRequired();
+
+    entity.Property(e => e.UserId)
+        .IsRequired(false); // Nullable
+
+    entity.HasOne<IdentityUser>() // ← Sin propiedad de navegación en Employee
+        .WithMany() // ← IdentityUser puede tener muchos empleados (aunque en práctica será 1:1)
+        .HasForeignKey(e => e.UserId)
+        .OnDelete(DeleteBehavior.SetNull);
+
+    entity.HasIndex(e => e.UserId)
+        .IsUnique()
+        .HasFilter("\"UserId\" IS NOT NULL");
+});
 
         // Setting MedicalStaff - TPT
         modelBuilder.Entity<MedicalStaff>(entity =>

@@ -12,8 +12,8 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251117044803_WarehouseManager")]
-    partial class WarehouseManager
+    [Migration("20251123011618_fixMigrations")]
+    partial class fixMigrations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -415,6 +415,9 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Identification")
@@ -788,9 +791,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid?>("ManagedDepartmentId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.ToTable("DepartmentHead", (string)null);
                 });
 
@@ -800,9 +800,6 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.HasIndex("DepartmentId");
 
@@ -815,9 +812,6 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<Guid>("NursingId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.HasIndex("NursingId");
 
@@ -840,9 +834,6 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<Guid?>("ManagedWarehouseId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.ToTable("WarehouseManager", (string)null);
                 });

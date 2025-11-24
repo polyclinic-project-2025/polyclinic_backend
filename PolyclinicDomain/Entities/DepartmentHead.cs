@@ -10,10 +10,9 @@ public class DepartmentHead : Employee
 {
     public Guid? ManagedDepartmentId { get; private set; }
     public Department? ManagedDepartment { get; private set; }
-    public string? UserId { get; set; }
 
     public DepartmentHead(Guid id, string name, string employmentStatus, string identification, Guid? managedDepartmentId = null)
-        : base(id, name, employmentStatus, identification)
+        : base(id, identification, name, employmentStatus)
     {
         ManagedDepartmentId = managedDepartmentId;
     }

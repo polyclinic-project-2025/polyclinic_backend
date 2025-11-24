@@ -412,10 +412,17 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Identification")
                         .IsUnique();
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("\"UserId\" IS NOT NULL");
 
                     b.ToTable("Employee", (string)null);
 
@@ -785,9 +792,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid?>("ManagedDepartmentId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.ToTable("DepartmentHead", (string)null);
                 });
 
@@ -797,9 +801,6 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.HasIndex("DepartmentId");
 
@@ -812,9 +813,6 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<Guid>("NursingId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.HasIndex("NursingId");
 
@@ -837,9 +835,6 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<Guid?>("ManagedWarehouseId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.ToTable("WarehouseManager", (string)null);
                 });
@@ -1053,6 +1048,14 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("EmergencyRoom");
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.Employee", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationDerivation", b =>
