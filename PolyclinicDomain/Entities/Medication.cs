@@ -1,23 +1,43 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PolyclinicDomain.Entities;
 
 public class Medication
 {
-    public Guid IdMed { get; private set; }
+    public Guid MedicationId { get; private set; }
+
+    [Required]
+    [MaxLength(100)]
     public string Format { get; private set; }
+    [Required]
+    [MaxLength(100)]
     public string CommercialName { get; private set; }
+    [Required]
+    [MaxLength(100)]
     public string CommercialCompany { get; private set; }
+    [Required]
     public DateTime ExpirationDate { get; private set; }
+    [Required]
+    [MaxLength(100)]
     public string BatchNumber { get; private set; }
+    [Required]
+    [MaxLength(100)]
     public string ScientificName { get; private set; }
+    [Required]
+    [Range(0, 1000000)]
     public int QuantityA { get; private set; }
+    [Required]
+    [Range(0, 1000000)]
     public int QuantityNurse { get; private set; }
-    public ICollection<MedicationDerivation> ConsultationDer {get; set;}
-    public ICollection<MedicationReferral> ConsultationRem {get;set;}
-    public ICollection<MedicationEmergency> Emergency {get; set;}
-    public ICollection<StockDepartment> Stock {get;set;}
+    
+    public ICollection<MedicationDerivation> MedicationDerivations { get; private set; } = new List<MedicationDerivation>();
+    public ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
+    public ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();
+    public ICollection<MedicationRequest> MedicationRequests { get; private set; } = new List<MedicationRequest>();
+    public ICollection<StockDepartment> StockDepartments { get; private set; } = new List<StockDepartment>();
 
     public Medication(
-        Guid idMed,
+        Guid medicationId,
         string format,
         string commercialName,
         string commercialCompany,
@@ -27,7 +47,7 @@ public class Medication
         int quantityA,
         int quantityNurse)
     {
-        IdMed = idMed;
+        MedicationId = medicationId;   
         Format = format;
         CommercialName = commercialName;
         CommercialCompany = commercialCompany;

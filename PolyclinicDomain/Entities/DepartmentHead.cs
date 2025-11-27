@@ -1,35 +1,35 @@
 using PolyclinicCore.Constants;
+using System.ComponentModel.DataAnnotations;
 
 namespace PolyclinicDomain.Entities;
 
-/// <summary>
-/// Representa un Jefe de Departamento.
-/// Un empleado puede ser Doctor y DepartmentHead simultáneamente (TPT).
-/// </summary>
 public class DepartmentHead : Employee
 {
-    public Guid? ManagedDepartmentId { get; private set; }
-    public Department? ManagedDepartment { get; private set; }
+    public Guid DepartmentId { get; private set; }
+    
+    public Department? Department { get; private set; }
+    public ICollection<ConsultationDerivation> ConsultationDerivations { get; private set; } = new List<ConsultationDerivation>(); 
+    public ICollection<ConsultationReferral> ConsultationReferrals { get; private set; } = new List<ConsultationReferral>(); 
+    public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>(); 
+
     public string? UserId { get; set; }
 
-    public DepartmentHead(Guid id, string name, string employmentStatus, string identification, Guid? managedDepartmentId = null)
-        : base(id, name, employmentStatus, identification)
+    public DepartmentHead(
+        Guid id,
+        string name,
+        string employmentStatus,
+        string identification,
+        Guid departmentId) : base(id, name, employmentStatus, identification)
     {
-        ManagedDepartmentId = managedDepartmentId;
+        DepartmentId = departmentId;
     }
 
-    // Constructor sin parámetros para EF Core
     private DepartmentHead() { }
 
     public override string GetPrimaryRole() => ApplicationRoles.DepartmentHead;
 
     public void AssignDepartment(Guid departmentId)
     {
-        ManagedDepartmentId = departmentId;
-    }
-
-    public void RemoveDepartment()
-    {
-        ManagedDepartmentId = null;
+        DepartmentId = departmentId;
     }
 }

@@ -6,6 +6,5 @@ namespace PolyclinicApplication.DTOs.Departments
     {
         // Campos opcionales para partial updates
         public string? Name { get; set; }
-        public Guid? HeadId { get; set; } // null = remove head, value = set head, omitted = keep
     }
 }

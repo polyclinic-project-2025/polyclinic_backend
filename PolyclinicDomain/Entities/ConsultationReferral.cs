@@ -1,40 +1,44 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PolyclinicDomain.Entities;
 
-/// <summary>
-/// Representa una consulta de referencia a un puesto médico externo.
-/// Requiere aprobación del jefe de departamento.
-/// </summary>
 public class ConsultationReferral
 {
-    public Guid ApprovedByHeadId { get; private set; } // ID_J - Jefe que aprueba
-    public Guid ExternalMedicalPostId { get; private set; } // ID_Ext
-    public Guid PatientId { get; private set; } // ID_Pac
-    public DateTime DateTimeRem { get; private set; } // DateTime_Rem
-    public DateTime DateTimeCRem { get; private set; } // DateTime_CRem
-    public Guid? DepartmentToId { get; private set; } // ID_Dpt2
-    public Guid? DoctorId { get; private set; } // ID_Doc
-    public string? Diagnosis { get; private set; } // Diagnóstico_Rem
+    public Guid ConsultationReferralId { get; private set; }
+    
+    [Required]
+    [MaxLength(1000)]
+    public string Diagnosis { get; private set; } // Diagnóstico_Rem
+    
+    public Guid DepartmentHeadId { get; private set; } // ID_J - Jefe que aprueba
+    public DepartmentHead? DepartmentHead { get; private set; }
 
-    // Navigation properties
-    public Patient? Patient { get; private set; }
-    public DepartmentHead? ApprovedByHead { get; private set; }
+    public Guid DoctorId { get; private set; } // ID_Doc
     public Doctor? Doctor { get; private set; }
-    public ExternalMedicalPost? ExternalMedicalPost { get; private set; }
-    public Department? DepartmentTo { get; private set; }
-    public ICollection<MedicationReferral> MedRem { get; set; } = new List<MedicationReferral>();
 
-    public ConsultationReferral(Guid approvedByHeadId, Guid externalMedicalPostId, Guid patientId, DateTime dateTimeRem, DateTime dateTimeCRem, Guid? departmentToId = null, Guid? doctorId = null, string? diagnosis = null)
+    public Guid ReferralId { get; private set; } 
+    public Referral? Referral { get; private set; }
+
+    [Required]
+    public DateTime DateTimeCRem { get; private set; } // DateTime_CRem
+
+    public ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
+
+    public ConsultationReferral(
+        Guid consultationReferralId,
+        string diagnosis,
+        Guid departmentHeadId,
+        Guid doctorId,
+        Guid referralId,
+        DateTime dateTimeCRem)
     {
-        ApprovedByHeadId = approvedByHeadId;
-        ExternalMedicalPostId = externalMedicalPostId;
-        PatientId = patientId;
-        DateTimeRem = dateTimeRem;
-        DateTimeCRem = dateTimeCRem;
-        DepartmentToId = departmentToId;
-        DoctorId = doctorId;
+        ConsultationReferralId = consultationReferralId;
         Diagnosis = diagnosis;
+        DepartmentHeadId = departmentHeadId;
+        DoctorId = doctorId;
+        ReferralId = referralId;
+        DateTimeCRem = dateTimeCRem;
     }
-
-    // Constructor sin parámetros para EF Core
+  
     private ConsultationReferral() { }
 }

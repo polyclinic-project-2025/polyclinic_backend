@@ -1,36 +1,29 @@
 using PolyclinicCore.Constants;
+using System.ComponentModel.DataAnnotations;
 
 namespace PolyclinicDomain.Entities;
 
-/// <summary>
-/// Representa un Jefe de Almacén (Warehouse Manager).
-/// Gestiona un almacén específico.
-/// </summary>
 public class WarehouseManager : Employee
 {
-    public Guid? ManagedWarehouseId { get; private set; }
-    public Warehouse? ManagedWarehouse { get; private set; }
+    public Guid WarehouseId { get; private set; }
+    public Warehouse? Warehouse { get; private set; }
+
+    public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>();
 
     public string? UserId { get; set; }
 
-    public WarehouseManager(Guid id, string identification, string name, string employmentStatus, Guid? managedWarehouseId = null)
+    public WarehouseManager(Guid id, string identification, string name, string employmentStatus, Guid warehouseId)
         : base(id, identification, name, employmentStatus)
     {
-        ManagedWarehouseId = managedWarehouseId;
+        WarehouseId = warehouseId;
     }
 
-    // Constructor sin parámetros para EF Core 
     private WarehouseManager() { }
 
     public override string GetPrimaryRole() => ApplicationRoles.WarehouseManager;
 
     public void AssignWarehouse(Guid warehouseId)
     {
-        ManagedWarehouseId = warehouseId;
-    }
-
-    public void RemoveWarehouse()
-    {
-        ManagedWarehouseId = null;
+        WarehouseId = warehouseId;
     }
 }

@@ -220,92 +220,98 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
-                    b.Property<Guid?>("DoctorId")
+                    b.Property<Guid>("ConsultationDerivationId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateTimeDer")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateTimeCDer")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("DepartmentFromId")
+                    b.Property<Guid?>("DepartmentHeadEmployeeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("ApprovedByHeadId")
+                    b.Property<Guid>("DepartmentHeadId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("DepartmentToId")
+                    b.Property<Guid>("DerivationId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Diagnosis")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.HasKey("DoctorId", "PatientId", "DateTimeDer", "DateTimeCDer", "DepartmentFromId");
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("ApprovedByHeadId");
+                    b.Property<Guid?>("PatientId")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("DepartmentFromId");
+                    b.HasKey("ConsultationDerivationId");
 
-                    b.HasIndex("DepartmentToId");
+                    b.HasIndex("DepartmentHeadEmployeeId");
+
+                    b.HasIndex("DepartmentHeadId");
+
+                    b.HasIndex("DerivationId");
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Consultation Derivation", (string)null);
+                    b.HasIndex("DoctorId", "DerivationId", "DateTimeCDer")
+                        .IsUnique();
+
+                    b.ToTable("ConsultationDerivation", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationReferral", b =>
                 {
-                    b.Property<Guid?>("DoctorId")
+                    b.Property<Guid>("ConsultationReferralId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<Guid>("ExternalMedicalPostId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateTimeRem")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("DateTimeCRem")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("ApprovedByHeadId")
+                    b.Property<Guid?>("DepartmentHeadEmployeeId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("DepartmentToId")
-                        .IsRequired()
+                    b.Property<Guid>("DepartmentHeadId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Diagnosis")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.HasKey("DoctorId", "ExternalMedicalPostId", "PatientId", "DateTimeRem", "DateTimeCRem");
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("ApprovedByHeadId");
+                    b.Property<Guid?>("PatientId")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("DepartmentToId");
+                    b.Property<Guid>("ReferralId")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("ExternalMedicalPostId");
+                    b.HasKey("ConsultationReferralId");
+
+                    b.HasIndex("DepartmentHeadEmployeeId");
+
+                    b.HasIndex("DepartmentHeadId");
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Consultation Referral", (string)null);
+                    b.HasIndex("ReferralId");
+
+                    b.HasIndex("DoctorId", "ReferralId", "DateTimeCRem")
+                        .IsUnique();
+
+                    b.ToTable("ConsultationReferral", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Department", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("DepartmentId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("HeadId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -313,40 +319,44 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("HeadId")
-                        .IsUnique();
+                    b.HasKey("DepartmentId");
 
                     b.ToTable("Department", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
                 {
-                    b.Property<Guid>("DepartmentFromId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PatientId")
+                    b.Property<Guid>("DerivationId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("DateTimeDer")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<Guid>("DepartmentFromId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("DepartmentToId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("DepartmentFromId", "PatientId", "DateTimeDer");
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("DerivationId");
 
                     b.HasIndex("DepartmentToId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("DepartmentFromId", "DateTimeDer", "PatientId")
+                        .IsUnique();
 
                     b.ToTable("Derivation", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoom", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EmergencyRoomId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -356,7 +366,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<DateOnly>("GuardDate")
                         .HasColumnType("date");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmergencyRoomId");
 
                     b.HasIndex("DoctorId", "GuardDate")
                         .IsUnique();
@@ -366,7 +376,7 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoomCare", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EmergencyRoomCareId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -375,8 +385,8 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<string>("Diagnosis")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<Guid>("EmergencyRoomId")
                         .HasColumnType("uuid");
@@ -384,35 +394,40 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmergencyRoomCareId");
 
                     b.HasIndex("EmergencyRoomId");
 
                     b.HasIndex("PatientId");
+
+                    b.HasIndex("CareDate", "PatientId")
+                        .IsUnique();
 
                     b.ToTable("EmergencyRoomCare", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Employee", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("EmployeeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("EmploymentStatus")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Identification")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmployeeId");
 
                     b.HasIndex("Identification")
                         .IsUnique();
@@ -424,28 +439,28 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ExternalMedicalPost", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ExternalMedicalPostId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("character varying(400)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ExternalMedicalPostId");
 
                     b.ToTable("ExternalMedicalPost", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Medication", b =>
                 {
-                    b.Property<Guid>("IdMed")
+                    b.Property<Guid>("MedicationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -456,13 +471,13 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<string>("CommercialCompany")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("CommercialName")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("timestamp with time zone");
@@ -480,138 +495,109 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<string>("ScientificName")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.HasKey("IdMed");
+                    b.HasKey("MedicationId");
 
-                    b.ToTable("Medications");
+                    b.ToTable("Medication", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationDerivation", b =>
                 {
-                    b.Property<Guid>("DepartmentToId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("DepartmentFromId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateTimeDer")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("DateTimeCDer")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("DoctorId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("IdMed")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("DepartmentToId", "DepartmentFromId", "PatientId", "DateTimeDer", "DateTimeCDer", "DoctorId", "IdMed");
-
-                    b.HasIndex("IdMed");
-
-                    b.HasIndex("DoctorId", "PatientId", "DateTimeDer", "DateTimeCDer", "DepartmentFromId");
-
-                    b.ToTable("MedicationDerivations");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.MedicationEmergency", b =>
-                {
-                    b.Property<Guid>("EmergencyRoomCareId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("IdMed")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CareDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("DoctorId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateOnly>("GuardDate")
-                        .HasColumnType("date");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("EmergencyRoomCareId", "IdMed");
-
-                    b.HasIndex("IdMed");
-
-                    b.ToTable("MedicationEmergency");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.MedicationReferral", b =>
-                {
-                    b.Property<Guid?>("DoctorId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ExternalMedicalPostId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateTimeRem")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("DateTimeCRem")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("DepartmentToId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Diagnosis")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("IdMed")
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.HasKey("DoctorId", "ExternalMedicalPostId", "PatientId", "DateTimeRem", "DateTimeCRem", "DepartmentToId", "Diagnosis", "IdMed");
-
-                    b.HasIndex("IdMed");
-
-                    b.ToTable("MedicationReferrals");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.MedicationRequest", b =>
-                {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("MedicationDerivationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("DepartmentId")
+                    b.Property<Guid>("ConsultationDerivationId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("MedicationId")
                         .HasColumnType("uuid");
 
-                    b.Property<int?>("Quantity")
+                    b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("RequestDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.HasKey("MedicationDerivationId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("MedicationId");
 
-                    b.HasIndex("DepartmentId");
+                    b.HasIndex("ConsultationDerivationId", "MedicationId")
+                        .IsUnique();
 
-                    b.HasIndex("MedicationId", "DepartmentId", "RequestDate")
+                    b.ToTable("MedicationDerivation", (string)null);
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.MedicationEmergency", b =>
+                {
+                    b.Property<Guid>("MedicationEmergencyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("EmergencyRoomCareId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MedicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("MedicationEmergencyId");
+
+                    b.HasIndex("MedicationId");
+
+                    b.HasIndex("EmergencyRoomCareId", "MedicationId")
+                        .IsUnique();
+
+                    b.ToTable("MedicationEmergency", (string)null);
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.MedicationReferral", b =>
+                {
+                    b.Property<Guid>("MedicationReferralId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ConsultationReferralId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MedicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.HasKey("MedicationReferralId");
+
+                    b.HasIndex("MedicationId");
+
+                    b.HasIndex("ConsultationReferralId", "MedicationId")
+                        .IsUnique();
+
+                    b.ToTable("MedicationReferral", (string)null);
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.MedicationRequest", b =>
+                {
+                    b.Property<Guid>("MedicationRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MedicationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("WarehouseRequestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("MedicationRequestId");
+
+                    b.HasIndex("MedicationId");
+
+                    b.HasIndex("WarehouseRequestId", "MedicationId")
                         .IsUnique();
 
                     b.ToTable("MedicationRequest", (string)null);
@@ -619,11 +605,8 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("NursingId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("HeadId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -631,10 +614,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("HeadId")
-                        .IsUnique();
+                    b.HasKey("NursingId");
 
                     b.ToTable("Nursing", (string)null);
                 });
@@ -647,19 +627,21 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasMaxLength(400)
-                        .HasColumnType("character varying(400)");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.Property<int>("Age")
                         .HasColumnType("integer");
 
                     b.Property<string>("Contact")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Identification")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -674,18 +656,13 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("Identification")
                         .IsUnique();
 
-                    b.ToTable("Patient", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_Patient_Age", "\"Age\" >= 0 AND \"Age\" < 130");
-                        });
+                    b.ToTable("Patient", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Referral", b =>
                 {
-                    b.Property<Guid>("ExternalMedicalPostId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PatientId")
+                    b.Property<Guid>("ReferralId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("DateTimeRem")
@@ -694,40 +671,53 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("DepartmentToId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("ExternalMedicalPostId", "PatientId", "DateTimeRem");
+                    b.Property<Guid>("ExternalMedicalPostId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ReferralId");
 
                     b.HasIndex("DepartmentToId");
 
-                    b.HasIndex("PatientId");
+                    b.HasIndex("ExternalMedicalPostId");
+
+                    b.HasIndex("PatientId", "DateTimeRem", "ExternalMedicalPostId")
+                        .IsUnique();
 
                     b.ToTable("Referral", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.StockDepartment", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("StockDepartmentId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("IdMed")
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MedicationId")
                         .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id", "IdMed");
+                    b.HasKey("StockDepartmentId");
 
-                    b.HasIndex("IdMed");
+                    b.HasIndex("MedicationId");
 
-                    b.ToTable("StockDepartments");
+                    b.HasIndex("DepartmentId", "MedicationId")
+                        .IsUnique();
+
+                    b.ToTable("StockDepartment", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Warehouse", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("WarehouseId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("ManagerId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Name")
@@ -735,21 +725,18 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ManagerId")
-                        .IsUnique();
+                    b.HasKey("WarehouseId");
 
                     b.ToTable("Warehouse", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseRequest", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("WarehouseRequestId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("BossId")
+                    b.Property<Guid?>("DepartmentHeadEmployeeId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("DepartmentId")
@@ -760,19 +747,26 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
-                    b.Property<Guid>("WarehouseId")
+                    b.Property<Guid?>("WarehouseId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("Id");
+                    b.Property<Guid>("WarehouseManagerId")
+                        .HasColumnType("uuid");
 
-                    b.HasIndex("BossId");
+                    b.HasKey("WarehouseRequestId");
+
+                    b.HasIndex("DepartmentHeadEmployeeId");
 
                     b.HasIndex("DepartmentId");
 
-                    b.HasIndex("WarehouseId", "DepartmentId", "RequestDate")
+                    b.HasIndex("WarehouseId");
+
+                    b.HasIndex("WarehouseManagerId");
+
+                    b.HasIndex("RequestDate", "DepartmentId")
                         .IsUnique();
 
                     b.ToTable("WarehouseRequest", (string)null);
@@ -782,11 +776,14 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
 
-                    b.Property<Guid?>("ManagedDepartmentId")
+                    b.Property<Guid>("DepartmentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
+
+                    b.HasIndex("DepartmentId")
+                        .IsUnique();
 
                     b.ToTable("DepartmentHead", (string)null);
                 });
@@ -821,25 +818,18 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("Nurse", (string)null);
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.NursingHead", b =>
-                {
-                    b.HasBaseType("PolyclinicDomain.Entities.Employee");
-
-                    b.Property<Guid?>("ManagedNursingId")
-                        .HasColumnType("uuid");
-
-                    b.ToTable("NursingHead", (string)null);
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
 
-                    b.Property<Guid?>("ManagedWarehouseId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("UserId")
                         .HasColumnType("text");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uuid");
+
+                    b.HasIndex("WarehouseId")
+                        .IsUnique();
 
                     b.ToTable("WarehouseManager", (string)null);
                 });
@@ -904,110 +894,84 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "ApprovedByHead")
-                        .WithMany()
-                        .HasForeignKey("ApprovedByHeadId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", null)
+                        .WithMany("ConsultationDerivations")
+                        .HasForeignKey("DepartmentHeadEmployeeId");
 
-                    b.HasOne("PolyclinicDomain.Entities.Department", "DepartmentFrom")
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "DepartmentHead")
                         .WithMany()
-                        .HasForeignKey("DepartmentFromId")
+                        .HasForeignKey("DepartmentHeadId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PolyclinicDomain.Entities.Department", "DepartmentTo")
-                        .WithMany()
-                        .HasForeignKey("DepartmentToId")
+                    b.HasOne("PolyclinicDomain.Entities.Derivation", "Derivation")
+                        .WithMany("ConsultationDerivations")
+                        .HasForeignKey("DerivationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
-                        .WithMany()
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Patient", "Patient")
                         .WithMany("ConsultationDerivations")
-                        .HasForeignKey("PatientId")
+                        .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ApprovedByHead");
+                    b.HasOne("PolyclinicDomain.Entities.Patient", null)
+                        .WithMany("ConsultationDerivations")
+                        .HasForeignKey("PatientId");
 
-                    b.Navigation("DepartmentFrom");
+                    b.Navigation("DepartmentHead");
 
-                    b.Navigation("DepartmentTo");
+                    b.Navigation("Derivation");
 
                     b.Navigation("Doctor");
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationReferral", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "ApprovedByHead")
-                        .WithMany()
-                        .HasForeignKey("ApprovedByHeadId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", null)
+                        .WithMany("ConsultationReferrals")
+                        .HasForeignKey("DepartmentHeadEmployeeId");
 
-                    b.HasOne("PolyclinicDomain.Entities.Department", "DepartmentTo")
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "DepartmentHead")
                         .WithMany()
-                        .HasForeignKey("DepartmentToId")
+                        .HasForeignKey("DepartmentHeadId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
-                        .WithMany()
-                        .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.ExternalMedicalPost", "ExternalMedicalPost")
-                        .WithMany()
-                        .HasForeignKey("ExternalMedicalPostId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Patient", "Patient")
                         .WithMany("ConsultationReferrals")
-                        .HasForeignKey("PatientId")
+                        .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("ApprovedByHead");
+                    b.HasOne("PolyclinicDomain.Entities.Patient", null)
+                        .WithMany("ConsultationReferrals")
+                        .HasForeignKey("PatientId");
 
-                    b.Navigation("DepartmentTo");
+                    b.HasOne("PolyclinicDomain.Entities.Referral", "Referral")
+                        .WithMany("ConsultationReferrals")
+                        .HasForeignKey("ReferralId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DepartmentHead");
 
                     b.Navigation("Doctor");
 
-                    b.Navigation("ExternalMedicalPost");
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.Department", b =>
-                {
-                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "Head")
-                        .WithOne("ManagedDepartment")
-                        .HasForeignKey("PolyclinicDomain.Entities.Department", "HeadId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Head");
+                    b.Navigation("Referral");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Department", "DepartmentFrom")
-                        .WithMany()
+                        .WithMany("DerivationsFrom")
                         .HasForeignKey("DepartmentFromId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Department", "DepartmentTo")
-                        .WithMany()
+                        .WithMany("DerivationsTo")
                         .HasForeignKey("DepartmentToId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1039,13 +1003,13 @@ namespace PolyclinicInfrastructure.Migrations
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoomCare", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.EmergencyRoom", "EmergencyRoom")
-                        .WithMany("Cares")
+                        .WithMany("EmergencyRoomCares")
                         .HasForeignKey("EmergencyRoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("EmergencyRoomCares")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1057,94 +1021,84 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationDerivation", b =>
                 {
+                    b.HasOne("PolyclinicDomain.Entities.ConsultationDerivation", "ConsultationDerivation")
+                        .WithMany("MedicationDerivations")
+                        .HasForeignKey("ConsultationDerivationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PolyclinicDomain.Entities.Medication", "Medication")
-                        .WithMany("ConsultationDer")
-                        .HasForeignKey("IdMed")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("MedicationDerivations")
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PolyclinicDomain.Entities.ConsultationDerivation", "Consulta")
-                        .WithMany("MedDer")
-                        .HasForeignKey("DoctorId", "PatientId", "DateTimeDer", "DateTimeCDer", "DepartmentFromId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Consulta");
+                    b.Navigation("ConsultationDerivation");
 
                     b.Navigation("Medication");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationEmergency", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.EmergencyRoomCare", "Emergency")
-                        .WithMany("MedEmergency")
+                    b.HasOne("PolyclinicDomain.Entities.EmergencyRoomCare", "EmergencyRoomCare")
+                        .WithMany("MedicationEmergencies")
                         .HasForeignKey("EmergencyRoomCareId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Medication", "Medication")
-                        .WithMany("Emergency")
-                        .HasForeignKey("IdMed")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("MedicationEmergencies")
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Emergency");
+                    b.Navigation("EmergencyRoomCare");
 
                     b.Navigation("Medication");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationReferral", b =>
                 {
+                    b.HasOne("PolyclinicDomain.Entities.ConsultationReferral", "ConsultationReferral")
+                        .WithMany("MedicationReferrals")
+                        .HasForeignKey("ConsultationReferralId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PolyclinicDomain.Entities.Medication", "Medication")
-                        .WithMany("ConsultationRem")
-                        .HasForeignKey("IdMed")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("MedicationReferrals")
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PolyclinicDomain.Entities.ConsultationReferral", "Consulta")
-                        .WithMany("MedRem")
-                        .HasForeignKey("DoctorId", "ExternalMedicalPostId", "PatientId", "DateTimeRem", "DateTimeCRem")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Consulta");
+                    b.Navigation("ConsultationReferral");
 
                     b.Navigation("Medication");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationRequest", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("PolyclinicDomain.Entities.Medication", "Medication")
-                        .WithMany()
+                        .WithMany("MedicationRequests")
                         .HasForeignKey("MedicationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.HasOne("PolyclinicDomain.Entities.WarehouseRequest", "WarehouseRequest")
+                        .WithMany("MedicationRequests")
+                        .HasForeignKey("WarehouseRequestId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Medication");
-                });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
-                {
-                    b.HasOne("PolyclinicDomain.Entities.NursingHead", "Head")
-                        .WithOne("ManagedNursing")
-                        .HasForeignKey("PolyclinicDomain.Entities.Nursing", "HeadId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Head");
+                    b.Navigation("WarehouseRequest");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Referral", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Department", "DepartmentTo")
-                        .WithMany()
+                        .WithMany("Referrals")
                         .HasForeignKey("DepartmentToId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -1171,15 +1125,15 @@ namespace PolyclinicInfrastructure.Migrations
             modelBuilder.Entity("PolyclinicDomain.Entities.StockDepartment", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Department", "Department")
-                        .WithMany("Stock")
-                        .HasForeignKey("Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("StockDepartments")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Medication", "Medication")
-                        .WithMany("Stock")
-                        .HasForeignKey("IdMed")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("StockDepartments")
+                        .HasForeignKey("MedicationId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Department");
@@ -1187,63 +1141,61 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Medication");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.Warehouse", b =>
-                {
-                    b.HasOne("PolyclinicDomain.Entities.WarehouseManager", "Manager")
-                        .WithOne("ManagedWarehouse")
-                        .HasForeignKey("PolyclinicDomain.Entities.Warehouse", "ManagerId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Manager");
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseRequest", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "Boss")
-                        .WithMany()
-                        .HasForeignKey("BossId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", null)
+                        .WithMany("WarehouseRequests")
+                        .HasForeignKey("DepartmentHeadEmployeeId");
 
                     b.HasOne("PolyclinicDomain.Entities.Department", "Department")
-                        .WithMany()
+                        .WithMany("WarehouseRequests")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PolyclinicDomain.Entities.Warehouse", "Warehouse")
-                        .WithMany()
-                        .HasForeignKey("WarehouseId")
+                    b.HasOne("PolyclinicDomain.Entities.Warehouse", null)
+                        .WithMany("WarehouseRequests")
+                        .HasForeignKey("WarehouseId");
+
+                    b.HasOne("PolyclinicDomain.Entities.WarehouseManager", "WarehouseManager")
+                        .WithMany("WarehouseRequests")
+                        .HasForeignKey("WarehouseManagerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Boss");
-
                     b.Navigation("Department");
 
-                    b.Navigation("Warehouse");
+                    b.Navigation("WarehouseManager");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
                 {
+                    b.HasOne("PolyclinicDomain.Entities.Department", "Department")
+                        .WithOne("DepartmentHead")
+                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PolyclinicDomain.Entities.Employee", null)
                         .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "Id")
+                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicalStaff", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Department", "Department")
-                        .WithMany("MedicalStaff")
+                        .WithMany("MedicalStaffs")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Employee", null)
                         .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.MedicalStaff", "Id")
+                        .HasForeignKey("PolyclinicDomain.Entities.MedicalStaff", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1254,7 +1206,7 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     b.HasOne("PolyclinicDomain.Entities.Employee", null)
                         .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.Nurse", "Id")
+                        .HasForeignKey("PolyclinicDomain.Entities.Nurse", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1267,69 +1219,85 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Nursing");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.NursingHead", b =>
-                {
-                    b.HasOne("PolyclinicDomain.Entities.Employee", null)
-                        .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.NursingHead", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Employee", null)
                         .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.WarehouseManager", "Id")
+                        .HasForeignKey("PolyclinicDomain.Entities.WarehouseManager", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("PolyclinicDomain.Entities.Warehouse", "Warehouse")
+                        .WithOne("WarehouseManager")
+                        .HasForeignKey("PolyclinicDomain.Entities.WarehouseManager", "WarehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.MedicalStaff", null)
                         .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.Doctor", "Id")
+                        .HasForeignKey("PolyclinicDomain.Entities.Doctor", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
-                    b.Navigation("MedDer");
+                    b.Navigation("MedicationDerivations");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationReferral", b =>
                 {
-                    b.Navigation("MedRem");
+                    b.Navigation("MedicationReferrals");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Department", b =>
                 {
-                    b.Navigation("MedicalStaff");
+                    b.Navigation("DepartmentHead");
 
-                    b.Navigation("Stock");
+                    b.Navigation("DerivationsFrom");
+
+                    b.Navigation("DerivationsTo");
+
+                    b.Navigation("MedicalStaffs");
+
+                    b.Navigation("Referrals");
+
+                    b.Navigation("StockDepartments");
+
+                    b.Navigation("WarehouseRequests");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
+                {
+                    b.Navigation("ConsultationDerivations");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoom", b =>
                 {
-                    b.Navigation("Cares");
+                    b.Navigation("EmergencyRoomCares");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoomCare", b =>
                 {
-                    b.Navigation("MedEmergency");
+                    b.Navigation("MedicationEmergencies");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Medication", b =>
                 {
-                    b.Navigation("ConsultationDer");
+                    b.Navigation("MedicationDerivations");
 
-                    b.Navigation("ConsultationRem");
+                    b.Navigation("MedicationEmergencies");
 
-                    b.Navigation("Emergency");
+                    b.Navigation("MedicationReferrals");
 
-                    b.Navigation("Stock");
+                    b.Navigation("MedicationRequests");
+
+                    b.Navigation("StockDepartments");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
@@ -1345,26 +1313,48 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.Navigation("Derivations");
 
+                    b.Navigation("EmergencyRoomCares");
+
                     b.Navigation("Referrals");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.Referral", b =>
+                {
+                    b.Navigation("ConsultationReferrals");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.Warehouse", b =>
+                {
+                    b.Navigation("WarehouseManager");
+
+                    b.Navigation("WarehouseRequests");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseRequest", b =>
+                {
+                    b.Navigation("MedicationRequests");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
                 {
-                    b.Navigation("ManagedDepartment");
-                });
+                    b.Navigation("ConsultationDerivations");
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.NursingHead", b =>
-                {
-                    b.Navigation("ManagedNursing");
+                    b.Navigation("ConsultationReferrals");
+
+                    b.Navigation("WarehouseRequests");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
                 {
-                    b.Navigation("ManagedWarehouse");
+                    b.Navigation("WarehouseRequests");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
                 {
+                    b.Navigation("ConsultationDerivations");
+
+                    b.Navigation("ConsultationReferrals");
+
                     b.Navigation("EmergencyRooms");
                 });
 #pragma warning restore 612, 618

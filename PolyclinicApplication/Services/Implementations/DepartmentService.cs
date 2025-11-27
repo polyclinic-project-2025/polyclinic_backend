@@ -43,7 +43,7 @@ namespace PolyclinicApplication.Services.Implementations
                 throw new InvalidOperationException($"A department with the name '{dto.Name}' already exists.");
 
             // Crear entidad de dominio
-            var department = new Department(Guid.NewGuid(), dto.Name, dto.HeadId);
+            var department = new Department(Guid.NewGuid(), dto.Name);
 
             // Persistir
             await _repository.AddAsync(department);
@@ -86,16 +86,6 @@ namespace PolyclinicApplication.Services.Implementations
                     throw new InvalidOperationException($"A department with the name '{dto.Name}' already exists.");
 
                 department.ChangeName(dto.Name);
-            }
-
-            // Procesar HeadId
-            if (dto.HeadId.HasValue)
-            {
-                department.AssignHead(dto.HeadId.Value);
-            }
-            else if (dto.HeadId == null)
-            {
-                department.RemoveHead();
             }
 
             await _repository.UpdateAsync(department);

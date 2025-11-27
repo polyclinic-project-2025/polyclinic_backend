@@ -240,7 +240,7 @@ public class RoleValidationService : IRoleValidationService
                                 "Este doctor ya tiene una cuenta de usuario asociada.");
                         }
                         
-                        entityId = doctor.Id;
+                        entityId = doctor.EmployeeId;
                     }
                     break;
 
@@ -263,7 +263,7 @@ public class RoleValidationService : IRoleValidationService
                                 "Este enfermero ya tiene una cuenta de usuario asociada.");
                         }
                         
-                        entityId = nurse.Id;
+                        entityId = nurse.EmployeeId;
                     }
                     break;
 
@@ -312,7 +312,7 @@ public class RoleValidationService : IRoleValidationService
                                 "Este personal médico ya tiene una cuenta de usuario asociada.");
                         }
                         
-                        entityId = medicalStaff.Id;
+                        entityId = medicalStaff.EmployeeId;
                     }
                     break;
             }
