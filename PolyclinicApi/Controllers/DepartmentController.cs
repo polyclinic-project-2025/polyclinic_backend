@@ -49,7 +49,7 @@ namespace PolyclinicAPI.Controllers
             try
             {
                 var created = await _departmentService.CreateAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+                return CreatedAtAction(nameof(GetById), new { id = created.DepartmentId }, created);
             }
             catch (InvalidOperationException ex)
             {

@@ -20,10 +20,10 @@ public class DepartmentRepository : Repository<Department>, IDepartmentRepositor
     {
         // Eager load de relaciones importantes en una sola query
         return await _dbSet
-            .Include(d => d.Head)
-            .Include(d => d.MedicalStaff)
-            .Include(d => d.Stock)
-            .FirstOrDefaultAsync(d => d.Id == id);
+            .Include(d => d.DepartmentHead)
+            .Include(d => d.MedicalStaffs)
+            .Include(d => d.StockDepartments)
+            .FirstOrDefaultAsync(d => d.DepartmentId == id);
     }
 
     public async Task<Department?> GetByNameAsync(string name)

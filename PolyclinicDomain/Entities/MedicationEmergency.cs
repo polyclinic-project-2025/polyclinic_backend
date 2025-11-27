@@ -1,22 +1,29 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PolyclinicDomain.Entities;
+
 public class MedicationEmergency{
-    public Guid DoctorId { get; private set; }
-    public Guid PatientId { get; private set; }
-    public DateTime CareDate { get; private set; }
-    public DateOnly GuardDate { get; private set; }
-    public Guid IdMed { get; private set; }
-    public int? Quantity {get; private set;}
-    public EmergencyRoomCare Emergency { get; private set; }
-    public Guid EmergencyRoomCareId { get; private set; }
-    public Medication Medication { get; private set; }
+    public Guid MedicationEmergencyId { get; private set; }
     
-    public MedicationEmergency(Guid emergencyRoomCareId, Guid doctorId, Guid patientId, DateTime careDate,DateOnly guardDate,Guid idMed,int? quantity){
-        EmergencyRoomCareId = emergencyRoomCareId;
-        DoctorId = doctorId;
-        PatientId = patientId;
-        CareDate = careDate;
-        GuardDate = guardDate;
-        IdMed = idMed;
+    [Required]
+    [Range(0, 1000000)]
+    public int Quantity {get; private set;}
+
+    public Guid EmergencyRoomCareId { get; private set; }
+    public EmergencyRoomCare? EmergencyRoomCare { get; private set; }
+
+    public Guid MedicationId { get; private set; }
+    public Medication? Medication { get; private set; }
+    
+    public MedicationEmergency(
+        Guid medicationEmergencyId,
+        int quantity,
+        Guid emergencyRoomCareId,
+        Guid medicationId)
+    {
+        MedicationEmergencyId = medicationEmergencyId;
         Quantity = quantity;
+        EmergencyRoomCareId = emergencyRoomCareId;
+        MedicationId = medicationId;
     }
-}   
+}
