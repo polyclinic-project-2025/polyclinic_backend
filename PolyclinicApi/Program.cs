@@ -104,67 +104,22 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey no configurada");
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.SaveToken = true;
-    options.RequireHttpsMetadata = false; // En producción, cambiar a true
-    options.IncludeErrorDetails = true;
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine($"❌ ERROR DE AUTENTICACIÓN:");
-            Console.WriteLine($"   Excepción: {context.Exception?.GetType().Name}");
-            Console.WriteLine($"   Mensaje: {context.Exception?.Message}");
-            
-            if (context.Request.Headers.ContainsKey("Authorization"))
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                var authHeader = context.Request.Headers["Authorization"].ToString();
-                Console.WriteLine($"   Header presente: {(authHeader.Length > 20 ? authHeader.Substring(0, 20) + "..." : authHeader)}");
-            }
-            else
-            {
-                Console.WriteLine($"   ⚠️ No hay header Authorization");
-            }
-            
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var roles = context.Principal?.FindAll(ClaimTypes.Role).Select(c => c.Value);
-            Console.WriteLine($"✅ Token validado - Usuario: {userId}, Roles: {string.Join(", ", roles ?? Array.Empty<string>())}");
-            return Task.CompletedTask;
-        },
-        OnMessageReceived = context =>
-        {
-            var authHeader = context.Request.Headers["Authorization"].ToString();
-            Console.WriteLine($"📨 Token recibido: {authHeader.Substring(0, Math.Min(50, authHeader.Length))}...");
-            return Task.CompletedTask;
-        }
-    };
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-        ClockSkew = TimeSpan.FromSeconds(5),
-        RoleClaimType = ClaimTypes.Role,
-        NameClaimType = ClaimTypes.NameIdentifier,
-        ValidateActor = false,
-        ValidateTokenReplay = false
-    };
-});
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(secretKey!))
+                };
+            });
 
 // ==========================================
 // INFRASTRUCTURE - AUTHORIZATION

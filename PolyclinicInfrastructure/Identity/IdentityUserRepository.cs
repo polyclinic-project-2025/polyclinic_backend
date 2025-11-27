@@ -126,9 +126,9 @@ public class IdentityUserRepository : IIdentityRepository
         return Result<string>.Failure($"El usuario {email} no existe");
     }
 
-    public async Task<Result<string>> UpdateUserValueAsync(string email, string value, string propertyName)
+    public async Task<Result<string>> UpdateUserValueAsync(string userId, string value, string propertyName)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user != null)
         {
             var property = typeof(IdentityUser).GetProperty(propertyName);
@@ -139,11 +139,11 @@ public class IdentityUserRepository : IIdentityRepository
             var result = await _userManager.UpdateAsync(user);
             
             if (result.Succeeded) 
-                return Result<string>.Success($"El usuario {email} ha sido actualizado correctamente");
+                return Result<string>.Success($"El usuario {userId} ha sido actualizado correctamente");
             
             return Result<string>.Failure($"Error al actualizar usuario");
         }
-        return Result<string>.Failure($"Usuario {email} no encontrado");
+        return Result<string>.Failure($"Usuario {userId} no encontrado");
     }
 
     public async Task<Result<IEnumerable<UserResponse>>> GetAllUsersAsync()
