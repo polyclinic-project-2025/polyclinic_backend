@@ -12,8 +12,8 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251127010905_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251129172213_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -430,9 +430,15 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
                     b.HasKey("EmployeeId");
 
                     b.HasIndex("Identification")
+                        .IsUnique();
+
+                    b.HasIndex("UserId")
                         .IsUnique();
 
                     b.ToTable("Employee", (string)null);
@@ -659,6 +665,9 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("Identification")
                         .IsUnique();
 
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
                     b.ToTable("Patient", (string)null);
                 });
 
@@ -782,9 +791,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.HasIndex("DepartmentId")
                         .IsUnique();
 
@@ -798,9 +804,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("MedicalStaff", (string)null);
@@ -813,9 +816,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("NursingId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
                     b.HasIndex("NursingId");
 
                     b.ToTable("Nurse", (string)null);
@@ -824,9 +824,6 @@ namespace PolyclinicInfrastructure.Migrations
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
 
                     b.Property<Guid>("WarehouseId")
                         .HasColumnType("uuid");
@@ -1022,6 +1019,14 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("PolyclinicDomain.Entities.Employee", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithOne()
+                        .HasForeignKey("PolyclinicDomain.Entities.Employee", "UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+                });
+
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationDerivation", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.ConsultationDerivation", "ConsultationDerivation")
@@ -1096,6 +1101,14 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Medication");
 
                     b.Navigation("WarehouseRequest");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.Patient", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithOne()
+                        .HasForeignKey("PolyclinicDomain.Entities.Patient", "UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Referral", b =>

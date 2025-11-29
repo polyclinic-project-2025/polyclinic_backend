@@ -16,6 +16,8 @@ public abstract class Employee
     [MaxLength(50)]
     public string EmploymentStatus { get; private set; }
 
+    public string? UserId { get; set; } = null;
+
     protected Employee(Guid employeeId, string identification, string name, string employmentStatus)
     {
         EmployeeId = employeeId;

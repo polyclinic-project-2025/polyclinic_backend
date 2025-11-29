@@ -51,12 +51,7 @@ public static class ApplicationRoles
     /// <summary>
     /// Paciente con acceso limitado a su información
     /// </summary>
-    public const string Patient = "Paciente";
-    
-    /// <summary>
-    /// Rol por defecto para nuevos usuarios
-    /// </summary>
-    public const string Client = "Cliente";
+    public const string Patient = "Patient";
     
     // ==========================================
     // COLECCIONES DE ROLES
@@ -71,7 +66,7 @@ public static class ApplicationRoles
         WarehouseManager,
         DepartmentHead,
         Patient,
-        Client
+
     };
     
     public static readonly string[] MedicalRoles = 

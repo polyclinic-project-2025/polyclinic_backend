@@ -7,9 +7,6 @@ public class MedicalStaff : Employee
 {
     public Guid DepartmentId { get; private set; }
     public Department? Department { get; private set; }
-
-    public string? UserId { get; set; }
-
     public MedicalStaff(Guid medicalStaffId, string name, string employmentStatus, string identification, Guid departmentId)
         : base(medicalStaffId, name, employmentStatus, identification)
     {

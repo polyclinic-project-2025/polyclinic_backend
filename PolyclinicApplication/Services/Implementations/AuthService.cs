@@ -1,29 +1,28 @@
 using PolyclinicApplication.DTOs.Response.Auth;
 using PolyclinicApplication.DTOs.Request.Auth;
-using PolyclinicApplication.Service.Interfaces;
+using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.Common.Interfaces;
-using PolyclinicApplication.Services.Interfaces;
 
 namespace PolyclinicApplication.Services.Implementations;
 
 
-public class AuthService : IAuthService
+public class AuthService: IAuthService
 {
-    private readonly IIdentityService _identityService;
+    private readonly IIdentityRepository _identityRepository;
     private readonly IRoleValidationService _roleValidationService;
     private readonly ITokenService _tokenService;
     private readonly IEntityLinkingService _entityLinkingService;
 
     public AuthService(
-        IIdentityService identityService,
+        IIdentityRepository identityRepository,
         IRoleValidationService roleValidationService,
         ITokenService tokenService,
         IEntityLinkingService entityLinkingService)
     {
-        _identityService = identityService;
-        _roleValidationService = roleValidationService;
-        _tokenService = tokenService;
+        _identityRepository = identityRepository;           
+        _roleValidationService = roleValidationService;     
+        _tokenService = tokenService;                       
         _entityLinkingService = entityLinkingService;
     }
 
@@ -67,14 +66,14 @@ public class AuthService : IAuthService
         }
 
         // 5. Verificar que el usuario no existe
-        var userExists = await _identityService.UserExistsAsync(registerDto.Email);
+        var userExists = await _identityRepository.UserExistsAsync(registerDto.Email);
         if (userExists)
         {
             return Result<AuthResponse>.Failure("El usuario ya existe.");
         }
 
         // 6. Crear el usuario
-        var createUserResult = await _identityService.CreateUserAsync(
+        var createUserResult = await _identityRepository.CreateUserAsync(
             registerDto.Email,
             registerDto.Password,
             registerDto.PhoneNumber);
@@ -87,7 +86,7 @@ public class AuthService : IAuthService
         var userId = createUserResult.Value!;
 
         // 7. Asignar roles al usuario
-        var assignRolesResult = await _identityService.AssignRolesToUserAsync(userId, registerDto.Roles);
+        var assignRolesResult = await _identityRepository.AssignRolesToUserAsync(userId, registerDto.Roles);
         if (!assignRolesResult.IsSuccess)
         {
             return Result<AuthResponse>.Failure(assignRolesResult.ErrorMessage!);
@@ -132,7 +131,7 @@ public class AuthService : IAuthService
     public async Task<Result<AuthResponse>> LoginAsync(LoginDto loginDto)
     {
         // 1. Validar credenciales
-        var validateResult = await _identityService.ValidateCredentialsAsync(
+        var validateResult = await _identityRepository.ValidateCredentialsAsync(
             loginDto.Email,
             loginDto.Password);
 
@@ -144,10 +143,10 @@ public class AuthService : IAuthService
         var userId = validateResult.Value!;
 
         // 2. Obtener roles del usuario
-        var userRoles = await _identityService.GetUserRolesAsync(userId);
+        var userRoles = await _identityRepository.GetUserRolesAsync(userId);
 
         // 3. Obtener información del usuario
-        var (email, phoneNumber) = await _identityService.GetUserInfoAsync(userId);
+        var (email, phoneNumber) = await _identityRepository.GetUserInfoAsync(userId);
 
         // 4. Generar token JWT con los roles
         var token = _tokenService.GenerateTokenAsync(userId, email, userRoles).Result.Value;
