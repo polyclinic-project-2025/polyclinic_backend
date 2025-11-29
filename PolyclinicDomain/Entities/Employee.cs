@@ -1,30 +1,30 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PolyclinicDomain.Entities;
 
-/// <summary>
-/// Clase base para todos los empleados del sistema.
-/// Usa Table-Per-Type (TPT) para permitir múltiples roles.
-/// </summary>
 public abstract class Employee
 {
-    public Guid Id { get; private set; }
-    public string Identification { get; private set; }
-    public string? Name { get; private set; }
-    public string? EmploymentStatus { get; private set; }
-    public string? UserId { get; set; }
+    public Guid EmployeeId { get; private set; }
 
-    protected Employee(Guid id, string identification, string name, string employmentStatus)
+    [Required]
+    [MaxLength(50)]
+    public string Identification { get; private set; }
+    [Required]
+    [MaxLength(200)]
+    public string Name { get; private set; }
+    [Required]
+    [MaxLength(50)]
+    public string EmploymentStatus { get; private set; }
+
+    protected Employee(Guid employeeId, string identification, string name, string employmentStatus)
     {
-        Id = id;
+        EmployeeId = employeeId;
         Identification = identification;
         Name = name;
         EmploymentStatus = employmentStatus;
     }
 
-    // Constructor sin parámetros para EF Core 
     protected Employee() { }
 
-    /// <summary>
-    /// Obtiene el rol principal basado en el tipo de empleado
-    /// </summary>
     public abstract string GetPrimaryRole();
 }

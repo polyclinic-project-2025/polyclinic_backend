@@ -1,29 +1,39 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PolyclinicDomain.Entities;
 
 public class EmergencyRoomCare
 {
-    public Guid Id { get; private set; }
+    public Guid EmergencyRoomCareId { get; private set; }
 
+    [Required]
+    [MaxLength(1000)]
+    public string Diagnosis { get; private set; }
+    
     public Guid EmergencyRoomId { get; private set; }
-    public EmergencyRoom EmergencyRoom { get; private set; } = null!;
+    public EmergencyRoom? EmergencyRoom { get; private set; }
 
-    public Guid PatientId { get; private set; }
-    public Patient Patient { get; private set; } = null!;
-
+    [Required]
     public DateTime CareDate { get; private set; }
 
-    public string Diagnosis { get; private set; } = null!;
-
-    public ICollection<MedicationEmergency> MedEmergency { get; private set; } = new List<MedicationEmergency>();
+    public Guid PatientId { get; private set; }
+    public Patient? Patient { get; private set; }
+    
+    public ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();
 
     private EmergencyRoomCare() { }
 
-    public EmergencyRoomCare(Guid id, Guid emergencyRoomId, Guid patientId, DateTime careDate, string diagnosis)
+    public EmergencyRoomCare(
+        Guid emergencyRoomCareId,
+        string diagnosis,
+        Guid emergencyRoomId,
+        DateTime careDate,
+        Guid patientId)
     {
-        Id = id;
-        EmergencyRoomId = emergencyRoomId;
-        PatientId = patientId;
-        CareDate = careDate;
+        EmergencyRoomCareId = emergencyRoomCareId;
         Diagnosis = diagnosis;
+        EmergencyRoomId = emergencyRoomId;
+        CareDate = careDate;
+        PatientId = patientId;
     }
 }

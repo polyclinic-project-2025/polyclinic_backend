@@ -1,39 +1,33 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PolyclinicDomain.Entities;
 
 public class Department
 {
-    public Guid Id { get; private set; }
-    public string? Name { get; private set; }
+    public Guid DepartmentId { get; private set; }
+    
+    [Required]
+    [MaxLength(200)] 
+    public string Name { get; private set; }
 
-    // Relación 1:1 con DepartmentHead
-    public DepartmentHead? Head { get; private set; }
-    public Guid? HeadId { get; private set; }
+    public DepartmentHead? DepartmentHead { get; private set; }
+    public ICollection<Derivation> DerivationsFrom { get; private set; } = new List<Derivation>();
+    public ICollection<Derivation> DerivationsTo { get; private set; } = new List<Derivation>();
+    public ICollection<Referral> Referrals { get; private set; } = new List<Referral>();
+    public ICollection<MedicalStaff> MedicalStaffs { get; private set; } = new List<MedicalStaff>();
+    public ICollection<StockDepartment> StockDepartments { get; private set; } = new List<StockDepartment>();
+    public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>();
 
-    public ICollection<MedicalStaff> MedicalStaff { get; private set; } = new List<MedicalStaff>();
-    public ICollection<StockDepartment> Stock { get; set; } = new List<StockDepartment>();
-
-    public Department(Guid id, string name, Guid? headId = null)
+    public Department(Guid departmentId, string name)
     {
-        Id = id;
+        DepartmentId = departmentId;
         Name = name;
-        HeadId = headId;
     }
 
-    // Constructor sin parámetros para EF Core
     private Department() { }
 
     public void ChangeName(string name)
     {
-        // puedes añadir validaciones internas aquí
         Name = name;
     }
-
-    public void AssignHead(Guid headId)
-    {
-        HeadId = headId;
-    }
-    public void RemoveHead()
-    {
-        HeadId = null;
-    }   
 }

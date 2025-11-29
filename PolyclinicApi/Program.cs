@@ -14,11 +14,9 @@ using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
-using Application.Services.Interfaces;
 using PolyclinicApplication.Mappings;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Application.Services.Implementations;
 using Microsoft.IdentityModel.Logging;
 
 IdentityModelEventSource.ShowPII = true; // ⚠️ Solo en desarrollo
@@ -196,23 +194,17 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
 
-builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
+// builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-// builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-// builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-// builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
-// builder.Services.AddScoped<INurseRepository, NurseRepository>();
-// builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
-// builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // Repositorios específicos de empleados
-builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+// builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 // builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
-builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-builder.Services.AddScoped<INurseRepository, NurseRepository>();
-builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
-builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
-builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
+// builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+// builder.Services.AddScoped<INurseRepository, NurseRepository>();
+// builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
+// builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
+// builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
 // builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 
 
@@ -230,12 +222,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 // Servicios de empleados
-builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
-builder.Services.AddScoped<IDoctorService, DoctorService>();
-builder.Services.AddScoped<INurseService, NurseService>();
-builder.Services.AddScoped<INursingHeadService, NursingHeadService>();
-builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
-builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
+// builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
+// builder.Services.AddScoped<IDoctorService, DoctorService>();
+// builder.Services.AddScoped<INurseService, NurseService>();
+// builder.Services.AddScoped<INursingHeadService, NursingHeadService>();
+// builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
+// builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
 
 
 var app = builder.Build();

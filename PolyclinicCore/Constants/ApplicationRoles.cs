@@ -23,12 +23,12 @@ public static class ApplicationRoles
     /// <summary>
     /// Enfermero/a con capacidad de atención básica
     /// </summary>
-    public const string Nurse = "Nurse";
+    public const string Nurse = "Enfermero";
     
     /// <summary>
     /// Personal médico general (incluye doctores, enfermeros, etc)
     /// </summary>
-    public const string MedicalStaff = "MedicalStaff";
+    public const string MedicalStaff = "Personal Médico";
     
     // ==========================================
     // ROLES OPERATIVOS
@@ -37,31 +37,16 @@ public static class ApplicationRoles
     /// <summary>
     /// Encargado de gestión de almacén
     /// </summary>
-    public const string WarehouseManager = "WarehouseManager";
+    public const string WarehouseManager = "Jefe de Almacén";
 
     /// <summary>
     /// Jefe de departamento médico
     /// </summary>
-    public const string DepartmentHead = "DepartmentHead";
-    
-    /// <summary>
-    /// Jefe de enfermería
-    /// </summary>
-    public const string NursingHead = "NursingHead";
-    
-    /// <summary>
-    /// Personal de sala de emergencias
-    /// </summary>
-    public const string EmergencyStaff = "EmergencyStaff";
-    
+    public const string DepartmentHead = "Jefe de Departamente";
+
     // ==========================================
     // ROLES DE CONSULTA Y PACIENTES
     // ==========================================
-    
-    /// <summary>
-    /// Recepcionista con acceso a registro de pacientes
-    /// </summary>
-    public const string Receptionist = "Receptionist";
 
     /// <summary>
     /// Paciente con acceso limitado a su información
@@ -80,32 +65,27 @@ public static class ApplicationRoles
         MedicalStaff,
         WarehouseManager,
         DepartmentHead,
-        EmergencyStaff,
-        Receptionist,
         Patient,
-        NursingHead
+
     };
     
     public static readonly string[] MedicalRoles = 
     {
         Doctor,
         Nurse,
-        MedicalStaff,
-        EmergencyStaff
+        MedicalStaff
     };
     
     public static readonly string[] ManagementRoles =
     {
         Admin,
         DepartmentHead,
-        WarehouseManager,
-        NursingHead
+        WarehouseManager
     };
     
     public static readonly string[] PrescriptionRoles = 
     {
-        Doctor,
-        EmergencyStaff
+        Doctor
     };
     
     // ==========================================
