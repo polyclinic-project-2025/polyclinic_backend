@@ -4,19 +4,20 @@ using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicDomain.IRepositories;
+using PolyclinicDomain.Entities;
 
 namespace PolyclinicApplication.Services.Implementations;
 
 public class UserService : IUserService
 {
     private readonly IIdentityRepository _identityRepository;
-    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IRepository<Employee> _employeeRepository;
     private readonly IRoleValidationService _roleValidationService;
 
     public UserService(
         IRoleValidationService roleValidationService, 
         IIdentityRepository identityRepository, 
-        IEmployeeRepository employeeRepository)
+        IRepository<Employee> employeeRepository)
     {
         _roleValidationService = roleValidationService;
         _identityRepository = identityRepository;

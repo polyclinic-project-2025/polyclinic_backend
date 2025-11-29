@@ -10,8 +10,6 @@ public class WarehouseManager : Employee
 
     public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>();
 
-    public string? UserId { get; set; }
-
     public WarehouseManager(Guid id, string identification, string name, string employmentStatus, Guid warehouseId)
         : base(id, identification, name, employmentStatus)
     {
