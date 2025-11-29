@@ -2,7 +2,7 @@ using AutoMapper;
 using PolyclinicDomain.Entities;
 using PolyclinicApplication.DTOs.Departments;
 
-namespace PolyclinicApplication.Mappings
+namespace PolyclinicApplication.Mapping
 {
     public class DepartmentProfile : Profile
     {

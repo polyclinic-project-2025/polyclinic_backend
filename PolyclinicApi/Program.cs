@@ -15,7 +15,7 @@ using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
 using PolyclinicApplication.Services.Interfaces;
-using PolyclinicApplication.Mappings;
+using PolyclinicApplication.Mapping;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using PolyclinicApplication.Services.Implementations;
@@ -159,7 +159,10 @@ builder.Services.AddAuthorization(options =>
 
 // AutoMapper escaneará todos los perfiles en el ensamblado PolyclinicApplication
 builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
-
+builder.Services.AddAutoMapper(typeof(PatientProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(DerivationProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(PuestoExternoProfile).Assembly);
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -169,15 +172,22 @@ builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
 // Todos los validadores del ensamblado PolyclinicApplication serán registrados automáticamente.
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Departments.CreateDepartmentValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Patients.CreatePatientValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Derivations.CreateDerivationValidator>();
 
-
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreatePuestoExternoValidator>();
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
 
 // builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IDerivationRepository, DerivationRepository>();
+builder.Services.AddScoped<IReferralRepository, ReferralRepository>();
+builder.Services.AddScoped<IPuestoExternoRepository,PuestoExternoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
 // Repositorios específicos de empleados
 // builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 // builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
@@ -198,9 +208,12 @@ builder.Services.AddScoped<IIdentityService, IdentityAuthenticationService>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
-
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDerivationService, DerivationService>();
+builder.Services.AddScoped<IReferralService, ReferralService>();
+builder.Services.AddScoped<IPuestoExternoService, PuestoExternoService>();
 // Servicios de empleados
 // builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
 // builder.Services.AddScoped<IDoctorService, DoctorService>();
