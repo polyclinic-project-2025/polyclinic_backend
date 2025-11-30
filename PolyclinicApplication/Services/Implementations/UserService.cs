@@ -13,15 +13,18 @@ public class UserService : IUserService
     private readonly IIdentityRepository _identityRepository;
     private readonly IRepository<Employee> _employeeRepository;
     private readonly IRoleValidationService _roleValidationService;
+    private readonly IRepository<Patient> _patientRepository;
 
     public UserService(
         IRoleValidationService roleValidationService, 
-        IIdentityRepository identityRepository, 
+        IIdentityRepository identityRepository,
+        IRepository<Patient> patientRepository, 
         IRepository<Employee> employeeRepository)
     {
         _roleValidationService = roleValidationService;
         _identityRepository = identityRepository;
         _employeeRepository = employeeRepository;
+        _patientRepository = patientRepository;
     }
 
     public Task<Result<IEnumerable<UserResponse>>> GetAllAsync()
@@ -29,9 +32,9 @@ public class UserService : IUserService
         return _identityRepository.GetAllUsersAsync();
     }
 
-    public Task<Result<string>> RemoveUserAsync(string email)
+    public Task<Result<string>> RemoveUserAsync(string userId)
     {
-        return _identityRepository.RemoveUserAsync(email);
+        return _identityRepository.RemoveUserAsync(userId);
     }
 
     public async Task<Result<UserResponse>> UpdateUserValueAsync(string userId, UpdateUserDto updateUserDto)
@@ -56,19 +59,20 @@ public class UserService : IUserService
     {
         // Validar que el usuario esté vinculado a un empleado
         var employees = await _employeeRepository.FindAsync(e => e.UserId == userId);
-        if (!employees.Any())
-            return Result<UserResponse>.Failure("El usuario no está vinculado a ningún empleado");
+        var patients = await _patientRepository.FindAsync(e => e.UserId == userId);
+        if (!employees.Any() && !patients.Any())
+            return Result<UserResponse>.Failure("El usuario no está vinculado a ningún empleado o paciente");
 
-        var employee = employees.First();
+        var Identification = employees.Any() ? employees.First().Identification : patients.First().Identification;
         var validationData = new Dictionary<string, string>
         {
-            { "IdentificationNumber", employee.Identification}
+            { "IdentificationNumber", Identification}
         };
 
         // Validar roles requeridos
         var validationResult = await _roleValidationService.ValidateRequiredDataForRoles(roles, validationData);
         if (!validationResult.IsSuccess)
-            return Result<UserResponse>.Failure("Error validando roles");
+            return Result<UserResponse>.Failure(validationResult.ErrorMessage ?? "Error en la validación de roles");
 
         // Ejecutar operación según el tipo
         Result<UserResponse> result = operation.ToLower() switch
