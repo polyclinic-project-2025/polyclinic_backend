@@ -12,14 +12,15 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251129172213_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20251130080744_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("public")
                 .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -48,7 +49,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -73,7 +74,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RoleClaims", (string)null);
+                    b.ToTable("RoleClaims", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
@@ -137,7 +138,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -162,7 +163,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserClaims", (string)null);
+                    b.ToTable("UserClaims", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
@@ -184,7 +185,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserLogins", (string)null);
+                    b.ToTable("UserLogins", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
@@ -199,7 +200,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("UserRoles", (string)null);
+                    b.ToTable("UserRoles", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -218,7 +219,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
-                    b.ToTable("UserTokens", (string)null);
+                    b.ToTable("UserTokens", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
@@ -263,7 +264,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DoctorId", "DerivationId", "DateTimeCDer")
                         .IsUnique();
 
-                    b.ToTable("ConsultationDerivation", (string)null);
+                    b.ToTable("ConsultationDerivation", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationReferral", b =>
@@ -308,7 +309,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DoctorId", "ReferralId", "DateTimeCRem")
                         .IsUnique();
 
-                    b.ToTable("ConsultationReferral", (string)null);
+                    b.ToTable("ConsultationReferral", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Department", b =>
@@ -324,7 +325,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("DepartmentId");
 
-                    b.ToTable("Department", (string)null);
+                    b.ToTable("Department", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
@@ -354,7 +355,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DepartmentFromId", "DateTimeDer", "PatientId")
                         .IsUnique();
 
-                    b.ToTable("Derivation", (string)null);
+                    b.ToTable("Derivation", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoom", b =>
@@ -374,7 +375,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DoctorId", "GuardDate")
                         .IsUnique();
 
-                    b.ToTable("EmergencyRoom", (string)null);
+                    b.ToTable("EmergencyRoom", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.EmergencyRoomCare", b =>
@@ -406,7 +407,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("CareDate", "PatientId")
                         .IsUnique();
 
-                    b.ToTable("EmergencyRoomCare", (string)null);
+                    b.ToTable("EmergencyRoomCare", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Employee", b =>
@@ -441,7 +442,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Employee", (string)null);
+                    b.ToTable("Employee", "public");
 
                     b.UseTptMappingStrategy();
                 });
@@ -464,7 +465,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("ExternalMedicalPostId");
 
-                    b.ToTable("ExternalMedicalPost", (string)null);
+                    b.ToTable("ExternalMedicalPost", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Medication", b =>
@@ -509,7 +510,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("MedicationId");
 
-                    b.ToTable("Medication", (string)null);
+                    b.ToTable("Medication", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationDerivation", b =>
@@ -534,7 +535,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("ConsultationDerivationId", "MedicationId")
                         .IsUnique();
 
-                    b.ToTable("MedicationDerivation", (string)null);
+                    b.ToTable("MedicationDerivation", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationEmergency", b =>
@@ -559,7 +560,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("EmergencyRoomCareId", "MedicationId")
                         .IsUnique();
 
-                    b.ToTable("MedicationEmergency", (string)null);
+                    b.ToTable("MedicationEmergency", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationReferral", b =>
@@ -584,7 +585,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("ConsultationReferralId", "MedicationId")
                         .IsUnique();
 
-                    b.ToTable("MedicationReferral", (string)null);
+                    b.ToTable("MedicationReferral", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicationRequest", b =>
@@ -609,7 +610,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("WarehouseRequestId", "MedicationId")
                         .IsUnique();
 
-                    b.ToTable("MedicationRequest", (string)null);
+                    b.ToTable("MedicationRequest", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
@@ -625,7 +626,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("NursingId");
 
-                    b.ToTable("Nursing", (string)null);
+                    b.ToTable("Nursing", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Patient", b =>
@@ -668,7 +669,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Patient", (string)null);
+                    b.ToTable("Patient", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Referral", b =>
@@ -698,7 +699,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("PatientId", "DateTimeRem", "ExternalMedicalPostId")
                         .IsUnique();
 
-                    b.ToTable("Referral", (string)null);
+                    b.ToTable("Referral", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.StockDepartment", b =>
@@ -723,7 +724,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DepartmentId", "MedicationId")
                         .IsUnique();
 
-                    b.ToTable("StockDepartment", (string)null);
+                    b.ToTable("StockDepartment", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Warehouse", b =>
@@ -739,7 +740,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("WarehouseId");
 
-                    b.ToTable("Warehouse", (string)null);
+                    b.ToTable("Warehouse", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseRequest", b =>
@@ -781,7 +782,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("RequestDate", "DepartmentId")
                         .IsUnique();
 
-                    b.ToTable("WarehouseRequest", (string)null);
+                    b.ToTable("WarehouseRequest", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
@@ -794,7 +795,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DepartmentId")
                         .IsUnique();
 
-                    b.ToTable("DepartmentHead", (string)null);
+                    b.ToTable("DepartmentHead", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.MedicalStaff", b =>
@@ -806,7 +807,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("MedicalStaff", (string)null);
+                    b.ToTable("MedicalStaff", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Nurse", b =>
@@ -818,7 +819,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("NursingId");
 
-                    b.ToTable("Nurse", (string)null);
+                    b.ToTable("Nurse", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
@@ -831,14 +832,14 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("WarehouseId")
                         .IsUnique();
 
-                    b.ToTable("WarehouseManager", (string)null);
+                    b.ToTable("WarehouseManager", "public");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.MedicalStaff");
 
-                    b.ToTable("Doctor", (string)null);
+                    b.ToTable("Doctor", "public");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
