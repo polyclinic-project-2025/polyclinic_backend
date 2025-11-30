@@ -25,7 +25,7 @@ public class UserController : ControllerBase
 
     //GET: api/user - Solo Admin puede ver todos los usuarios
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    // [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -67,7 +67,7 @@ public class UserController : ControllerBase
             return Forbid(); // 403 Forbidden
         }
         
-        var result = await _userService.RemoveUserAsync(user.Email!);
+        var result = await _userService.RemoveUserAsync(id);
         
         if (!result.IsSuccess) return BadRequest(result);
         
@@ -107,16 +107,14 @@ public class UserController : ControllerBase
             return Forbid(); // 403 Forbidden
         }
 
-        // Si no es admin, validar que no intente modificar roles
-        if (!isAdmin && updateUserDto.Operation != null && updateUserDto.Roles != null)
-        {
-            return Forbid(); // Solo admin puede modificar roles
-        }
-
         var result = await _userService.UpdateUserValueAsync(id, updateUserDto);
         
-        if (!result.IsSuccess) 
+        if (!result.IsSuccess)
+        {
+            Console.WriteLine(result.ErrorMessage);
             return BadRequest(result);
+        }
+
         
         return Ok(result);
     }

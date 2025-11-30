@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Identity;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Common.Results;
@@ -115,15 +116,15 @@ public class IdentityUserRepository : IIdentityRepository
         return (user.Email ?? string.Empty, user.PhoneNumber);
     }
 
-    public async Task<Result<string>> RemoveUserAsync(string email)
+    public async Task<Result<string>> RemoveUserAsync(string userId)
     {
-        var user = await _userManager.FindByEmailAsync(email);
+        var user = await _userManager.FindByIdAsync(userId);
         if (user != null)
         {
             await _userManager.DeleteAsync(user);
-            return Result<string>.Success(email);
+            return Result<string>.Success(userId);
         }
-        return Result<string>.Failure($"El usuario {email} no existe");
+        return Result<string>.Failure($"El usuario {userId} no existe");
     }
 
     public async Task<Result<string>> UpdateUserValueAsync(string userId, string value, string propertyName)
@@ -155,6 +156,7 @@ public class IdentityUserRepository : IIdentityRepository
         {
             var userResponse = new UserResponse
             {
+                Id = user.Id,
                 Email = user.Email!,
                 PhoneNumber = user.PhoneNumber,
                 Roles = await GetUserRolesAsync(user.Id)
@@ -177,6 +179,9 @@ public class IdentityUserRepository : IIdentityRepository
             switch (propertyName.ToLower())
             {
                 case "email":
+                    //verificar si el email no esta en uso
+                    var existingUser = await _userManager.FindByEmailAsync(value);
+                    if (existingUser != null) return Result<UserResponse>.Failure($"El email: {value} ya está en uso");
                     user.Email = value;
                     user.NormalizedEmail = value.ToUpperInvariant();
                     break;
@@ -188,6 +193,9 @@ public class IdentityUserRepository : IIdentityRepository
                     user.NormalizedUserName = value.ToUpperInvariant();
                     break;
                 case "emailconfirmed":
+                    //verificar que coincida con el email
+                    if (user.Email != value)
+                        return Result<UserResponse>.Failure("El email confirmado no coincide con el email del usuario");
                     user.EmailConfirmed = bool.Parse(value);
                     break;
                 case "phonenumberconfirmed":
@@ -256,7 +264,7 @@ public class IdentityUserRepository : IIdentityRepository
 
         var currentRoles = await _userManager.GetRolesAsync(user);
         var rolesToRemove = roles.Intersect(currentRoles).ToList();
-
+        
         if (rolesToRemove.Any())
         {
             var result = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
