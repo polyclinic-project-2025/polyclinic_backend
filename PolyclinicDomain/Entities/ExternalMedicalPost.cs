@@ -9,14 +9,9 @@ public class ExternalMedicalPost
     [Required]
     [MaxLength(200)]
     public string Name { get; private set; }
-    [Required]
-    [MaxLength(500)]
-    public string Address { get; set; }
-    public ExternalMedicalPost(){}
-    public ExternalMedicalPost(Guid externalMedicalPostId, string name, string address)
+    public ExternalMedicalPost(Guid externalMedicalPostId, string name)
     {
         ExternalMedicalPostId = externalMedicalPostId;
         Name = name;
-        Address = address;
     }
 }

@@ -44,9 +44,13 @@ public class ReferralService : IReferralService
             await _createValidator.ValidateAndThrowAsync(dto);
             
             // Validar si no existe Puesto Externo
-            var existPe = await _PeRepo.GetByIdAsync(dto.ExternalMedicalPostId);
+            var existPe = await _PeRepo.GetByNameAsync(dto.PuestoExterno);
             if (existPe is null)
-                throw new InvalidOperationException($"No existe el Puesto Externo");
+            {
+                var pe = await _PeRepo.AddAsync(new ExternalMedicalPost(Guid.NewGuid(),dto.PuestoExterno));
+                existPe = pe;
+            }   
+                
 
             // Validar si no existe DepartmentTo
             var existDT = await _departmentRepo.GetByIdAsync(dto.DepartmentToId);
@@ -60,7 +64,7 @@ public class ReferralService : IReferralService
                 Guid.NewGuid(),
                 dto.PatientId,
                 dto.DateTimeRem,
-                dto.ExternalMedicalPostId,
+                existPe.ExternalMedicalPostId,
                 dto.DepartmentToId
             );
 

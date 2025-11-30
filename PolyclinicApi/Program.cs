@@ -162,7 +162,6 @@ builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(PatientProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(DerivationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
-builder.Services.AddAutoMapper(typeof(PuestoExternoProfile).Assembly);
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -174,8 +173,6 @@ builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Departments.CreateDepartmentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Patients.CreatePatientValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Derivations.CreateDerivationValidator>();
-
-builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreatePuestoExternoValidator>();
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
@@ -213,7 +210,6 @@ builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDerivationService, DerivationService>();
 builder.Services.AddScoped<IReferralService, ReferralService>();
-builder.Services.AddScoped<IPuestoExternoService, PuestoExternoService>();
 // Servicios de empleados
 // builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
 // builder.Services.AddScoped<IDoctorService, DoctorService>();

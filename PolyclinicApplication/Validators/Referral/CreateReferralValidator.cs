@@ -6,7 +6,7 @@ namespace PolyclinicApplication.Validators.Referral{
 {
     public CreateReferralValidator()
     {
-        RuleFor(x => x.ExternalMedicalPostId)
+        RuleFor(x => x.PuestoExterno)
             .NotEmpty().WithMessage("El puesto externo es obligatorio.");
 
         RuleFor(x => x.DepartmentToId)
