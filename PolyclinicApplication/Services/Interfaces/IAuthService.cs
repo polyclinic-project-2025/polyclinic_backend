@@ -2,7 +2,7 @@ using PolyclinicApplication.DTOs.Request.Auth;
 using PolyclinicApplication.DTOs.Response.Auth;
 using PolyclinicApplication.Common.Results;
 
-namespace PolyclinicApplication.Service.Interfaces
+namespace PolyclinicApplication.Services.Interfaces
 {
     public interface IAuthService
     {

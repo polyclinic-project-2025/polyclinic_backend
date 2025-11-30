@@ -12,8 +12,6 @@ public class DepartmentHead : Employee
     public ICollection<ConsultationReferral> ConsultationReferrals { get; private set; } = new List<ConsultationReferral>(); 
     public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>(); 
 
-    public string? UserId { get; set; }
-
     public DepartmentHead(
         Guid id,
         string name,

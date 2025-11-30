@@ -8,14 +8,13 @@ namespace PolyclinicApplication.Services.Implementations;
 
 public class RoleValidationService : IRoleValidationService
 {
-    private readonly IIdentityService _identityService;
     private readonly IRepository<Doctor> _doctorRepository;
     private readonly IRepository<Nurse> _nurseRepository;
     private readonly IRepository<MedicalStaff> _medicalStaffRepository;
     private readonly IRepository<WarehouseManager> _warehouseManagerRepository;
     private readonly IRepository<DepartmentHead> _departmentHeadRepository;
     private readonly IRepository<Patient> _patientRepository;
-    public RoleValidationService(IIdentityService identityService,
+    public RoleValidationService(
         IRepository<Doctor> doctorRepository,
         IRepository<Nurse> nurseRepository,
         IRepository<MedicalStaff> medicalStaffRepository,
@@ -23,7 +22,6 @@ public class RoleValidationService : IRoleValidationService
         IRepository<DepartmentHead> departmentHeadRepository,
         IRepository<Patient> patientRepository)
     {
-        _identityService = identityService;
         _doctorRepository = doctorRepository;
         _nurseRepository = nurseRepository;
         _medicalStaffRepository = medicalStaffRepository;
@@ -34,8 +32,6 @@ public class RoleValidationService : IRoleValidationService
 
     public async Task<Result<bool>> ValidateRolesExistAsync(IList<string> roles)
     {
-        Console.WriteLine("Validating roles existence...");
-        Console.WriteLine($"Roles to validate: {string.Join(", ", roles)}");
         if (roles == null || !roles.Any())
         {
             return Result<bool>.Failure("Debe proporcionar al menos un rol.");
@@ -91,9 +87,7 @@ public class RoleValidationService : IRoleValidationService
 
     public async Task<Result<bool>> ValidateRequiredDataForRoles(IList<string> roles, Dictionary<string, string>? validationData)
     {
-        Console.WriteLine("Validating required data for roles...");
-        Console.WriteLine($"Roles to validate: {string.Join(", ", roles)}");
-        Console.WriteLine($"Validation data provided: {validationData != null && validationData.Any()}");
+       
         if (roles == null || !roles.Any())
         {
             return Result<bool>.Failure("Debe proporcionar al menos un rol.");
@@ -101,7 +95,7 @@ public class RoleValidationService : IRoleValidationService
 
         foreach (var role in ApplicationRoles.AllRoles)
         {
-            if (role != ApplicationRoles.Client && roles.Contains(role))
+            if (roles.Contains(role))
             {
                 if (validationData == null || !validationData.Any())
                 {
@@ -123,7 +117,7 @@ public class RoleValidationService : IRoleValidationService
                     case ApplicationRoles.Doctor:
 
                         var doctors = await _doctorRepository.FindAsync(
-                            d => d.Identification.ToString() == data);
+                            d => d.Identification == data);
 
                         if (!doctors.Any())
                         {
@@ -135,7 +129,7 @@ public class RoleValidationService : IRoleValidationService
                     case ApplicationRoles.Nurse:
 
                         var nurses = await _nurseRepository.FindAsync(
-                            n => n.Identification.ToString() == data);
+                            n => n.Identification == data);
 
                         if (!nurses.Any())
                         {
@@ -147,7 +141,7 @@ public class RoleValidationService : IRoleValidationService
                     case ApplicationRoles.Patient:
 
                         var patients = await _patientRepository.FindAsync(
-                            p => p.Identification.ToString() == data);
+                            p => p.Identification == data);
 
                         if (!patients.Any())
                         {
@@ -159,7 +153,7 @@ public class RoleValidationService : IRoleValidationService
                     case ApplicationRoles.MedicalStaff:
 
                         var staff = await _medicalStaffRepository.FindAsync(
-                            s => s.Identification.ToString() == data);
+                            s => s.Identification == data);
 
                         if (!staff.Any())
                         {
@@ -171,7 +165,7 @@ public class RoleValidationService : IRoleValidationService
                     case ApplicationRoles.WarehouseManager:
 
                         var managers = await _warehouseManagerRepository.FindAsync(
-                            w => w.Identification.ToString() == data);
+                            w => w.Identification == data);
 
                         if (!managers.Any())
                         {
@@ -183,7 +177,7 @@ public class RoleValidationService : IRoleValidationService
                     case ApplicationRoles.DepartmentHead:
 
                         var heads = await _departmentHeadRepository.FindAsync(
-                            d => d.Identification.ToString() == data);
+                            d => d.Identification == data);
 
                         if (!heads.Any())
                         {
@@ -225,7 +219,7 @@ public class RoleValidationService : IRoleValidationService
                     if (validationData.TryGetValue("IdentificationNumber", out var doctorId))
                     {
                         var doctors = await _doctorRepository.FindAsync(
-                            d => d.Identification.ToString() == doctorId);
+                            d => d.Identification == doctorId);
                         
                         var doctor = doctors.FirstOrDefault();
                         if (doctor == null)
@@ -248,7 +242,7 @@ public class RoleValidationService : IRoleValidationService
                     if (validationData.TryGetValue("IdentificationNumber", out var nurseId))
                     {
                         var nurses = await _nurseRepository.FindAsync(
-                            n => n.Identification.ToString() == nurseId);
+                            n => n.Identification == nurseId);
                         
                         var nurse = nurses.FirstOrDefault();
                         if (nurse == null)
@@ -270,18 +264,15 @@ public class RoleValidationService : IRoleValidationService
                 case ApplicationRoles.Patient:
                     if (validationData.TryGetValue("IdentificationNumber", out var patientId))
                     {
-                        Console.WriteLine($"Validating Patient with IdentificationNumber: {patientId}");
                         var patients = await _patientRepository.FindAsync(
-                            p => p.Identification.ToString() == patientId);
+                            p => p.Identification == patientId);
 
                         var patient = patients.FirstOrDefault();
-                        Console.WriteLine($"Patient found: {patient != null}");
                         if (patient == null)
                         {
                             return Result<Guid>.Failure(
                                 $"No existe un Paciente con el número de identificación: {patientId}");
                         }
-                        Console.WriteLine($"Patient UserId: {patient.UserId}");
                         if (!string.IsNullOrEmpty(patient.UserId))
                         {
                             return Result<Guid>.Failure(
@@ -297,7 +288,7 @@ public class RoleValidationService : IRoleValidationService
                     if (validationData.TryGetValue("IdentificationNumber", out var staffId))
                     {
                         var staff = await _medicalStaffRepository.FindAsync(
-                            s => s.Identification.ToString() == staffId);
+                            s => s.Identification == staffId);
                         
                         var medicalStaff = staff.FirstOrDefault();
                         if (medicalStaff == null)

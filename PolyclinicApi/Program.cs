@@ -1,5 +1,6 @@
 
 using System.Text;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,17 +11,15 @@ using PolyclinicInfrastructure.Repositories;
 using PolyclinicInfrastructure.Identity;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Common.Interfaces;
-using PolyclinicApplication.Service.Interfaces;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
-using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Mapping;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using PolyclinicApplication.Services.Implementations;
+using Microsoft.IdentityModel.Logging;
 
-
+IdentityModelEventSource.ShowPII = true; // ⚠️ Solo en desarrollo
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================
@@ -43,15 +42,12 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API para gestión de policlínica con autenticación JWT"
     });
 
-    // Configurar autenticación JWT en Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        Scheme = "Bearer",
+        Scheme = "bearer",
         BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Ingrese 'Bearer' seguido de un espacio y el token JWT"
+        Description = "Ingrese el token JWT. Swagger agregará automáticamente el prefijo 'Bearer '."
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -65,7 +61,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            Array.Empty<string>()
+            new string[] {}  // Array vacío, no List<string>()
         }
     });
 });
@@ -115,7 +111,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false; // En producción, cambiar a true
+    options.RequireHttpsMetadata = false; // Solo en desarrollo
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -124,8 +120,31 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-        ClockSkew = TimeSpan.Zero
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
+        ClockSkew = TimeSpan.Zero, // Eliminar tolerancia de 5 minutos
+        RoleClaimType = ClaimTypes.Role,
+        NameClaimType = ClaimTypes.NameIdentifier
+    };
+
+    // Eventos para depuración (opcional en desarrollo)
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"❌ Autenticación fallida: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var claims = context.Principal?.Claims.Select(c => $"{c.Type}: {c.Value}");
+            Console.WriteLine($"✓ Token validado. Claims: {string.Join(", ", claims ?? Array.Empty<string>())}");
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            Console.WriteLine($"⚠️ Challenge: {context.Error}, {context.ErrorDescription}");
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -171,13 +190,13 @@ builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
 // Todos los validadores del ensamblado PolyclinicApplication serán registrados automáticamente.
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Departments.CreateDepartmentValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Patients.CreatePatientValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateDoctorRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateDoctorRequestValidator>();builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Patients.CreatePatientValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Derivations.CreateDerivationValidator>();
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
 
-// builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IDerivationRepository, DerivationRepository>();
@@ -185,39 +204,24 @@ builder.Services.AddScoped<IReferralRepository, ReferralRepository>();
 builder.Services.AddScoped<IPuestoExternoRepository,PuestoExternoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// Repositorios específicos de empleados
-// builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-// builder.Services.AddScoped<IMedicalStaffRepository, MedicalStaffRepository>();
-// builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
-// builder.Services.AddScoped<INurseRepository, NurseRepository>();
-// builder.Services.AddScoped<INursingHeadRepository, NursingHeadRepository>();
-// builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
-// builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
-// builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-
+builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 
 // ==========================================
 // APPLICATION - SERVICES
 // ==========================================
 // Servicios de autenticación
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IIdentityService, IdentityAuthenticationService>();
+builder.Services.AddScoped<IIdentityRepository, IdentityUserRepository>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
+builder.Services.AddScoped<IUserService, UserService>();
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDerivationService, DerivationService>();
 builder.Services.AddScoped<IReferralService, ReferralService>();
-// Servicios de empleados
-// builder.Services.AddScoped<IMedicalStaffService, MedicalStaffService>();
-// builder.Services.AddScoped<IDoctorService, DoctorService>();
-// builder.Services.AddScoped<INurseService, NurseService>();
-// builder.Services.AddScoped<INursingHeadService, NursingHeadService>();
-// builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
-// builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
-
+builder.Services.AddScoped<IDoctorService, DoctorService>();
 
 var app = builder.Build();
 
@@ -317,15 +321,16 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
 app.UseHttpsRedirection();
 
 app.UseCors(policy => policy
-    .WithOrigins("http://localhost:3000") // URL del frontend
+    .WithOrigins("http://localhost:3000")
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
 
-app.UseAuthentication(); // Debe ir antes de UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
