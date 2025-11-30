@@ -16,4 +16,9 @@ public class MedicalStaff : Employee
     protected MedicalStaff() { }
 
     public override string GetPrimaryRole() => ApplicationRoles.MedicalStaff;
+
+    public void UpdateDepartmentId(Guid departmentId)
+    {
+        DepartmentId = departmentId;
+    }
 }

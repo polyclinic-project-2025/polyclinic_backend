@@ -29,4 +29,19 @@ public abstract class Employee
     protected Employee() { }
 
     public abstract string GetPrimaryRole();
+
+    public void UpdateName(string name)
+    {
+        Name = name;
+    }
+
+    public void UpdateIdentification(string identification)
+    {
+        Identification = identification;
+    }
+
+    public void UpdateEmploymentStatus(string employmentStatus)
+    {
+        EmploymentStatus = employmentStatus;
+    }
 }
