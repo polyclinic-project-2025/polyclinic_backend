@@ -11,13 +11,13 @@ public class RoleValidationService : IRoleValidationService
     private readonly IRepository<Doctor> _doctorRepository;
     private readonly IRepository<Nurse> _nurseRepository;
     private readonly IRepository<WarehouseManager> _warehouseManagerRepository;
-    private readonly IRepository<DepartmentHead> _departmentHeadRepository;
+    private readonly IDepartmentHeadRepository _departmentHeadRepository;
     private readonly IRepository<Patient> _patientRepository;
     public RoleValidationService(
         IRepository<Doctor> doctorRepository,
         IRepository<Nurse> nurseRepository,
         IRepository<WarehouseManager> warehouseManagerRepository,
-        IRepository<DepartmentHead> departmentHeadRepository,
+        IDepartmentHeadRepository departmentHeadRepository,
         IRepository<Patient> patientRepository)
     {
         _doctorRepository = doctorRepository;
@@ -151,10 +151,9 @@ public class RoleValidationService : IRoleValidationService
 
                     case ApplicationRoles.DepartmentHead:
 
-                        var heads = await _departmentHeadRepository.FindAsync(
-                            d => d.Identification == data);
+                        var head = await _departmentHeadRepository.GetByIdentificationAsync(data);
 
-                        if (!heads.Any())
+                        if (head == null)
                         {
                             validationErrors.Add(
                                 $"No existe un Jefe de Departamento con el número de identificación: {data}");

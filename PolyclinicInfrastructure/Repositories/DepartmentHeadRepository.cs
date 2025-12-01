@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PolyclinicDomain.Entities;
 using PolyclinicDomain.IRepositories;
-
+using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Repositories;
 
 public class DepartmentHeadRepository : Repository<DepartmentHead>, IDepartmentHeadRepository
