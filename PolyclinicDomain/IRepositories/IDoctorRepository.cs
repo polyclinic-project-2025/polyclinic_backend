@@ -6,8 +6,4 @@ using PolyclinicDomain.Entities;
 
 namespace PolyclinicDomain.IRepositories;
 
-public interface IDoctorRepository : IRepository<Doctor>
-{
-    Task<Doctor?> GetByIdentificationAsync(string identification);
-    Task<bool> ExistsByIdentificationAsync(string identification);
-}
+public interface IDoctorRepository : IEmployeeRepository<Doctor> {}

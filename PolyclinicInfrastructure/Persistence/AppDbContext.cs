@@ -22,7 +22,6 @@ public class AppDbContext : IdentityDbContext
     public DbSet<EmergencyRoomCare> EmergencyRoomCares { get; set; }
     public DbSet<Employee> Employees { get; set; }
     public DbSet<ExternalMedicalPost> ExternalMedicalPosts { get; set; }
-    public DbSet<MedicalStaff> MedicalStaffs { get; set; }
     public DbSet<Medication> Medications { get; set; }
     public DbSet<MedicationDerivation> MedicationDerivations { get; set; }
     public DbSet<MedicationEmergency> MedicationEmergency { get; set; }
