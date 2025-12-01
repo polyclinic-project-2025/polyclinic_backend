@@ -39,4 +39,32 @@ public class Patient
         Contact = contact;
         Address = address;
     }
+    // -------------------------------
+        // MÉTODOS DE CAMBIO
+        // -------------------------------
+
+        public void ChangeName(string name)
+        {
+            Name = name;
+        }
+
+        public void ChangeIdentification(string identification)
+        {
+            Identification = identification;
+        }
+
+        public void ChangeAge(int age)
+        {
+            Age = age;
+        }
+
+        public void ChangeContact(string contact)
+        {
+            Contact = contact;
+        }
+
+        public void ChangeAddress(string address)
+        {
+            Address = address;
+        }
 }
