@@ -14,10 +14,13 @@ using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Implementations;
 using PolyclinicCore.Constants;
-using PolyclinicApplication.Mappings;
+using PolyclinicApplication.Mapping;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.IdentityModel.Logging;
+using PolyclinicDomain.Entities;
+using PolyclinicApplication.DTOs.Response;
+using PolyclinicApplication.DTOs.Request;
 
 IdentityModelEventSource.ShowPII = true; // ⚠️ Solo en desarrollo
 var builder = WebApplication.CreateBuilder(args);
@@ -160,12 +163,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireDoctorRole", policy =>
         policy.RequireRole(ApplicationRoles.Doctor));
 
-    options.AddPolicy("RequireMedicalStaff", policy =>
-        policy.RequireRole(
-            ApplicationRoles.Doctor,
-            ApplicationRoles.Nurse,
-            ApplicationRoles.MedicalStaff));
-
     options.AddPolicy("RequireManagement", policy =>
         policy.RequireRole(
             ApplicationRoles.Admin,
@@ -178,6 +175,8 @@ builder.Services.AddAuthorization(options =>
 
 // AutoMapper escaneará todos los perfiles en el ensamblado PolyclinicApplication
 builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(DoctorProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmployeeProfile).Assembly);
 
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
@@ -198,6 +197,10 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+// Repositorio generico para empleados, definir para cada uno
+builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
+
+
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -213,6 +216,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+// Servico generico para empleados, definir para cada uno
+builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 
 var app = builder.Build();
 

@@ -14,7 +14,7 @@ public class Department
     public ICollection<Derivation> DerivationsFrom { get; private set; } = new List<Derivation>();
     public ICollection<Derivation> DerivationsTo { get; private set; } = new List<Derivation>();
     public ICollection<Referral> Referrals { get; private set; } = new List<Referral>();
-    public ICollection<MedicalStaff> MedicalStaffs { get; private set; } = new List<MedicalStaff>();
+    public ICollection<Doctor> Doctors { get; private set; } = new List<Doctor>();
     public ICollection<StockDepartment> StockDepartments { get; private set; } = new List<StockDepartment>();
     public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>();
 

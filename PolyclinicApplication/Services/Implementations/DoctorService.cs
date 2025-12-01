@@ -13,10 +13,11 @@ using PolyclinicDomain.IRepositories;
 
 namespace PolyclinicApplication.Services.Implementations;
 
-public class DoctorService : IDoctorService
+public class DoctorService : 
+    EmployeeService<Doctor, DoctorResponse>,
+    IDoctorService
 {
-    private readonly IDoctorRepository _repository;
-    private readonly IMapper _mapper;
+    private readonly IDoctorRepository _doctorRepository;
     private readonly IValidator<CreateDoctorRequest> _createValidator;
     private readonly IValidator<UpdateDoctorRequest> _updateValidator;
 
@@ -28,31 +29,12 @@ public class DoctorService : IDoctorService
         IValidator<CreateDoctorRequest> createValidator,
         IValidator<UpdateDoctorRequest> updateValidator,
         IDepartmentRepository departmentRepository
-    )
+    ) : base(repository, mapper)
     {
-        _repository = repository;
-        _mapper = mapper;
+        _doctorRepository = repository;
         _createValidator = createValidator;
         _updateValidator = updateValidator;
         _departmentRepository = departmentRepository;
-    }
-
-    public async Task<Result<IEnumerable<DoctorResponse>>> GetAllAsync()
-    {
-        var doctors = await _repository.GetAllAsync();
-        var doctorResponse = _mapper.Map<IEnumerable<DoctorResponse>>(doctors);
-        return Result<IEnumerable<DoctorResponse>>.Success(doctorResponse);
-    }
-
-    public async Task<Result<DoctorResponse>> GetByIdAsync(Guid id)
-    {
-        var doctor = await _repository.GetByIdAsync(id);
-        if(doctor == null)
-        {
-            return Result<DoctorResponse>.Failure("Doctor no encontrado.");
-        }
-        var doctorResponse = _mapper.Map<DoctorResponse>(doctor);
-        return Result<DoctorResponse?>.Success(doctorResponse);
     }
 
     public async Task<Result<DoctorResponse>> CreateAsync(CreateDoctorRequest request)
@@ -62,7 +44,7 @@ public class DoctorService : IDoctorService
         {
             return Result<DoctorResponse>.Failure(result.Errors.First().ErrorMessage);
         }
-        if(await _repository.ExistsByIdentificationAsync(request.Identification))
+        if(await _doctorRepository.ExistsByIdentificationAsync(request.Identification))
         {
             return Result<DoctorResponse>.Failure("Ya existe un empleado con esta identificación.");
         }
@@ -72,12 +54,12 @@ public class DoctorService : IDoctorService
         }
         var doctor = new Doctor(
             Guid.NewGuid(),
-            request.Name,
             request.Identification,
+            request.Name,
             request.EmploymentStatus,
             request.DepartmentId
         );
-        await _repository.AddAsync(doctor);
+        await _doctorRepository.AddAsync(doctor);
         var doctorResponse = _mapper.Map<DoctorResponse>(doctor);
         return Result<DoctorResponse>.Success(doctorResponse);
     }
@@ -89,7 +71,7 @@ public class DoctorService : IDoctorService
         {
             return Result<bool>.Failure(result.Errors.First().ErrorMessage);
         }
-        var doctor = await _repository.GetByIdAsync(id);
+        var doctor = await _doctorRepository.GetByIdAsync(id);
         if(doctor == null)
         {
             return Result<bool>.Failure("Doctor no encontrado.");
@@ -101,7 +83,7 @@ public class DoctorService : IDoctorService
         if(!string.IsNullOrEmpty(request.Identification))
         {
             if(request.Identification != doctor.Identification 
-                && await _repository.ExistsByIdentificationAsync(request.Identification))
+                && await _doctorRepository.ExistsByIdentificationAsync(request.Identification))
             {
                 return Result<bool>.Failure("Ya existe un doctor con esta identificación.");
             }
@@ -115,18 +97,7 @@ public class DoctorService : IDoctorService
         {
             doctor.UpdateDepartmentId(request.DepartmentId.Value);
         }
-        await _repository.UpdateAsync(doctor);
-        return Result<bool>.Success(true);
-    }
-
-    public async Task<Result<bool>> DeleteAsync(Guid id)
-    {
-        var doctor = await _repository.GetByIdAsync(id);
-        if(doctor == null)
-        {
-            return Result<bool>.Failure("Doctor no encontrado.");
-        }
-        await _repository.DeleteAsync(doctor);
+        await _doctorRepository.UpdateAsync(doctor);
         return Result<bool>.Success(true);
     }
 }
