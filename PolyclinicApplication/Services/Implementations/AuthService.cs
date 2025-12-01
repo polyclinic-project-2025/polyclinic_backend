@@ -124,7 +124,8 @@ public class AuthService: IAuthService
             Email = registerDto.Email,
             PhoneNumber = registerDto.PhoneNumber,
             Token = token!,
-            ExpiresAt = expiresAt
+            ExpiresAt = expiresAt,
+            Roles = registerDto.Roles,
         });
     }
 
