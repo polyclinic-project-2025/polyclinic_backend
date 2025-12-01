@@ -177,6 +177,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(DoctorProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(EmployeeProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(DepartmentHeadProfile).Assembly);
 
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
@@ -197,6 +198,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<IDepartmentRepository, DepartmentHeadRepository>();
 // Repositorio generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 
@@ -216,6 +218,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
 // Servico generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 
