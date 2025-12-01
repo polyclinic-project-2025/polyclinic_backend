@@ -3,31 +3,33 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PolyclinicDomain.Entities;
 
-public class DepartmentHead : Employee
+public class DepartmentHead
 {
-    public Guid DepartmentId { get; private set; }
+    public Guid DepartmentHeadId { get; private set; }
     
-    public Department? Department { get; private set; }
+    public Guid DoctorId { get; private set; }
+    public Doctor? Doctor { get; private set; }
+
+    [Required]
+    public DateTime AssignedAt { get; private set; }
+    
     public ICollection<ConsultationDerivation> ConsultationDerivations { get; private set; } = new List<ConsultationDerivation>(); 
     public ICollection<ConsultationReferral> ConsultationReferrals { get; private set; } = new List<ConsultationReferral>(); 
     public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>(); 
 
-    public DepartmentHead(
-        Guid id,
-        string name,
-        string employmentStatus,
-        string identification,
-        Guid departmentId) : base(id, name, employmentStatus, identification)
+    public DepartmentHead(Guid departmentHeadId, Guid doctorId, DateTime assignedAt)
     {
-        DepartmentId = departmentId;
+        DepartmentHeadId = departmentHeadId;
+        DoctorId = doctorId;
+        AssignedAt = assignedAt;
     }
 
-    private DepartmentHead() { }
+    private DepartmentHead() {}
 
-    public override string GetPrimaryRole() => ApplicationRoles.DepartmentHead;
+    // public override string GetPrimaryRole() => ApplicationRoles.DepartmentHead;
 
-    public void AssignDepartment(Guid departmentId)
+    public void UpdateHead(Guid doctorId)
     {
-        DepartmentId = departmentId;
+        DoctorId = doctorId;
     }
 }

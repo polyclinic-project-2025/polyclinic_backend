@@ -785,10 +785,10 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
 
-                    b.Property<Guid>("DepartmentId")
+                    b.Property<Guid>("DoctorId")
                         .HasColumnType("uuid");
 
-                    b.HasIndex("DepartmentId")
+                    b.HasIndex("DoctorId")
                         .IsUnique();
 
                     b.ToTable("DepartmentHead", (string)null);
@@ -1176,9 +1176,9 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.Department", "Department")
+                    b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
                         .WithOne("DepartmentHead")
-                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "DepartmentId")
+                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1188,7 +1188,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("Doctor");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
@@ -1254,8 +1254,6 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Department", b =>
                 {
-                    b.Navigation("DepartmentHead");
-
                     b.Navigation("DerivationsFrom");
 
                     b.Navigation("DerivationsTo");
@@ -1346,6 +1344,8 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("ConsultationDerivations");
 
                     b.Navigation("ConsultationReferrals");
+
+                    b.Navigation("DepartmentHead");
 
                     b.Navigation("EmergencyRooms");
                 });

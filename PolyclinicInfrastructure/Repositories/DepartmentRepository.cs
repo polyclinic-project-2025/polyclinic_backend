@@ -20,7 +20,6 @@ public class DepartmentRepository : Repository<Department>, IDepartmentRepositor
     {
         // Eager load de relaciones importantes en una sola query
         return await _dbSet
-            .Include(d => d.DepartmentHead)
             .Include(d => d.StockDepartments)
             .FirstOrDefaultAsync(d => d.DepartmentId == id);
     }
