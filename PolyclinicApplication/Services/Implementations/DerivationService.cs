@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Implementations{
 
@@ -36,23 +37,26 @@ public class DerivationService : IDerivationService
     // -------------------------------
         // CREATE
         // -------------------------------
-        public async Task<DerivationDto> CreateAsync(CreateDerivationDto dto)
+        public async Task<Result<DerivationDto>> CreateAsync(CreateDerivationDto dto)
         {
-            await _createValidator.ValidateAndThrowAsync(dto);
-            
+            var result = await _createValidator.ValidateAsync(dto);
+            if(!result.IsValid)
+            {
+                return Result<DerivationDto>.Failure(result.Errors.First().ErrorMessage);
+            }
             // Validar si no existe DepartmentFrom
             var existDF = await _departmentRepo.GetByIdAsync(dto.DepartmentFromId);
             if (existDF is null)
-                throw new InvalidOperationException($"No existe el Departamento de origen");
+                return Result<DerivationDto>.Failure("Departamento de origen no encontrado.");
 
             // Validar si no existe DepartmentTo
             var existDT = await _departmentRepo.GetByIdAsync(dto.DepartmentToId);
             if (existDT is null)
-                throw new InvalidOperationException($"No existe el Departamento de destino");
+                return Result<DerivationDto>.Failure("Departamento de destino no encontrado.");
             //Validar si no existe el Paciente
             var existPac = await _patientRepo.GetByIdAsync(dto.PatientId);
             if (existPac is null)
-                throw new InvalidOperationException($"No existe el Paciente asignado");
+                return Result<DerivationDto>.Failure("Paciente no encontrado.");
             var derivation = new Derivation(
                 Guid.NewGuid(),
                 dto.DepartmentFromId,
@@ -63,70 +67,103 @@ public class DerivationService : IDerivationService
 
             await _repo.AddAsync(derivation);
 
-            return _mapper.Map<DerivationDto>(derivation);
+            var derivationdto = _mapper.Map<DerivationDto>(derivation);
+            return Result<DerivationDto>.Success(derivationdto);
         }
 
     // ----------------------------------------------------------
     // DELETE
     // ----------------------------------------------------------
-    public async Task DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
         {
             var result = await _repo.GetByIdAsync(id);
             if (result is null)
-                throw new KeyNotFoundException("Paciente no encontrado.");
+                return Result<bool>.Failure("Derivacion no encontrada.");
 
             await _repo.DeleteByIdAsync(id);
+            return Result<bool>.Success(true);
         }
 
     //READ
     // ----------------------------------------------------------
     // GET ALL
     // ----------------------------------------------------------
-    public async Task<IEnumerable<DerivationDto>> GetAllAsync()
+    public async Task<Result<IEnumerable<DerivationDto>>> GetAllAsync()
     {
         var entities = await _repo.GetAllWithIncludesAsync();
-        return _mapper.Map<IEnumerable<DerivationDto>>(entities);
+        var derivationsdto = _mapper.Map<IEnumerable<DerivationDto>>(entities);
+        return Result<IEnumerable<DerivationDto>>.Success(derivationsdto);
     }
 
     // ----------------------------------------------------------
     // GET BY ID
     // ----------------------------------------------------------
-    public async Task<DerivationDto?> GetByIdAsync(Guid id)
+    public async Task<Result<DerivationDto>> GetByIdAsync(Guid id)
     {
         var entity = await _repo.GetByIdWithIncludesAsync(id);
-        return entity is null ? null : _mapper.Map<DerivationDto>(entity);
+        if(entity == null)
+            {
+                return Result<DerivationDto>.Failure("Derivacion no encontrada.");
+            }
+        var derivationdto = _mapper.Map<DerivationDto>(entity);
+        return Result<DerivationDto>.Success(derivationdto);
     }
 
     // ----------------------------------------------------------
     // SEARCHES
     // ----------------------------------------------------------
-    public async Task<IEnumerable<DerivationDto>> SearchByDepartmentFromNameAsync(string name)
+    public async Task<Result<IEnumerable<DerivationDto>>> SearchByDepartmentFromNameAsync(string name)
     {
         var result = await _repo.GetByDepartmentFromNameAsync(name);
-        return _mapper.Map<IEnumerable<DerivationDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<DerivationDto>>.Failure("Derivacion no encontrada.");
+            }
+        var derivationsdto = _mapper.Map<IEnumerable<DerivationDto>>(result);
+        return Result<IEnumerable<DerivationDto>>.Success(derivationsdto);
     }
 
-    public async Task<IEnumerable<DerivationDto>> SearchByDepartmentToNameAsync(string name)
+    public async Task<Result<IEnumerable<DerivationDto>>> SearchByDepartmentToNameAsync(string name)
     {
         var result = await _repo.GetByDepartmentToNameAsync(name);
-        return _mapper.Map<IEnumerable<DerivationDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<DerivationDto>>.Failure("Derivacion no encontrada.");
+            }
+        var derivationsdto = _mapper.Map<IEnumerable<DerivationDto>>(result);
+        return Result<IEnumerable<DerivationDto>>.Success(derivationsdto);
     }
 
-    public async Task<IEnumerable<DerivationDto>> SearchByPatientNameAsync(string patientName)
+    public async Task<Result<IEnumerable<DerivationDto>>> SearchByPatientNameAsync(string patientName)
     {
         var result = await _repo.GetByPatientNameAsync(patientName);
-        return _mapper.Map<IEnumerable<DerivationDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<DerivationDto>>.Failure("Derivacion no encontrada.");
+            }
+        var derivationsdto = _mapper.Map<IEnumerable<DerivationDto>>(result);
+        return Result<IEnumerable<DerivationDto>>.Success(derivationsdto);
     }
 
-    public async Task<IEnumerable<DerivationDto>> SearchByDateAsync(DateTime date)
+    public async Task<Result<IEnumerable<DerivationDto>>> SearchByDateAsync(DateTime date)
     {
         var result = await _repo.GetByDateAsync(date.Date);
-        return _mapper.Map<IEnumerable<DerivationDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<DerivationDto>>.Failure("Derivacion no encontrada.");
+            }
+        var derivationsdto = _mapper.Map<IEnumerable<DerivationDto>>(result);
+        return Result<IEnumerable<DerivationDto>>.Success(derivationsdto);
     }
-    public async Task<IEnumerable<DerivationDto>> SearchByPatientIdentificationAsync(string patientIdentification)
+    public async Task<Result<IEnumerable<DerivationDto>>> SearchByPatientIdentificationAsync(string patientIdentification)
     {
         var result = await _repo.GetByPatientIdentificationAsync(patientIdentification);
-        return _mapper.Map<IEnumerable<DerivationDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<DerivationDto>>.Failure("Derivacion no encontrada.");
+            }
+        var derivationsdto = _mapper.Map<IEnumerable<DerivationDto>>(result);
+        return Result<IEnumerable<DerivationDto>>.Success(derivationsdto);
     }
 }
 }

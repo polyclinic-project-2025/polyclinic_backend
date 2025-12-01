@@ -25,7 +25,7 @@ public class ReferralController : ControllerBase
     public async Task<ActionResult<IEnumerable<ReferralDto>>> GetAll()
         {
             var result = await _service.GetAllAsync();
-            return Ok(result);
+            return Ok(result.Value);
         }
     // --------------------------------------------------------------------
     // GET BY ID
@@ -34,10 +34,9 @@ public class ReferralController : ControllerBase
     public async Task<ActionResult<ReferralDto>> GetById(Guid id)
         {
             var result = await _service.GetByIdAsync(id);
-            if (result is null)
-                return NotFound("Paciente no encontrado.");
-
-            return Ok(result);
+            if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+            return Ok(result.Value);
         }
 
     // --------------------------------------------------------------------
@@ -47,7 +46,9 @@ public class ReferralController : ControllerBase
     public async Task<ActionResult<IEnumerable<ReferralDto>>> SearchByPuestoExterno([FromQuery] string name)
     {
         var result = await _service.SearchByPuestoExternoAsync(name);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
 
     // --------------------------------------------------------------------
@@ -57,7 +58,9 @@ public class ReferralController : ControllerBase
     public async Task<ActionResult<IEnumerable<ReferralDto>>> SearchByDepartmentTo([FromQuery] string name)
     {
         var result = await _service.SearchByDepartmentToNameAsync(name);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
 
     // --------------------------------------------------------------------
@@ -67,7 +70,9 @@ public class ReferralController : ControllerBase
     public async Task<ActionResult<IEnumerable<ReferralDto>>> SearchByPatient([FromQuery] string name)
     {
         var result = await _service.SearchByPatientNameAsync(name);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
 
     // --------------------------------------------------------------------
@@ -77,13 +82,17 @@ public class ReferralController : ControllerBase
     public async Task<ActionResult<IEnumerable<ReferralDto>>> SearchByDate([FromQuery] DateTime date)
     {
         var result = await _service.SearchByDateAsync(date);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
     [HttpGet("search/identification")]
     public async Task<ActionResult<IEnumerable<ReferralDto>>> SearchByPatientIdentification([FromQuery] string identification)
     {
         var result = await _service.SearchByPatientIdentificationAsync(identification);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
     // --------------------------------------------------------------------
     // CREATE
@@ -92,7 +101,11 @@ public class ReferralController : ControllerBase
     public async Task<ActionResult<ReferralDto>> Create([FromBody] CreateReferralDto dto)
     {
         var result = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = result.ReferralId }, result);
+        if(!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+        return CreatedAtAction(nameof(GetById), new { id = result.Value.ReferralId }, result.Value);
     }
 
     // --------------------------------------------------------------------
@@ -101,15 +114,12 @@ public class ReferralController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        try
-            {
-                await _service.DeleteAsync(id);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+        var result = await _service.DeleteAsync(id);
+        if(!result.IsSuccess)
+        {
+            return NotFound(result.ErrorMessage);
+        }
+        return NoContent();
     }
 }
 }

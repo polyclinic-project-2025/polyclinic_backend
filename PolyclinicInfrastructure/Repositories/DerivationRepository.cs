@@ -26,7 +26,7 @@ namespace PolyclinicInfrastructure.Repositories{
             .Include(d => d.DepartmentTo)
             .Include(d => d.Patient)
             .Where(d => d.DepartmentFrom != null &&
-                        d.DepartmentFrom.Name.ToLower().Contains(departmentName.ToLower()))
+                        d.DepartmentFrom.Name.ToLower() == departmentName.ToLower())
             .ToListAsync();
     }
 
@@ -38,7 +38,7 @@ namespace PolyclinicInfrastructure.Repositories{
             .Include(d => d.Patient)
             .Include(d => d.DepartmentFrom)
             .Where(d => d.DepartmentTo != null &&
-                        d.DepartmentTo.Name.ToLower().Contains(departmentName.ToLower()))
+                        d.DepartmentTo.Name.ToLower() == departmentName.ToLower())
             .ToListAsync();
     }
 
@@ -61,7 +61,7 @@ namespace PolyclinicInfrastructure.Repositories{
             .Include(d => d.DepartmentFrom)
             .Include(d => d.DepartmentTo)
             .Where(d => d.Patient != null &&
-                        d.Patient.Name.ToLower().Contains(patientName.ToLower()))
+                        d.Patient.Name.ToLower() == patientName.ToLower())
             .ToListAsync();
     }
 
@@ -73,7 +73,7 @@ namespace PolyclinicInfrastructure.Repositories{
             .Include(d => d.DepartmentFrom)
             .Include(d => d.DepartmentTo)
             .Where(d => d.Patient != null &&
-                        d.Patient.Identification.ToLower().Contains(patientIdentification.ToLower()))
+                        d.Patient.Identification.ToLower() == patientIdentification.ToLower())
             .ToListAsync();
     }
     public async Task<Derivation> GetByIdWithIncludesAsync(Guid id){

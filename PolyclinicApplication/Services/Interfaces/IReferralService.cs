@@ -4,19 +4,20 @@ using PolyclinicApplication.DTOs.Response.Referral;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PolyclinicApplication.Common.Results;
 namespace PolyclinicApplication.Services.Interfaces{
     public interface IReferralService
 {
-    Task<ReferralDto> CreateAsync(CreateReferralDto dto);
-    Task<IEnumerable<ReferralDto>> GetAllAsync();
-    Task<ReferralDto?> GetByIdAsync(Guid id);
+    Task<Result<ReferralDto>> CreateAsync(CreateReferralDto dto);
+    Task<Result<IEnumerable<ReferralDto>>> GetAllAsync();
+    Task<Result<ReferralDto>> GetByIdAsync(Guid id);
 
-    Task<IEnumerable<ReferralDto>> SearchByPuestoExternoAsync(string name);
-    Task<IEnumerable<ReferralDto>> SearchByDepartmentToNameAsync(string name);
-    Task<IEnumerable<ReferralDto>> SearchByPatientNameAsync(string patientName);
-    Task<IEnumerable<ReferralDto>> SearchByDateAsync(DateTime date);
-    Task<IEnumerable<ReferralDto>> SearchByPatientIdentificationAsync(string patientIdentification);
-    Task DeleteAsync(Guid id);
+    Task<Result<IEnumerable<ReferralDto>>> SearchByPuestoExternoAsync(string name);
+    Task<Result<IEnumerable<ReferralDto>>> SearchByDepartmentToNameAsync(string name);
+    Task<Result<IEnumerable<ReferralDto>>> SearchByPatientNameAsync(string patientName);
+    Task<Result<IEnumerable<ReferralDto>>> SearchByDateAsync(DateTime date);
+    Task<Result<IEnumerable<ReferralDto>>> SearchByPatientIdentificationAsync(string patientIdentification);
+    Task<Result<bool>> DeleteAsync(Guid id);
 }
 
 }

@@ -28,7 +28,7 @@ namespace PolyclinicApi.Controllers
         public async Task<ActionResult<IEnumerable<PatientDto>>> GetAll()
         {
             var patients = await _patientService.GetAllAsync();
-            return Ok(patients);
+            return Ok(patients.Value);
         }
 
         // ============================
@@ -39,57 +39,48 @@ namespace PolyclinicApi.Controllers
         public async Task<ActionResult<PatientDto>> GetById(Guid id)
         {
             var patient = await _patientService.GetByIdAsync(id);
-            if (patient == null)
-                return NotFound("Paciente no encontrado.");
-
-            return Ok(patient);
+            if(!patient.IsSuccess)
+            {
+                return NotFound(patient.ErrorMessage);
+            }
+            return Ok(patient.Value);
         }
-
-        // ============================
-        // GET: api/patients/{id}/with-relations
-        // Obtener paciente con relaciones
-        // ============================
-        /*[HttpGet("{id:guid}/with-relations")]
-        public async Task<ActionResult<Patient>> GetWithRelations(Guid id)
-        {
-            var patient = await _patientService.GetWithRelationsAsync(id);
-            if (patient == null)
-                return NotFound("Paciente no encontrado.");
-
-            return Ok(patient);
-        }*/
 
         // ============================
         // GET: api/patients/search
         // Buscar pacientes por nombre, identificación o edad
         // ============================
-        [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<PatientDto>>> Search(
-            [FromQuery] string? name,
-            [FromQuery] string? identification,
-            [FromQuery] int? age)
+        [HttpGet("search/name")]
+        public async Task<ActionResult<IEnumerable<PatientDto>>> SearchByName([FromQuery] string name)
         {
-            if (!string.IsNullOrWhiteSpace(name))
+            var byName = await _patientService.GetByNameAsync(name);
+            if(!byName.IsSuccess)
             {
-                var byName = await _patientService.GetByNameAsync(name);
-                return Ok(byName);
+                return NotFound(byName.ErrorMessage);
             }
-
-            if (!string.IsNullOrWhiteSpace(identification))
-            {
-                var byId = await _patientService.GetByIdentificationAsync(identification);
-                return Ok(byId);
-            }
-
-            if (age.HasValue)
-            {
-                var byAge = await _patientService.GetByAgeAsync(age.Value);
-                return Ok(byAge);
-            }
-
-            return BadRequest("Debe proporcionar al menos un criterio de búsqueda: name, identification o age.");
+            return Ok(byName.Value);
         }
 
+        [HttpGet("search/identification")]
+        public async Task<ActionResult<IEnumerable<PatientDto>>> SearchByIdentification([FromQuery] string identification)
+        {
+            var byIdentification = await _patientService.GetByIdentificationAsync(identification);
+            if(!byIdentification.IsSuccess)
+            {
+                return NotFound(byIdentification.ErrorMessage);
+            }
+            return Ok(byIdentification.Value);
+        }
+        [HttpGet("search/age")]
+        public async Task<ActionResult<IEnumerable<PatientDto>>> SearchByAge([FromQuery] int age)
+        {
+            var byAge = await _patientService.GetByAgeAsync(age);
+            if(!byAge.IsSuccess)
+            {
+                return NotFound(byAge.ErrorMessage);
+            }
+            return Ok(byAge.Value);
+        }
         // ============================
         // POST: api/patients
         // Crear paciente
@@ -97,15 +88,12 @@ namespace PolyclinicApi.Controllers
         [HttpPost]
         public async Task<ActionResult<PatientDto>> Create([FromBody] CreatePatientDto dto)
         {
-            try
+            var result = await _patientService.CreateAsync(dto);
+            if(!result.IsSuccess)
             {
-                var created = await _patientService.CreateAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = created.PatientId }, created);
+                return BadRequest(result.ErrorMessage);
             }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return CreatedAtAction(nameof(GetById), new { id = result.Value.PatientId }, result.Value);
         }
 
         // ============================
@@ -113,39 +101,29 @@ namespace PolyclinicApi.Controllers
         // Actualización parcial
         // ============================
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdatePatientDto dto)
+        public async Task<ActionResult> Update(Guid id, [FromBody] UpdatePatientDto dto)
         {
-            try
+            var result = await _patientService.UpdateAsync(id, dto);
+            if(!result.IsSuccess)
             {
-                await _patientService.UpdateAsync(id, dto);
-                return NoContent();
+                return BadRequest(result.ErrorMessage);
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            return NoContent();
         }
 
-        // ============================
+        // ================ot============
         // DELETE: api/patients/{id}
         // Eliminar paciente
         // ============================
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<ActionResult> Delete(Guid id)
+    {
+        var result = await _patientService.DeleteAsync(id);
+        if(!result.IsSuccess)
         {
-            try
-            {
-                await _patientService.DeleteAsync(id);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+            return NotFound(result.ErrorMessage);
         }
+        return NoContent();
+    }
     }
 }

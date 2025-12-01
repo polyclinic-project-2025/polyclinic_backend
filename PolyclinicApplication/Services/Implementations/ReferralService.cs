@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Implementations{
 
@@ -39,9 +40,13 @@ public class ReferralService : IReferralService
     // -------------------------------
         // CREATE
         // -------------------------------
-        public async Task<ReferralDto> CreateAsync(CreateReferralDto dto)
+        public async Task<Result<ReferralDto>> CreateAsync(CreateReferralDto dto)
         {
-            await _createValidator.ValidateAndThrowAsync(dto);
+            var result = await _createValidator.ValidateAsync(dto);
+            if(!result.IsValid)
+            {
+                return Result<ReferralDto>.Failure(result.Errors.First().ErrorMessage);
+            }
             
             // Validar si no existe Puesto Externo
             var existPe = await _PeRepo.GetByNameAsync(dto.PuestoExterno);
@@ -55,11 +60,11 @@ public class ReferralService : IReferralService
             // Validar si no existe DepartmentTo
             var existDT = await _departmentRepo.GetByIdAsync(dto.DepartmentToId);
             if (existDT is null)
-                throw new InvalidOperationException($"No existe el Departamento de destino");
+                return Result<ReferralDto>.Failure("Departamento de destino no encontrado.");
             //Validar si no existe el Paciente
             var existPac = await _patientRepo.GetByIdAsync(dto.PatientId);
             if (existPac is null)
-                throw new InvalidOperationException($"No existe el Paciente asignado");
+                return Result<ReferralDto>.Failure("Paciente no encontrado.");
             var referral = new Referral(
                 Guid.NewGuid(),
                 dto.PatientId,
@@ -70,70 +75,103 @@ public class ReferralService : IReferralService
 
             await _repo.AddAsync(referral);
 
-            return _mapper.Map<ReferralDto>(referral);
+            var referraldto = _mapper.Map<ReferralDto>(referral);
+            return Result<ReferralDto>.Success(referraldto);
         }
 
     // ----------------------------------------------------------
     // DELETE
     // ----------------------------------------------------------
-    public async Task DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
         {
             var result = await _repo.GetByIdAsync(id);
             if (result is null)
-                throw new KeyNotFoundException("Paciente no encontrado.");
+                return Result<bool>.Failure("Remision no encontrada.");
 
             await _repo.DeleteByIdAsync(id);
+            return Result<bool>.Success(true);
         }
 
     //READ
     // ----------------------------------------------------------
     // GET ALL
     // ----------------------------------------------------------
-    public async Task<IEnumerable<ReferralDto>> GetAllAsync()
+    public async Task<Result<IEnumerable<ReferralDto>>> GetAllAsync()
     {
         var entities = await _repo.GetAllWithIncludesAsync();
-        return _mapper.Map<IEnumerable<ReferralDto>>(entities);
+        var referralsdto = _mapper.Map<IEnumerable<ReferralDto>>(entities);
+        return Result<IEnumerable<ReferralDto>>.Success(referralsdto);
     }
 
     // ----------------------------------------------------------
     // GET BY ID
     // ----------------------------------------------------------
-    public async Task<ReferralDto?> GetByIdAsync(Guid id)
+    public async Task<Result<ReferralDto>> GetByIdAsync(Guid id)
     {
         var entity = await _repo.GetByIdWithIncludesAsync(id);
-        return entity is null ? null : _mapper.Map<ReferralDto>(entity);
+        if(entity == null)
+            {
+                return Result<ReferralDto>.Failure("Remision no encontrada.");
+            }
+        var referraldto = _mapper.Map<ReferralDto>(entity);
+        return Result<ReferralDto>.Success(referraldto);
     }
 
     // ----------------------------------------------------------
     // SEARCHES
     // ----------------------------------------------------------
-    public async Task<IEnumerable<ReferralDto>> SearchByPuestoExternoAsync(string name)
+    public async Task<Result<IEnumerable<ReferralDto>>> SearchByPuestoExternoAsync(string name)
     {
         var result = await _repo.GetByPuestoExternoAsync(name);
-        return _mapper.Map<IEnumerable<ReferralDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<ReferralDto>>.Failure("Remision no encontrada.");
+            }
+        var referralsdto = _mapper.Map<IEnumerable<ReferralDto>>(result);
+        return Result<IEnumerable<ReferralDto>>.Success(referralsdto);
     }
 
-    public async Task<IEnumerable<ReferralDto>> SearchByDepartmentToNameAsync(string name)
+    public async Task<Result<IEnumerable<ReferralDto>>> SearchByDepartmentToNameAsync(string name)
     {
         var result = await _repo.GetByDepartmentToNameAsync(name);
-        return _mapper.Map<IEnumerable<ReferralDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<ReferralDto>>.Failure("Remision no encontrada.");
+            }
+        var referralsdto = _mapper.Map<IEnumerable<ReferralDto>>(result);
+        return Result<IEnumerable<ReferralDto>>.Success(referralsdto);
     }
 
-    public async Task<IEnumerable<ReferralDto>> SearchByPatientNameAsync(string patientName)
+    public async Task<Result<IEnumerable<ReferralDto>>> SearchByPatientNameAsync(string patientName)
     {
         var result = await _repo.GetByPatientNameAsync(patientName);
-        return _mapper.Map<IEnumerable<ReferralDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<ReferralDto>>.Failure("Remision no encontrada.");
+            }
+        var referralsdto = _mapper.Map<IEnumerable<ReferralDto>>(result);
+        return Result<IEnumerable<ReferralDto>>.Success(referralsdto);
     }
 
-    public async Task<IEnumerable<ReferralDto>> SearchByDateAsync(DateTime date)
+    public async Task<Result<IEnumerable<ReferralDto>>> SearchByDateAsync(DateTime date)
     {
         var result = await _repo.GetByDateAsync(date.Date);
-        return _mapper.Map<IEnumerable<ReferralDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<ReferralDto>>.Failure("Remision no encontrada.");
+            }
+        var referralsdto = _mapper.Map<IEnumerable<ReferralDto>>(result);
+        return Result<IEnumerable<ReferralDto>>.Success(referralsdto);
     }
-    public async Task<IEnumerable<ReferralDto>> SearchByPatientIdentificationAsync(string patientIdentification)
+    public async Task<Result<IEnumerable<ReferralDto>>> SearchByPatientIdentificationAsync(string patientIdentification)
     {
         var result = await _repo.GetByPatientIdentificationAsync(patientIdentification);
-        return _mapper.Map<IEnumerable<ReferralDto>>(result);
+        if(!result.Any())
+            {
+                return Result<IEnumerable<ReferralDto>>.Failure("Remision no encontrada.");
+            }
+        var referralsdto = _mapper.Map<IEnumerable<ReferralDto>>(result);
+        return Result<IEnumerable<ReferralDto>>.Success(referralsdto);
     }
 }
 }

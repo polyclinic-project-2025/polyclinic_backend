@@ -4,19 +4,20 @@ using PolyclinicApplication.DTOs.Response.Derivations;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PolyclinicApplication.Common.Results;
 namespace PolyclinicApplication.Services.Interfaces{
     public interface IDerivationService
 {
-    Task<DerivationDto> CreateAsync(CreateDerivationDto dto);
-    Task<IEnumerable<DerivationDto>> GetAllAsync();
-    Task<DerivationDto?> GetByIdAsync(Guid id);
+    Task<Result<DerivationDto>> CreateAsync(CreateDerivationDto dto);
+    Task<Result<IEnumerable<DerivationDto>>> GetAllAsync();
+    Task<Result<DerivationDto>> GetByIdAsync(Guid id);
 
-    Task<IEnumerable<DerivationDto>> SearchByDepartmentFromNameAsync(string name);
-    Task<IEnumerable<DerivationDto>> SearchByDepartmentToNameAsync(string name);
-    Task<IEnumerable<DerivationDto>> SearchByPatientNameAsync(string patientName);
-    Task<IEnumerable<DerivationDto>> SearchByDateAsync(DateTime date);
-    Task<IEnumerable<DerivationDto>> SearchByPatientIdentificationAsync(string patientIdentification);
-    Task DeleteAsync(Guid id);
+    Task<Result<IEnumerable<DerivationDto>>> SearchByDepartmentFromNameAsync(string name);
+    Task<Result<IEnumerable<DerivationDto>>> SearchByDepartmentToNameAsync(string name);
+    Task<Result<IEnumerable<DerivationDto>>> SearchByPatientNameAsync(string patientName);
+    Task<Result<IEnumerable<DerivationDto>>> SearchByDateAsync(DateTime date);
+    Task<Result<IEnumerable<DerivationDto>>> SearchByPatientIdentificationAsync(string patientIdentification);
+    Task<Result<bool>> DeleteAsync(Guid id);
 }
 
 }

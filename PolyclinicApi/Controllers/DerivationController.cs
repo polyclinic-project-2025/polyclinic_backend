@@ -25,7 +25,7 @@ public class DerivationController : ControllerBase
     public async Task<ActionResult<IEnumerable<DerivationDto>>> GetAll()
         {
             var result = await _service.GetAllAsync();
-            return Ok(result);
+            return Ok(result.Value);
         }
     // --------------------------------------------------------------------
     // GET BY ID
@@ -34,10 +34,10 @@ public class DerivationController : ControllerBase
     public async Task<ActionResult<DerivationDto>> GetById(Guid id)
         {
             var result = await _service.GetByIdAsync(id);
-            if (result is null)
-                return NotFound("Paciente no encontrado.");
+            if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
 
-            return Ok(result);
+            return Ok(result.Value);
         }
 
     // --------------------------------------------------------------------
@@ -47,7 +47,9 @@ public class DerivationController : ControllerBase
     public async Task<ActionResult<IEnumerable<DerivationDto>>> SearchByDepartmentFrom([FromQuery] string name)
     {
         var result = await _service.SearchByDepartmentFromNameAsync(name);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
 
     // --------------------------------------------------------------------
@@ -57,7 +59,9 @@ public class DerivationController : ControllerBase
     public async Task<ActionResult<IEnumerable<DerivationDto>>> SearchByDepartmentTo([FromQuery] string name)
     {
         var result = await _service.SearchByDepartmentToNameAsync(name);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
 
     // --------------------------------------------------------------------
@@ -67,7 +71,9 @@ public class DerivationController : ControllerBase
     public async Task<ActionResult<IEnumerable<DerivationDto>>> SearchByPatient([FromQuery] string name)
     {
         var result = await _service.SearchByPatientNameAsync(name);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
 
     // --------------------------------------------------------------------
@@ -77,13 +83,17 @@ public class DerivationController : ControllerBase
     public async Task<ActionResult<IEnumerable<DerivationDto>>> SearchByDate([FromQuery] DateTime date)
     {
         var result = await _service.SearchByDateAsync(date);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
     [HttpGet("search/identification")]
     public async Task<ActionResult<IEnumerable<DerivationDto>>> SearchByPatientIdentification([FromQuery] string identification)
     {
         var result = await _service.SearchByPatientIdentificationAsync(identification);
-        return Ok(result);
+        if (!result.IsSuccess)
+                return NotFound(result.ErrorMessage);
+        return Ok(result.Value);
     }
     // --------------------------------------------------------------------
     // CREATE
@@ -92,25 +102,27 @@ public class DerivationController : ControllerBase
     public async Task<ActionResult<DerivationDto>> Create([FromBody] CreateDerivationDto dto)
     {
         var result = await _service.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = result.DerivationId }, result);
+        if(!result.IsSuccess)
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+        return CreatedAtAction(nameof(GetById), new { id = result.Value.DerivationId }, result.Value);
     }
 
     // --------------------------------------------------------------------
     // DELETE
     // --------------------------------------------------------------------
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<ActionResult> Delete(Guid id)
     {
-        try
-            {
-                await _service.DeleteAsync(id);
-                return NoContent();
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
+        var result = await _service.DeleteAsync(id);
+        if(!result.IsSuccess)
+        {
+            return NotFound(result.ErrorMessage);
+        }
+        return NoContent();
     }
+    
 }
 }
 

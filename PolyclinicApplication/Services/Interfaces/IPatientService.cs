@@ -5,26 +5,26 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PolyclinicDomain.Entities;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Interfaces
 {
     public interface IPatientService
     {
         // CREATE
-        Task<PatientDto> CreateAsync(CreatePatientDto dto);
+        Task<Result<PatientDto>> CreateAsync(CreatePatientDto dto);
 
         // READ
-        Task<IEnumerable<PatientDto>> GetAllAsync();
-        Task<PatientDto?> GetByIdAsync(Guid id);
-        Task<PatientDto?> GetByIdentificationAsync(string identification);
-        Task<IEnumerable<PatientDto>> GetByNameAsync(string name);
-        Task<IEnumerable<PatientDto>> GetByAgeAsync(int age);
-        //Task<Patient> GetWithRelationsAsync(Guid id);
+        Task<Result<IEnumerable<PatientDto>>> GetAllAsync();
+        Task<Result<PatientDto>> GetByIdAsync(Guid id);
+        Task<Result<PatientDto>> GetByIdentificationAsync(string identification);
+        Task<Result<IEnumerable<PatientDto>>> GetByNameAsync(string name);
+        Task<Result<IEnumerable<PatientDto>>> GetByAgeAsync(int age);
 
         // UPDATE
-        Task UpdateAsync(Guid id, UpdatePatientDto dto);
+        Task<Result<bool>> UpdateAsync(Guid id, UpdatePatientDto dto);
 
         // DELETE
-        Task DeleteAsync(Guid id);
+        Task<Result<bool>> DeleteAsync(Guid id);
     }
 }

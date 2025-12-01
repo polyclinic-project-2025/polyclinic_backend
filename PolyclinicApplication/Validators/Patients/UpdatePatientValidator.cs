@@ -21,9 +21,9 @@ namespace PolyclinicApplication.Validators.Patients
                     .MaximumLength(50).WithMessage("La identificación debe tener como máximo 50 caracteres.");
             });
 
-            When(x => x.Age.HasValue, () =>
+            When(x => x.Age != null, () =>
             {
-                RuleFor(x => x.Age.Value)
+                RuleFor(x => x.Age)
                     .InclusiveBetween(0, 150).WithMessage("La edad debe estar entre 0 y 150 años.");
             });
 
