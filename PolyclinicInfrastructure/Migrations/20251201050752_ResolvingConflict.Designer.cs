@@ -12,8 +12,8 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251129172213_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20251201050752_ResolvingConflict")]
+    partial class ResolvingConflict
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -451,11 +451,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("ExternalMedicalPostId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
 
                     b.Property<string>("Name")
                         .IsRequired()
