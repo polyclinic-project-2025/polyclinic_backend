@@ -11,7 +11,7 @@ namespace PolyclinicApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DepartmentHeadController : BaseController
+public class DepartmentHeadController : ControllerBase
 {
     private readonly IDepartmentHeadService _departmentHeadService;
 
@@ -23,7 +23,18 @@ public class DepartmentHeadController : BaseController
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DepartmentHeadResponse>>> GetAll()
     {
-        var result = await _departmentHeadService.GetAllAsync();
+        var result = await _departmentHeadService.GetAllDepartmentHeadAsync();
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<DepartmentHeadResponse>> GetById(Guid id)
+    {
+        var result = await _departmentHeadService.GetDepartmentHeadByIdAsync(id);
+        if(!result.IsSuccess)
+        {
+            return NotFound(result.ErrorMessage);
+        }
         return Ok(result.Value);
     }
 
@@ -46,7 +57,7 @@ public class DepartmentHeadController : BaseController
         {
             return BadRequest(result.ErrorMessage);
         }
-        return CreatedAtAction(nameof(GetByDepartmentId), new { departmentId = result.Value.DoctorId }, result.Value);
+        return CreatedAtAction(nameof(GetById), new { id = result.Value.DepartmentHeadId }, result.Value);
     }
 
     [HttpDelete("{id:guid}")]

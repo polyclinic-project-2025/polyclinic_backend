@@ -11,9 +11,17 @@ public class DepartmentHeadConfiguration : IEntityTypeConfiguration<DepartmentHe
     {
         entity.ToTable("DepartmentHead");
 
+        entity.HasKey(dh => dh.DepartmentHeadId);
+
         entity.HasOne(dh => dh.Doctor)
-            .WithOne(d => d.DepartmentHead)
-            .HasForeignKey<DepartmentHead>(dh => dh.DoctorId)
+            .WithMany(d => d.DepartmentHeads)
+            .HasForeignKey(dh => dh.DoctorId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
+
+        entity.HasOne(dh => dh.Department)
+            .WithMany(d => d.DepartmentHeads)
+            .HasForeignKey(dh => dh.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
     }

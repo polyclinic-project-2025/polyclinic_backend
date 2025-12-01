@@ -11,6 +11,7 @@ namespace PolyclinicApplication.Services.Interfaces;
 public interface IDepartmentHeadService
 {
     Task<Result<IEnumerable<DepartmentHeadResponse>>> GetAllDepartmentHeadAsync();
+    Task<Result<DepartmentHeadResponse>> GetDepartmentHeadByIdAsync(Guid id);
     Task<Result<DepartmentHeadResponse>> GetDepartmentHeadByDepartmentIdAsync(Guid departmentId);
     Task<Result<DepartmentHeadResponse>> AssignDepartmentHeadAsync(AssignDepartmentHeadRequest request);
     Task<Result<bool>> RemoveDepartmentHeadAsync(Guid doctorId);

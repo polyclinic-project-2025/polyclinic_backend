@@ -20,8 +20,9 @@ public class ConsultationReferralConfiguration : IEntityTypeConfiguration<Consul
                 .IsUnique();
 
             entity.HasOne(c => c.DepartmentHead)
-                    .WithMany()
+                    .WithMany(dh => dh.ConsultationReferrals)
                     .HasForeignKey(c => c.DepartmentHeadId)
+                    .HasPrincipalKey(dh => dh.DepartmentHeadId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired();
 

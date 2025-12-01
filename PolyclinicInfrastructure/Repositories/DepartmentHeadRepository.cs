@@ -18,16 +18,13 @@ public class DepartmentHeadRepository : Repository<DepartmentHead>, IDepartmentH
     }
 
     public async Task<DepartmentHead?> GetByDepartmentIdAsync(Guid departmentId)
-    {
-        return await _dbSet.Include(dh => dh.Doctor)
-                           .Where(dh => dh.Doctor != null && dh.Doctor.DepartmentId == departmentId)
-                           .FirstOrDefaultAsync();
-    }
+        => await _dbSet.Include(dh => dh.Doctor)
+                            .Where(dh => dh.DepartmentId == departmentId && dh.Doctor.DepartmentId == departmentId)
+                            .OrderByDescending(dh => dh.AssignedAt)
+                            .FirstOrDefaultAsync();
 
     public async Task<DepartmentHead?> GetByIdentificationAsync(string identification)
-    {
-        return await _dbSet.Include(dh => dh.Doctor)
-                           .Where(dh => dh.Doctor != null && dh.Doctor.Identification == identification)
-                           .FirstOrDefaultAsync();
-    }
+        => await _dbSet.Include(dh => dh.Doctor)
+                            .Where(dh => dh.Doctor != null && dh.Doctor.Identification == identification)
+                            .FirstOrDefaultAsync();
 }

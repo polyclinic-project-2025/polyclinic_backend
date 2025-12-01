@@ -8,7 +8,7 @@ public class Doctor : Employee
     public Guid DepartmentId { get; private set; }
     public Department? Department { get; private set; }
 
-    public DepartmentHead? DepartmentHead { get; private set; }
+    public ICollection<DepartmentHead> DepartmentHeads { get; private set; } = new List<DepartmentHead>();
     public ICollection<EmergencyRoom> EmergencyRooms { get; private set; } = new List<EmergencyRoom>();
     public ICollection<ConsultationDerivation> ConsultationDerivations { get; private set; } = new List<ConsultationDerivation>();
     public ICollection<ConsultationReferral> ConsultationReferrals { get; private set; } = new List<ConsultationReferral>();

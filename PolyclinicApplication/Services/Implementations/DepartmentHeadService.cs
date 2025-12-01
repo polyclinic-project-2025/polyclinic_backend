@@ -18,16 +18,19 @@ public class DepartmentHeadService : IDepartmentHeadService
     private readonly IMapper _mapper;
 
     private readonly IDepartmentRepository _departmentRepository;
+    private readonly IDoctorRepository _doctorRepository;
 
     public DepartmentHeadService(
         IDepartmentHeadRepository repository,
         IMapper mapper,
-        IDepartmentRepository departmentRepository
+        IDepartmentRepository departmentRepository,
+        IDoctorRepository doctorRepository
     )
     {
         _repository = repository;
         _mapper = mapper;
         _departmentRepository = departmentRepository;
+        _doctorRepository = doctorRepository;
     }
 
     public async Task<Result<IEnumerable<DepartmentHeadResponse>>> GetAllDepartmentHeadAsync()
@@ -35,6 +38,17 @@ public class DepartmentHeadService : IDepartmentHeadService
         var departmentHeads = await _repository.GetAllAsync();
         var departmentHeadResponses = _mapper.Map<IEnumerable<DepartmentHeadResponse>>(departmentHeads);
         return Result<IEnumerable<DepartmentHeadResponse>>.Success(departmentHeadResponses);
+    }
+
+    public async Task<Result<DepartmentHeadResponse>> GetDepartmentHeadByIdAsync(Guid id)
+    {
+        var departmentHead = await _repository.GetByIdAsync(id);
+        if (departmentHead == null)
+        {
+            return Result<DepartmentHeadResponse>.Failure("Jefe de departamento no encontrado.");
+        }
+        var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
+        return Result<DepartmentHeadResponse>.Success(response);
     }
 
     public async Task<Result<DepartmentHeadResponse>> GetDepartmentHeadByDepartmentIdAsync(Guid departmentId)
@@ -54,15 +68,24 @@ public class DepartmentHeadService : IDepartmentHeadService
 
     public async Task<Result<DepartmentHeadResponse>> AssignDepartmentHeadAsync(AssignDepartmentHeadRequest request)
     {
-        var departmentHead = new DepartmentHead(Guid.NewGuid(), request.DoctorId, DateTime.UtcNow);
+        if(await _doctorRepository.GetByIdAsync(request.DoctorId) == null)
+        {
+            return Result<DepartmentHeadResponse>.Failure("Doctor no encontrado.");
+        }
+        if(await _repository.GetByIdAsync(request.DoctorId) != null)
+        {
+            return Result<DepartmentHeadResponse>.Failure("El doctor ya es jefe de departamento.");
+        }
+        var doctor = await _doctorRepository.GetByIdAsync(request.DoctorId);
+        var departmentHead = new DepartmentHead(Guid.NewGuid(), request.DoctorId, doctor.DepartmentId, DateTime.UtcNow);
         await _repository.AddAsync(departmentHead);
         var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
         return Result<DepartmentHeadResponse>.Success(response);
     }
 
-    public async Task<Result<bool>> RemoveDepartmentHeadAsync(Guid doctorId)
+    public async Task<Result<bool>> RemoveDepartmentHeadAsync(Guid departmentHeadId)
     {
-        var departmentHead = await _repository.GetByIdAsync(doctorId);
+        var departmentHead = await _repository.GetByIdAsync(departmentHeadId);
         if (departmentHead == null)
         {
             return Result<bool>.Failure("Jefe de departamento no encontrado.");
