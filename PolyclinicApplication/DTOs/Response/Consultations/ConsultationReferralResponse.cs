@@ -12,7 +12,7 @@ public record ConsultationReferralResponse
 
     public string Diagnosis { get; set; } = string.Empty;
 
-    public string DeparmentName { get; set; } = string.Empty;
+    public string DepartmentName { get; set; } = string.Empty;
 
     public string DoctorFullName { get; set; } = string.Empty;
     public string PatientFullName { get; set; } = string.Empty;

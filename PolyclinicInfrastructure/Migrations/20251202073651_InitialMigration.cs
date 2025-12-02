@@ -295,11 +295,7 @@ namespace PolyclinicInfrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "DepartmentHead",
-========
                 name: "Doctor",
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 columns: table => new
                 {
                     EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -317,33 +313,6 @@ namespace PolyclinicInfrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Doctor_Employee_EmployeeId",
                         column: x => x.EmployeeId,
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                        principalTable: "Employee",
-                        principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MedicalStaff",
-                columns: table => new
-                {
-                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DepartmentId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MedicalStaff", x => x.EmployeeId);
-                    table.ForeignKey(
-                        name: "FK_MedicalStaff_Department_DepartmentId",
-                        column: x => x.DepartmentId,
-                        principalTable: "Department",
-                        principalColumn: "DepartmentId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MedicalStaff_Employee_EmployeeId",
-                        column: x => x.EmployeeId,
-========
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                         principalTable: "Employee",
                         principalColumn: "EmployeeId",
                         onDelete: ReferentialAction.Cascade);
@@ -464,37 +433,11 @@ namespace PolyclinicInfrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "Doctor",
-                columns: table => new
-                {
-                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Doctor", x => x.EmployeeId);
-                    table.ForeignKey(
-                        name: "FK_Doctor_MedicalStaff_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "MedicalStaff",
-                        principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "WarehouseRequest",
-                columns: table => new
-                {
-                    WarehouseRequestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Status = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    RequestDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-========
                 name: "DepartmentHead",
                 columns: table => new
                 {
                     DepartmentHeadId = table.Column<Guid>(type: "uuid", nullable: false),
                     DoctorId = table.Column<Guid>(type: "uuid", nullable: false),
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                     DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     AssignedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -502,130 +445,17 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     table.PrimaryKey("PK_DepartmentHead", x => x.DepartmentHeadId);
                     table.ForeignKey(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                        name: "FK_WarehouseRequest_DepartmentHead_DepartmentHeadEmployeeId",
-                        column: x => x.DepartmentHeadEmployeeId,
-                        principalTable: "DepartmentHead",
-                        principalColumn: "EmployeeId");
-                    table.ForeignKey(
-                        name: "FK_WarehouseRequest_Department_DepartmentId",
-========
                         name: "FK_DepartmentHead_Department_DepartmentId",
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                         column: x => x.DepartmentId,
                         principalTable: "Department",
                         principalColumn: "DepartmentId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                        name: "FK_WarehouseRequest_WarehouseManager_WarehouseManagerId",
-                        column: x => x.WarehouseManagerId,
-                        principalTable: "WarehouseManager",
-                        principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_WarehouseRequest_Warehouse_WarehouseId",
-                        column: x => x.WarehouseId,
-                        principalTable: "Warehouse",
-                        principalColumn: "WarehouseId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ConsultationDerivation",
-                columns: table => new
-                {
-                    ConsultationDerivationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Diagnosis = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    DepartmentHeadId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DoctorId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DerivationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DateTimeCDer = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DepartmentHeadEmployeeId = table.Column<Guid>(type: "uuid", nullable: true),
-                    PatientId = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConsultationDerivation", x => x.ConsultationDerivationId);
-                    table.ForeignKey(
-                        name: "FK_ConsultationDerivation_DepartmentHead_DepartmentHeadEmploye~",
-                        column: x => x.DepartmentHeadEmployeeId,
-                        principalTable: "DepartmentHead",
-                        principalColumn: "EmployeeId");
-                    table.ForeignKey(
-                        name: "FK_ConsultationDerivation_DepartmentHead_DepartmentHeadId",
-                        column: x => x.DepartmentHeadId,
-                        principalTable: "DepartmentHead",
-                        principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsultationDerivation_Derivation_DerivationId",
-                        column: x => x.DerivationId,
-                        principalTable: "Derivation",
-                        principalColumn: "DerivationId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsultationDerivation_Doctor_DoctorId",
-========
                         name: "FK_DepartmentHead_Doctor_DoctorId",
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                         column: x => x.DoctorId,
                         principalTable: "Doctor",
                         principalColumn: "EmployeeId",
                         onDelete: ReferentialAction.Restrict);
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                    table.ForeignKey(
-                        name: "FK_ConsultationDerivation_Patient_PatientId",
-                        column: x => x.PatientId,
-                        principalTable: "Patient",
-                        principalColumn: "PatientId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ConsultationReferral",
-                columns: table => new
-                {
-                    ConsultationReferralId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Diagnosis = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    DepartmentHeadId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DoctorId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ReferralId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DateTimeCRem = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DepartmentHeadEmployeeId = table.Column<Guid>(type: "uuid", nullable: true),
-                    PatientId = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ConsultationReferral", x => x.ConsultationReferralId);
-                    table.ForeignKey(
-                        name: "FK_ConsultationReferral_DepartmentHead_DepartmentHeadEmployeeId",
-                        column: x => x.DepartmentHeadEmployeeId,
-                        principalTable: "DepartmentHead",
-                        principalColumn: "EmployeeId");
-                    table.ForeignKey(
-                        name: "FK_ConsultationReferral_DepartmentHead_DepartmentHeadId",
-                        column: x => x.DepartmentHeadId,
-                        principalTable: "DepartmentHead",
-                        principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsultationReferral_Doctor_DoctorId",
-                        column: x => x.DoctorId,
-                        principalTable: "Doctor",
-                        principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_ConsultationReferral_Patient_PatientId",
-                        column: x => x.PatientId,
-                        principalTable: "Patient",
-                        principalColumn: "PatientId");
-                    table.ForeignKey(
-                        name: "FK_ConsultationReferral_Referral_ReferralId",
-                        column: x => x.ReferralId,
-                        principalTable: "Referral",
-                        principalColumn: "ReferralId",
-                        onDelete: ReferentialAction.Restrict);
-========
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 });
 
             migrationBuilder.CreateTable(
@@ -648,43 +478,9 @@ namespace PolyclinicInfrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "MedicationRequest",
-                columns: table => new
-                {
-                    MedicationRequestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
-                    WarehouseRequestId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MedicationId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MedicationRequest", x => x.MedicationRequestId);
-                    table.ForeignKey(
-                        name: "FK_MedicationRequest_Medication_MedicationId",
-                        column: x => x.MedicationId,
-                        principalTable: "Medication",
-                        principalColumn: "MedicationId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MedicationRequest_WarehouseRequest_WarehouseRequestId",
-                        column: x => x.WarehouseRequestId,
-                        principalTable: "WarehouseRequest",
-                        principalColumn: "WarehouseRequestId",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MedicationDerivation",
-                columns: table => new
-                {
-                    MedicationDerivationId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Quantity = table.Column<int>(type: "integer", nullable: false),
-========
                 name: "ConsultationDerivation",
                 columns: table => new
                 {
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                     ConsultationDerivationId = table.Column<Guid>(type: "uuid", nullable: false),
                     Diagnosis = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     DepartmentHeadId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -697,18 +493,6 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     table.PrimaryKey("PK_ConsultationDerivation", x => x.ConsultationDerivationId);
                     table.ForeignKey(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                        name: "FK_MedicationDerivation_ConsultationDerivation_ConsultationDer~",
-                        column: x => x.ConsultationDerivationId,
-                        principalTable: "ConsultationDerivation",
-                        principalColumn: "ConsultationDerivationId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MedicationDerivation_Medication_MedicationId",
-                        column: x => x.MedicationId,
-                        principalTable: "Medication",
-                        principalColumn: "MedicationId",
-========
                         name: "FK_ConsultationDerivation_DepartmentHead_DepartmentHeadId",
                         column: x => x.DepartmentHeadId,
                         principalTable: "DepartmentHead",
@@ -770,16 +554,11 @@ namespace PolyclinicInfrastructure.Migrations
                         column: x => x.ReferralId,
                         principalTable: "Referral",
                         principalColumn: "ReferralId",
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "MedicationReferral",
-========
                 name: "WarehouseRequest",
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 columns: table => new
                 {
                     WarehouseRequestId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -794,18 +573,6 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     table.PrimaryKey("PK_WarehouseRequest", x => x.WarehouseRequestId);
                     table.ForeignKey(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                        name: "FK_MedicationReferral_ConsultationReferral_ConsultationReferra~",
-                        column: x => x.ConsultationReferralId,
-                        principalTable: "ConsultationReferral",
-                        principalColumn: "ConsultationReferralId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_MedicationReferral_Medication_MedicationId",
-                        column: x => x.MedicationId,
-                        principalTable: "Medication",
-                        principalColumn: "MedicationId",
-========
                         name: "FK_WarehouseRequest_DepartmentHead_DepartmentHeadId",
                         column: x => x.DepartmentHeadId,
                         principalTable: "DepartmentHead",
@@ -821,7 +588,6 @@ namespace PolyclinicInfrastructure.Migrations
                         column: x => x.WarehouseManagerId,
                         principalTable: "WarehouseManager",
                         principalColumn: "EmployeeId",
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_WarehouseRequest_Warehouse_WarehouseId",
@@ -962,14 +728,6 @@ namespace PolyclinicInfrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "IX_ConsultationDerivation_DepartmentHeadEmployeeId",
-                table: "ConsultationDerivation",
-                column: "DepartmentHeadEmployeeId");
-
-            migrationBuilder.CreateIndex(
-========
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 name: "IX_ConsultationDerivation_DepartmentHeadId",
                 table: "ConsultationDerivation",
                 column: "DepartmentHeadId");
@@ -991,14 +749,6 @@ namespace PolyclinicInfrastructure.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "IX_ConsultationReferral_DepartmentHeadEmployeeId",
-                table: "ConsultationReferral",
-                column: "DepartmentHeadEmployeeId");
-
-            migrationBuilder.CreateIndex(
-========
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 name: "IX_ConsultationReferral_DepartmentHeadId",
                 table: "ConsultationReferral",
                 column: "DepartmentHeadId");
@@ -1085,14 +835,6 @@ namespace PolyclinicInfrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "IX_MedicalStaff_DepartmentId",
-                table: "MedicalStaff",
-                column: "DepartmentId");
-
-            migrationBuilder.CreateIndex(
-========
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 name: "IX_MedicationDerivation_ConsultationDerivationId_MedicationId",
                 table: "MedicationDerivation",
                 columns: new[] { "ConsultationDerivationId", "MedicationId" },
@@ -1224,11 +966,7 @@ namespace PolyclinicInfrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "IX_WarehouseRequest_DepartmentHeadEmployeeId",
-========
                 name: "IX_WarehouseRequest_DepartmentHeadId",
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 table: "WarehouseRequest",
                 column: "DepartmentHeadId");
 
@@ -1327,15 +1065,6 @@ namespace PolyclinicInfrastructure.Migrations
                 name: "WarehouseManager");
 
             migrationBuilder.DropTable(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "Doctor");
-
-            migrationBuilder.DropTable(
-                name: "ExternalMedicalPost");
-
-            migrationBuilder.DropTable(
-                name: "Patient");
-========
                 name: "ExternalMedicalPost");
 
             migrationBuilder.DropTable(
@@ -1343,30 +1072,17 @@ namespace PolyclinicInfrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Doctor");
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
 
             migrationBuilder.DropTable(
                 name: "Warehouse");
 
             migrationBuilder.DropTable(
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.cs
-                name: "MedicalStaff");
-
-            migrationBuilder.DropTable(
                 name: "Department");
 
             migrationBuilder.DropTable(
                 name: "Employee");
 
             migrationBuilder.DropTable(
-========
-                name: "Department");
-
-            migrationBuilder.DropTable(
-                name: "Employee");
-
-            migrationBuilder.DropTable(
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.cs
                 name: "Users");
         }
     }

@@ -12,11 +12,7 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.Designer.cs
-    [Migration("20251201083754_InitialMigration")]
-========
-    [Migration("20251201230121_InitialMigration")]
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.Designer.cs
+    [Migration("20251202073651_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -319,8 +315,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasKey("DepartmentId");
 
                     b.ToTable("Department", (string)null);
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.Designer.cs
-========
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
@@ -345,7 +339,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasIndex("DoctorId");
 
                     b.ToTable("DepartmentHead", (string)null);
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.Designer.cs
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
@@ -800,24 +793,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("WarehouseRequest", (string)null);
                 });
 
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.Designer.cs
-            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
-                {
-                    b.HasBaseType("PolyclinicDomain.Entities.Employee");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("DepartmentId")
-                        .IsUnique();
-
-                    b.ToTable("DepartmentHead", (string)null);
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.MedicalStaff", b =>
-========
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.Designer.cs
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
 
@@ -826,11 +802,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.Designer.cs
-                    b.ToTable("MedicalStaff", (string)null);
-========
                     b.ToTable("Doctor", (string)null);
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.Designer.cs
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Nurse", b =>
@@ -856,16 +828,6 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("WarehouseManager", (string)null);
-<<<<<<<< HEAD:PolyclinicInfrastructure/Migrations/20251201083754_InitialMigration.Designer.cs
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
-                {
-                    b.HasBaseType("PolyclinicDomain.Entities.MedicalStaff");
-
-                    b.ToTable("Doctor", (string)null);
-========
->>>>>>>> develop:PolyclinicInfrastructure/Migrations/20251201230121_InitialMigration.Designer.cs
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

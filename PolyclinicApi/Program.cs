@@ -208,6 +208,7 @@ builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IDerivationRepository, DerivationRepository>();
 builder.Services.AddScoped<IReferralRepository, ReferralRepository>();
+builder.Services.AddScoped<IConsultationReferralRepository, ConsultationReferralRepository>();
 builder.Services.AddScoped<IPuestoExternoRepository,PuestoExternoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -230,6 +231,7 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IConsultationReferralService, ConsultationReferralService>();
 // Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
@@ -288,7 +290,7 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine("✓ Paciente de prueba ya existe: Oscar");
     }
-
+    
     // Crear usuario administrador por defecto
     var adminEmail = "admin@polyclinic.com";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);

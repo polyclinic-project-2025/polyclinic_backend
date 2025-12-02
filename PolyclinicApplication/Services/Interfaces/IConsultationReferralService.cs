@@ -11,9 +11,9 @@ public interface IConsultationReferralService
 
     Task<Result<ConsultationReferralResponse>> GetByIdAsync(Guid id);
 
-    Task<Result<ConsultationReferralResponse>> CreateAsync(ConsultationReferralDto request);
+    Task<Result<ConsultationReferralResponse>> CreateAsync(CreateConsultationReferralDto request);
 
-    Task<Result<ConsultationReferralResponse>> UpdateAsync(ConsultationReferralDto request);
+    Task<Result<ConsultationReferralResponse>> UpdateAsync(Guid id, UpdateConsultationReferralDto request);
     
     Task<Result<bool>> DeleteAsync(Guid id);
 }
