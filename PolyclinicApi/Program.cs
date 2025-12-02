@@ -177,6 +177,7 @@ builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(NurseProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ConsultationReferralProfile).Assembly);
 
+builder.Services.AddAutoMapper(typeof(MedicationProfile).Assembly);
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -189,6 +190,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Referral.CreateReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateNurseRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateNurseRequestValidator>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Consultations.CreateConsultationReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Consultations.UpdateConsultationReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Auth.LoginValidator>();
@@ -210,6 +214,9 @@ builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>(
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
 
+
+builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
+
 // ==========================================
 // APPLICATION - SERVICES
 // ==========================================
@@ -229,6 +236,7 @@ builder.Services.AddScoped<INurseService, NurseService>();
 builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 builder.Services.AddScoped<IEmployeeService<NurseResponse>, EmployeeService<Nurse, NurseResponse>>();
+builder.Services.AddScoped<IMedicationService, MedicationService>();
 
 var app = builder.Build();
 

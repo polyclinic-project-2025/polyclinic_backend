@@ -25,10 +25,14 @@ public class Medication
     public string ScientificName { get; private set; }
     [Required]
     [Range(0, 1000000)]
-    public int QuantityA { get; private set; }
+    public int QuantityWarehouse { get; private set; }
     [Required]
     [Range(0, 1000000)]
     public int QuantityNurse { get; private set; }
+    public int MinQuantityWarehouse { get; private set; } 
+    public int MinQuantityNurse { get; private set; }
+    public int MaxQuantityWarehouse { get; private set; }
+    public int MaxQuantityNurse { get; private set; }
     
     public virtual ICollection<MedicationDerivation> MedicationDerivations { get; private set; } = new List<MedicationDerivation>();
     public virtual ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
@@ -45,7 +49,11 @@ public class Medication
         string batchNumber,
         string scientificName,
         int quantityA,
-        int quantityNurse)
+        int quantityNurse,
+        int minQuantityWarehouse,
+        int minQuantityNurse,
+        int maxQuantityWarehouse,
+        int maxQuantityNurse)
     {
         MedicationId = medicationId;   
         Format = format;
@@ -56,6 +64,10 @@ public class Medication
         ScientificName = scientificName;
         QuantityA = quantityA;
         QuantityNurse = quantityNurse;
+        MinQuantityWarehouse = minQuantityWarehouse;
+        MinQuantityNurse = minQuantityNurse;
+        MaxQuantityWarehouse = maxQuantityWarehouse;
+        MaxQuantityNurse = maxQuantityNurse;
     }
 
     protected Medication(){}
