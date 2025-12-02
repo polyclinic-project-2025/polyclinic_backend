@@ -30,11 +30,11 @@ public class Medication
     [Range(0, 1000000)]
     public int QuantityNurse { get; private set; }
     
-    public ICollection<MedicationDerivation> MedicationDerivations { get; private set; } = new List<MedicationDerivation>();
-    public ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
-    public ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();
-    public ICollection<MedicationRequest> MedicationRequests { get; private set; } = new List<MedicationRequest>();
-    public ICollection<StockDepartment> StockDepartments { get; private set; } = new List<StockDepartment>();
+    public virtual ICollection<MedicationDerivation> MedicationDerivations { get; private set; } = new List<MedicationDerivation>();
+    public virtual ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
+    public virtual ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();
+    public virtual ICollection<MedicationRequest> MedicationRequests { get; private set; } = new List<MedicationRequest>();
+    public virtual ICollection<StockDepartment> StockDepartments { get; private set; } = new List<StockDepartment>();
 
     public Medication(
         Guid medicationId,
@@ -57,4 +57,6 @@ public class Medication
         QuantityA = quantityA;
         QuantityNurse = quantityNurse;
     }
+
+    protected Medication(){}
 }

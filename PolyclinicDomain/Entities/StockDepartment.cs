@@ -10,10 +10,10 @@ public class StockDepartment{
     public int Quantity { get; private set; }
     
     public Guid DepartmentId { get; private set; }
-    public Department? Department { get; private set; }
+    public virtual Department? Department { get; private set; }
 
     public Guid MedicationId { get; private set;}
-    public Medication? Medication { get; private set; }
+    public virtual Medication? Medication { get; private set; }
 
     public StockDepartment(
         Guid stockDepartmentId,
@@ -26,4 +26,6 @@ public class StockDepartment{
         DepartmentId = departmentId;
         MedicationId = medicationId;
     }
+
+    protected StockDepartment(){}
 }

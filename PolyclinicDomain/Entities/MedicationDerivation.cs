@@ -11,10 +11,10 @@ public class MedicationDerivation
     public int Quantity { get; private set; }
 
     public Guid ConsultationDerivationId { get; private set; }
-    public ConsultationDerivation? ConsultationDerivation {get; private set;}
+    public virtual ConsultationDerivation? ConsultationDerivation {get; private set;}
 
     public Guid MedicationId { get; private set; }
-    public Medication? Medication { get; private set; }
+    public virtual Medication? Medication { get; private set; }
 
     public MedicationDerivation(
         Guid medicationDerivationId,
@@ -27,4 +27,6 @@ public class MedicationDerivation
         ConsultationDerivationId = consultationDerivationId;
         MedicationId = medicationId;
     }
+
+    protected MedicationDerivation(){}
 }

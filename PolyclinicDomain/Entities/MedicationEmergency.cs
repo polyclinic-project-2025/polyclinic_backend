@@ -10,10 +10,10 @@ public class MedicationEmergency{
     public int Quantity {get; private set;}
 
     public Guid EmergencyRoomCareId { get; private set; }
-    public EmergencyRoomCare? EmergencyRoomCare { get; private set; }
+    public virtual EmergencyRoomCare? EmergencyRoomCare { get; private set; }
 
     public Guid MedicationId { get; private set; }
-    public Medication? Medication { get; private set; }
+    public virtual Medication? Medication { get; private set; }
     
     public MedicationEmergency(
         Guid medicationEmergencyId,
@@ -26,4 +26,6 @@ public class MedicationEmergency{
         EmergencyRoomCareId = emergencyRoomCareId;
         MedicationId = medicationId;
     }
+
+    protected MedicationEmergency(){}
 }

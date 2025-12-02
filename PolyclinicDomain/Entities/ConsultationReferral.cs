@@ -8,21 +8,21 @@ public class ConsultationReferral
     
     [Required]
     [MaxLength(1000)]
-    public string Diagnosis { get; private set; } // Diagnóstico_Rem
+    public string Diagnosis { get; set; } // Diagnóstico_Rem
     
-    public Guid DepartmentHeadId { get; private set; } // ID_J - Jefe que aprueba
-    public DepartmentHead? DepartmentHead { get; private set; }
+    public Guid DepartmentHeadId { get; set; } // ID_J - Jefe que aprueba
+    public virtual DepartmentHead? DepartmentHead { get; set; }
 
-    public Guid DoctorId { get; private set; } // ID_Doc
-    public Doctor? Doctor { get; private set; }
+    public Guid DoctorId { get; set; } // ID_Doc
+    public virtual Doctor? Doctor { get; set; }
 
-    public Guid ReferralId { get; private set; } 
-    public Referral? Referral { get; private set; }
+    public Guid ReferralId { get; set; } 
+    public virtual Referral? Referral { get; set; }
 
     [Required]
-    public DateTime DateTimeCRem { get; private set; } // DateTime_CRem
+    public DateTime DateTimeCRem { get; set; } // DateTime_CRem
 
-    public ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
+    public virtual ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
 
     public ConsultationReferral(
         Guid consultationReferralId,
@@ -40,5 +40,5 @@ public class ConsultationReferral
         DateTimeCRem = dateTimeCRem;
     }
   
-    private ConsultationReferral() { }
+    protected ConsultationReferral() { }
 }

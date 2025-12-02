@@ -11,10 +11,10 @@ public class MedicationReferral
     public int Quantity {get;private set;}
     
     public Guid ConsultationReferralId { get; private set; }
-    public ConsultationReferral? ConsultationReferral { get; private set; }
+    public virtual ConsultationReferral? ConsultationReferral { get; private set; }
 
     public Guid MedicationId { get; private set; }
-    public Medication? Medication { get; private set; }
+    public virtual Medication? Medication { get; private set; }
     
     public MedicationReferral(
         Guid medicationReferralId,
@@ -27,4 +27,6 @@ public class MedicationReferral
         ConsultationReferralId = consultationReferralId;
         MedicationId = medicationId;
     }
+
+    protected MedicationReferral(){}
 }

@@ -1,4 +1,3 @@
-
 using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,16 +20,18 @@ using Microsoft.IdentityModel.Logging;
 using PolyclinicDomain.Entities;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.DTOs.Request;
+using System.Text.Json.Serialization;
 
-IdentityModelEventSource.ShowPII = true; // ⚠️ Solo en desarrollo
+IdentityModelEventSource.ShowPII = true;
 var builder = WebApplication.CreateBuilder(args);
 
 // ==========================================
 // CONFIGURACIÓN DE SERVICIOS
 // ==========================================
 
-// Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(x => 
+        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 
 // ==========================================
@@ -64,7 +65,7 @@ builder.Services.AddSwaggerGen(options =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}  // Array vacío, no List<string>()
+            new string[] {}
         }
     });
 });
@@ -73,26 +74,22 @@ builder.Services.AddSwaggerGen(options =>
 // INFRASTRUCTURE - DATABASE
 // ==========================================
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly("PolyclinicInfrastructure")));
+    options.UseLazyLoadingProxies() 
+           .UseNpgsql( 
+               builder.Configuration.GetConnectionString("DefaultConnection"),
+               b => b.MigrationsAssembly("PolyclinicInfrastructure")));
 
 // ==========================================
 // INFRASTRUCTURE - IDENTITY
 // ==========================================
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
-    // Configuración de contraseñas
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequiredLength = 6;
-
-    // Configuración de usuario
     options.User.RequireUniqueEmail = true;
-    
-    // Configuración de bloqueo
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
     options.Lockout.MaxFailedAccessAttempts = 5;
 })
@@ -114,7 +111,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false; // Solo en desarrollo
+    options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -124,12 +121,11 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!)),
-        ClockSkew = TimeSpan.Zero, // Eliminar tolerancia de 5 minutos
+        ClockSkew = TimeSpan.Zero,
         RoleClaimType = ClaimTypes.Role,
         NameClaimType = ClaimTypes.NameIdentifier
     };
 
-    // Eventos para depuración (opcional en desarrollo)
     options.Events = new JwtBearerEvents
     {
         OnAuthenticationFailed = context =>
@@ -156,7 +152,6 @@ builder.Services.AddAuthentication(options =>
 // ==========================================
 builder.Services.AddAuthorization(options =>
 {
-    // Políticas basadas en roles
     options.AddPolicy("RequireAdminRole", policy =>
         policy.RequireRole(ApplicationRoles.Admin));
 
@@ -172,8 +167,6 @@ builder.Services.AddAuthorization(options =>
 // ==========================================
 // APPLICATION - MAPPING PROFILES
 // ==========================================
-
-// AutoMapper escaneará todos los perfiles en el ensamblado PolyclinicApplication
 builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(DoctorProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(EmployeeProfile).Assembly);
@@ -182,14 +175,11 @@ builder.Services.AddAutoMapper(typeof(PatientProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(DerivationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(NurseProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ConsultationReferralProfile).Assembly);
 
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
-
-// Esta sección habilita la validación automática de DTOs con FluentValidation.
-// ASP.NET ejecutará los validadores correspondientes antes de los controladores.
-// Todos los validadores del ensamblado PolyclinicApplication serán registrados automáticamente.
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Departments.CreateDepartmentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateDoctorRequestValidator>();
@@ -199,11 +189,14 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Referral.CreateReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateNurseRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateNurseRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Consultations.CreateConsultationReferralValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Consultations.UpdateConsultationReferralValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Auth.LoginValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Auth.RegisterValidator>();
 
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
-
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IDerivationRepository, DerivationRepository>();
@@ -211,20 +204,15 @@ builder.Services.AddScoped<IReferralRepository, ReferralRepository>();
 builder.Services.AddScoped<IConsultationReferralRepository, ConsultationReferralRepository>();
 builder.Services.AddScoped<IPuestoExternoRepository,PuestoExternoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<INurseRepository, NurseRepository>();
 builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
-// Repositorio generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
-
-
 
 // ==========================================
 // APPLICATION - SERVICES
 // ==========================================
-// Servicios de autenticación
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IIdentityRepository, IdentityUserRepository>();
 builder.Services.AddScoped<ITokenService, JwtTokenService>();
@@ -232,7 +220,6 @@ builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IConsultationReferralService, ConsultationReferralService>();
-// Servicios de dominio
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDerivationService, DerivationService>();
@@ -240,7 +227,6 @@ builder.Services.AddScoped<IReferralService, ReferralService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<INurseService, NurseService>();
 builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
-// Servico generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 builder.Services.AddScoped<IEmployeeService<NurseResponse>, EmployeeService<Nurse, NurseResponse>>();
 
@@ -254,7 +240,6 @@ using (var scope = app.Services.CreateScope())
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-    // Crear roles si no existen
     foreach (var role in ApplicationRoles.AllRoles)
     {
         if (!await roleManager.RoleExistsAsync(role))
@@ -263,7 +248,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    //Crear paciente por defecto para testing
     var name = "Oscar";
     var identificationNumber = "1234567890";
     var age = 30;
@@ -291,7 +275,110 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine("✓ Paciente de prueba ya existe: Oscar");
     }
     
-    // Crear usuario administrador por defecto
+    // ==========================================
+    // SEEDING DE DATOS: ESCENARIO COMPLETO
+    // ==========================================
+    try 
+    {
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        // 1. Crear Departamento
+        var deptName = "Cardiología";
+        var department = await context.Set<Department>().FirstOrDefaultAsync(d => d.Name == deptName);
+        if (department == null)
+        {
+            // Nota: Ajusta los parámetros del constructor según tu entidad Department
+            department = new Department(Guid.NewGuid(), deptName);
+            context.Add(department);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✓ Departamento creado: {deptName}");
+        }
+
+        // 2. Crear Puesto Médico Externo
+        var puestoName = "Centro de Salud Norte";
+        var puesto = await context.Set<ExternalMedicalPost>().FirstOrDefaultAsync(p => p.Name == puestoName);
+        if (puesto == null)
+        {
+            // Nota: Ajusta los parámetros según tu entidad ExternalMedicalPost
+            puesto = new ExternalMedicalPost(Guid.NewGuid(), puestoName);
+            context.Add(puesto);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✓ Puesto Externo creado: {puestoName}");
+        }
+
+        // 3. Crear Doctor y Asignarlo al Departamento
+        var docId = "DOC-CARDIO-01";
+        var doctor = await context.Set<Doctor>().FirstOrDefaultAsync(d => d.Identification == docId);
+        if (doctor == null)
+        {
+            // Nota: Ajusta los parámetros (Guid, Nombre, Apellido, Email, Tel, ID, Tarjeta, DeptId) según tu entidad Doctor
+            doctor = new Doctor(
+                Guid.NewGuid(), 
+                "099123456", 
+                "Roberto Gomez",
+                EmploymentStatus.Active, 
+                department.DepartmentId
+            );
+            context.Add(doctor);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✓ Doctor creado y asignado a {deptName}: {doctor.Name}");
+        }
+
+        // 4. Asignar Doctor como Jefe de Departamento
+        var head = await context.Set<DepartmentHead>().FirstOrDefaultAsync(dh => dh.DepartmentId == department.DepartmentId);
+        if (head == null)
+        {
+            // Nota: Ajusta los parámetros según tu entidad DepartmentHead (Id, DoctorId, DeptId, Fecha)
+            head = new DepartmentHead(Guid.NewGuid(), doctor.EmployeeId, department.DepartmentId, DateTime.UtcNow);
+            context.Add(head);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✓ Jefe de Departamento asignado: {doctor.Name} es jefe de {deptName}");
+        }
+
+        // 5. Crear Nuevo Paciente
+        var patientId = "04080776679";
+        var patientRef = await context.Set<Patient>().FirstOrDefaultAsync(p => p.Identification == patientId);
+        if (patientRef == null)
+        {
+            patientRef = new Patient(
+                Guid.NewGuid(), 
+                "Maria Rodriguez", 
+                patientId, 
+                45, 
+                "098765432", 
+                "Calle La Paz 456"
+            );
+            context.Add(patientRef);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✓ Paciente creado para remisión: Maria Rodriguez");
+        }
+
+        // 6. Crear Remisión (Puesto Externo -> Departamento)
+        // Verificamos si ya existe una remisión hoy para este paciente a este departamento
+        var existsReferral = await context.Set<Referral>().AnyAsync(r => 
+            r.PatientId == patientRef.PatientId && 
+            r.DepartmentTo!.DepartmentId == department.DepartmentId &&
+            r.DateTimeRem.Date == DateTime.UtcNow.Date);
+
+        if (!existsReferral)
+        {
+            var referral = new Referral(
+                Guid.NewGuid(),
+                patientRef.PatientId,
+                DateTime.UtcNow,
+                puesto.ExternalMedicalPostId,
+                department.DepartmentId
+            );
+            context.Add(referral);
+            await context.SaveChangesAsync();
+            Console.WriteLine($"✓ Remisión creada con éxito: Maria -> {deptName} (desde {puestoName})");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"❌ Error durante el seeding de datos de prueba: {ex.Message}");
+    }
+
     var adminEmail = "admin@polyclinic.com";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
@@ -304,7 +391,6 @@ using (var scope = app.Services.CreateScope())
             EmailConfirmed = true
         };
 
-        // Contraseña por defecto: Admin123!
         var result = await userManager.CreateAsync(defaultAdmin, "Admin123!");
 
         if (result.Succeeded)
@@ -326,13 +412,11 @@ using (var scope = app.Services.CreateScope())
     {
         Console.WriteLine($"✓ Usuario administrador ya existe: {adminEmail}");
     }
-    
 }
 
 // ==========================================
 // MIDDLEWARE PIPELINE
 // ==========================================
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -341,7 +425,6 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Polyclinic API V1");
     });
 }
-
 
 app.UseHttpsRedirection();
 
