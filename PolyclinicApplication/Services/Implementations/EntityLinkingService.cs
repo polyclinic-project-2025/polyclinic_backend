@@ -11,18 +11,15 @@ public class EntityLinkingService : IEntityLinkingService
     private readonly IRepository<Doctor> _doctorRepository;
     private readonly IRepository<Nurse> _nurseRepository;
     private readonly IRepository<Patient> _patientRepository;
-    private readonly IRepository<MedicalStaff> _medicalStaffRepository;
 
     public EntityLinkingService(
         IRepository<Doctor> doctorRepository,
         IRepository<Nurse> nurseRepository,
-        IRepository<Patient> patientRepository,
-        IRepository<MedicalStaff> medicalStaffRepository)
+        IRepository<Patient> patientRepository)
     {
         _doctorRepository = doctorRepository;
         _nurseRepository = nurseRepository;
         _patientRepository = patientRepository;
-        _medicalStaffRepository = medicalStaffRepository;
     }
 
     public async Task<Result<bool>> LinkEntityToUserAsync(Guid entityId, string userId, string role)
@@ -56,15 +53,6 @@ public class EntityLinkingService : IEntityLinkingService
 
                     patient.UserId = userId;
                     await _patientRepository.UpdateAsync(patient);
-                    break;
-
-                case ApplicationRoles.MedicalStaff:
-                    var staff = await _medicalStaffRepository.GetByIdAsync(entityId);
-                    if (staff == null)
-                        return Result<bool>.Failure("Personal médico no encontrado.");
-
-                    staff.UserId = userId;
-                    await _medicalStaffRepository.UpdateAsync(staff);
                     break;
 
                 default:

@@ -10,21 +10,18 @@ public class RoleValidationService : IRoleValidationService
 {
     private readonly IRepository<Doctor> _doctorRepository;
     private readonly IRepository<Nurse> _nurseRepository;
-    private readonly IRepository<MedicalStaff> _medicalStaffRepository;
     private readonly IRepository<WarehouseManager> _warehouseManagerRepository;
-    private readonly IRepository<DepartmentHead> _departmentHeadRepository;
+    private readonly IDepartmentHeadRepository _departmentHeadRepository;
     private readonly IRepository<Patient> _patientRepository;
     public RoleValidationService(
         IRepository<Doctor> doctorRepository,
         IRepository<Nurse> nurseRepository,
-        IRepository<MedicalStaff> medicalStaffRepository,
         IRepository<WarehouseManager> warehouseManagerRepository,
-        IRepository<DepartmentHead> departmentHeadRepository,
+        IDepartmentHeadRepository departmentHeadRepository,
         IRepository<Patient> patientRepository)
     {
         _doctorRepository = doctorRepository;
         _nurseRepository = nurseRepository;
-        _medicalStaffRepository = medicalStaffRepository;
         _warehouseManagerRepository = warehouseManagerRepository;
         _departmentHeadRepository = departmentHeadRepository;
         _patientRepository = patientRepository;
@@ -70,16 +67,6 @@ public class RoleValidationService : IRoleValidationService
         {
             return Result<bool>.Failure(
                 "Un usuario no puede tener los roles de Doctor y Nurse simultáneamente.");
-        }
-
-        // Regla 2: MedicalStaff es un rol genérico, no debe combinarse con Doctor o Nurse
-        if (roles.Contains(ApplicationRoles.MedicalStaff))
-        {
-            if (roles.Contains(ApplicationRoles.Doctor) || roles.Contains(ApplicationRoles.Nurse))
-            {
-                return Result<bool>.Failure(
-                    "El rol MedicalStaff no debe combinarse con Doctor o Nurse. Use roles específicos.");
-            }
         }
 
         return Result<bool>.Success(true);
@@ -150,18 +137,6 @@ public class RoleValidationService : IRoleValidationService
                         }
                         break;
 
-                    case ApplicationRoles.MedicalStaff:
-
-                        var staff = await _medicalStaffRepository.FindAsync(
-                            s => s.Identification == data);
-
-                        if (!staff.Any())
-                        {
-                            validationErrors.Add(
-                                $"No existe Personal Médico con el número de identificación: {data}");
-                        }
-                        break;
-
                     case ApplicationRoles.WarehouseManager:
 
                         var managers = await _warehouseManagerRepository.FindAsync(
@@ -176,10 +151,9 @@ public class RoleValidationService : IRoleValidationService
 
                     case ApplicationRoles.DepartmentHead:
 
-                        var heads = await _departmentHeadRepository.FindAsync(
-                            d => d.Identification == data);
+                        var head = await _departmentHeadRepository.GetByIdentificationAsync(data);
 
-                        if (!heads.Any())
+                        if (head == null)
                         {
                             validationErrors.Add(
                                 $"No existe un Jefe de Departamento con el número de identificación: {data}");
@@ -281,29 +255,6 @@ public class RoleValidationService : IRoleValidationService
 
                         entityId = patient.PatientId;
                         
-                    }
-                    break;
-
-                case ApplicationRoles.MedicalStaff:
-                    if (validationData.TryGetValue("IdentificationNumber", out var staffId))
-                    {
-                        var staff = await _medicalStaffRepository.FindAsync(
-                            s => s.Identification == staffId);
-                        
-                        var medicalStaff = staff.FirstOrDefault();
-                        if (medicalStaff == null)
-                        {
-                            return Result<Guid>.Failure(
-                                $"No existe Personal Médico con el número de identificación: {staffId}");
-                        }
-                        
-                        if (!string.IsNullOrEmpty(medicalStaff.UserId))
-                        {
-                            return Result<Guid>.Failure(
-                                "Este personal médico ya tiene una cuenta de usuario asociada.");
-                        }
-                        
-                        entityId = medicalStaff.EmployeeId;
                     }
                     break;
             }

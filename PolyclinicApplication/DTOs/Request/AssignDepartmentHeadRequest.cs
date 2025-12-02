@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PolyclinicApplication.DTOs.Request;
 
-public class UpdateDoctorRequest : UpdateEmployeeRequest
+public class AssignDepartmentHeadRequest
 {
-    public Guid? DepartmentId { get; set; }
+    public Guid DoctorId { get; set; }
 }

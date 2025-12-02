@@ -8,9 +8,9 @@ using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Interfaces;
 
-public interface IDoctorService : 
-    IEmployeeService<DoctorResponse>
+public interface INurseService :
+    IEmployeeService<NurseResponse>
 {
-    Task<Result<DoctorResponse>> CreateAsync(CreateDoctorRequest request);
-    Task<Result<bool>> UpdateAsync(Guid id, UpdateDoctorRequest request);
+    Task<Result<NurseResponse>> CreateAsync(CreateNurseRequest request);
+    Task<Result<bool>> UpdateAsync(Guid id, UpdateNurseRequest request);
 }

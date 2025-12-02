@@ -8,8 +8,8 @@ using PolyclinicDomain.IRepositories;
 
 namespace PolyclinicApplication.Validators;
 
-public class UpdateDoctorRequestValidator : 
-    UpdateEmployeeRequestValidator<UpdateDoctorRequest>
+public class UpdateNurseRequestValidator : 
+    UpdateEmployeeRequestValidator<UpdateNurseRequest>
 {
-    public UpdateDoctorRequestValidator(IDoctorRepository doctorRepository) {}
+    public UpdateNurseRequestValidator(IDoctorRepository doctorRepository) {}
 }

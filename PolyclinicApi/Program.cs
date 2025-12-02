@@ -18,6 +18,9 @@ using PolyclinicApplication.Mapping;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.IdentityModel.Logging;
+using PolyclinicDomain.Entities;
+using PolyclinicApplication.DTOs.Response;
+using PolyclinicApplication.DTOs.Request;
 
 IdentityModelEventSource.ShowPII = true; // ⚠️ Solo en desarrollo
 var builder = WebApplication.CreateBuilder(args);
@@ -160,12 +163,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("RequireDoctorRole", policy =>
         policy.RequireRole(ApplicationRoles.Doctor));
 
-    options.AddPolicy("RequireMedicalStaff", policy =>
-        policy.RequireRole(
-            ApplicationRoles.Doctor,
-            ApplicationRoles.Nurse,
-            ApplicationRoles.MedicalStaff));
-
     options.AddPolicy("RequireManagement", policy =>
         policy.RequireRole(
             ApplicationRoles.Admin,
@@ -178,9 +175,14 @@ builder.Services.AddAuthorization(options =>
 
 // AutoMapper escaneará todos los perfiles en el ensamblado PolyclinicApplication
 builder.Services.AddAutoMapper(typeof(DepartmentProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(DoctorProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmployeeProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(DepartmentHeadProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(PatientProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(DerivationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(NurseProfile).Assembly);
+
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -191,8 +193,13 @@ builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Departments.CreateDepartmentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateDoctorRequestValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateDoctorRequestValidator>();builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Patients.CreatePatientValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateDoctorRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Patients.CreatePatientValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Derivations.CreateDerivationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Referral.CreateReferralValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateNurseRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateNurseRequestValidator>();
+
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
 // ==========================================
@@ -205,6 +212,13 @@ builder.Services.AddScoped<IPuestoExternoRepository,PuestoExternoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+builder.Services.AddScoped<INurseRepository, NurseRepository>();
+builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
+// Repositorio generico para empleados, definir para cada uno
+builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
+builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
+
+
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -222,6 +236,11 @@ builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IDerivationService, DerivationService>();
 builder.Services.AddScoped<IReferralService, ReferralService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<INurseService, NurseService>();
+builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
+// Servico generico para empleados, definir para cada uno
+builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
+builder.Services.AddScoped<IEmployeeService<NurseResponse>, EmployeeService<Nurse, NurseResponse>>();
 
 var app = builder.Build();
 

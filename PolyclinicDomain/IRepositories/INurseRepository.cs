@@ -6,4 +6,4 @@ using PolyclinicDomain.Entities;
 
 namespace PolyclinicDomain.IRepositories;
 
-public interface IDoctorRepository : IEmployeeRepository<Doctor> {}
+public interface INurseRepository : IEmployeeRepository<Nurse> {}

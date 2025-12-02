@@ -8,13 +8,13 @@ using PolyclinicDomain.IRepositories;
 
 namespace PolyclinicApplication.Validators;
 
-public class CreateDoctorRequestValidator : 
-    CreateEmployeeRequestValidator<CreateDoctorRequest>
+public class CreateNurseRequestValidator :
+    CreateEmployeeRequestValidator<CreateNurseRequest>
 {
-    public CreateDoctorRequestValidator()
+    public CreateNurseRequestValidator()
     {
-        RuleFor(x => x.DepartmentId)
+        RuleFor(x => x.NursingId)
             .NotEmpty()
-            .WithMessage("El ID del departamento es obligatorio.");
+            .WithMessage("El ID de enfermería es obligatorio.");
     }
 }

@@ -9,7 +9,7 @@ using PolyclinicInfrastructure.Persistence;
 
 namespace PolyclinicInfrastructure.Repositories;
 
-public class DoctorRepository : EmployeeRepository<Doctor>, IDoctorRepository
+public class NurseRepository : EmployeeRepository<Nurse>, INurseRepository
 {
-    public DoctorRepository(AppDbContext context) : base(context) {}
+    public NurseRepository(AppDbContext context) : base(context) {}
 }

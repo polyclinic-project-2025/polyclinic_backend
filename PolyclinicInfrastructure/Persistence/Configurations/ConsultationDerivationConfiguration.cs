@@ -20,8 +20,9 @@ public class ConsultationDerivationConfiguration : IEntityTypeConfiguration<Cons
                 .IsUnique();
 
         entity.HasOne(c => c.DepartmentHead)
-                .WithMany()
+                .WithMany(dh => dh.ConsultationDerivations)
                 .HasForeignKey(c => c.DepartmentHeadId)
+                .HasPrincipalKey(dh => dh.DepartmentHeadId)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
