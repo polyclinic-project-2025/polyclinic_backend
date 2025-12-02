@@ -29,8 +29,7 @@ namespace PolyclinicInfrastructure.Migrations
                 columns: table => new
                 {
                     ExternalMedicalPostId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    Address = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false)
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {

@@ -12,8 +12,8 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251201050752_ResolvingConflict")]
-    partial class ResolvingConflict
+    [Migration("20251202073651_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -230,9 +230,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<DateTime>("DateTimeCDer")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("DepartmentHeadEmployeeId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("DepartmentHeadId")
                         .HasColumnType("uuid");
 
@@ -251,8 +248,6 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("ConsultationDerivationId");
-
-                    b.HasIndex("DepartmentHeadEmployeeId");
 
                     b.HasIndex("DepartmentHeadId");
 
@@ -275,9 +270,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<DateTime>("DateTimeCRem")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid?>("DepartmentHeadEmployeeId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid>("DepartmentHeadId")
                         .HasColumnType("uuid");
 
@@ -296,8 +288,6 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("ConsultationReferralId");
-
-                    b.HasIndex("DepartmentHeadEmployeeId");
 
                     b.HasIndex("DepartmentHeadId");
 
@@ -325,6 +315,30 @@ namespace PolyclinicInfrastructure.Migrations
                     b.HasKey("DepartmentId");
 
                     b.ToTable("Department", (string)null);
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
+                {
+                    b.Property<Guid>("DepartmentHeadId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DepartmentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("DepartmentHeadId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.HasIndex("DoctorId");
+
+                    b.ToTable("DepartmentHead", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
@@ -743,7 +757,7 @@ namespace PolyclinicInfrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("DepartmentHeadEmployeeId")
+                    b.Property<Guid?>("DepartmentHeadId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("DepartmentId")
@@ -765,7 +779,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasKey("WarehouseRequestId");
 
-                    b.HasIndex("DepartmentHeadEmployeeId");
+                    b.HasIndex("DepartmentHeadId");
 
                     b.HasIndex("DepartmentId");
 
@@ -779,20 +793,7 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("WarehouseRequest", (string)null);
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
-                {
-                    b.HasBaseType("PolyclinicDomain.Entities.Employee");
-
-                    b.Property<Guid>("DepartmentId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("DepartmentId")
-                        .IsUnique();
-
-                    b.ToTable("DepartmentHead", (string)null);
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.MedicalStaff", b =>
+            modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
 
@@ -801,7 +802,7 @@ namespace PolyclinicInfrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("MedicalStaff", (string)null);
+                    b.ToTable("Doctor", (string)null);
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Nurse", b =>
@@ -827,13 +828,6 @@ namespace PolyclinicInfrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("WarehouseManager", (string)null);
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
-                {
-                    b.HasBaseType("PolyclinicDomain.Entities.MedicalStaff");
-
-                    b.ToTable("Doctor", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -889,12 +883,8 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", null)
-                        .WithMany("ConsultationDerivations")
-                        .HasForeignKey("DepartmentHeadEmployeeId");
-
                     b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "DepartmentHead")
-                        .WithMany()
+                        .WithMany("ConsultationDerivations")
                         .HasForeignKey("DepartmentHeadId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -924,12 +914,8 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationReferral", b =>
                 {
-                    b.HasOne("PolyclinicDomain.Entities.DepartmentHead", null)
-                        .WithMany("ConsultationReferrals")
-                        .HasForeignKey("DepartmentHeadEmployeeId");
-
                     b.HasOne("PolyclinicDomain.Entities.DepartmentHead", "DepartmentHead")
-                        .WithMany()
+                        .WithMany("ConsultationReferrals")
                         .HasForeignKey("DepartmentHeadId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -955,6 +941,25 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Doctor");
 
                     b.Navigation("Referral");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
+                {
+                    b.HasOne("PolyclinicDomain.Entities.Department", "Department")
+                        .WithMany("DepartmentHeads")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PolyclinicDomain.Entities.Doctor", "Doctor")
+                        .WithMany("DepartmentHeads")
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Doctor");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Derivation", b =>
@@ -1156,7 +1161,7 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     b.HasOne("PolyclinicDomain.Entities.DepartmentHead", null)
                         .WithMany("WarehouseRequests")
-                        .HasForeignKey("DepartmentHeadEmployeeId");
+                        .HasForeignKey("DepartmentHeadId");
 
                     b.HasOne("PolyclinicDomain.Entities.Department", "Department")
                         .WithMany("WarehouseRequests")
@@ -1179,34 +1184,17 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("WarehouseManager");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
+            modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
                 {
                     b.HasOne("PolyclinicDomain.Entities.Department", "Department")
-                        .WithOne("DepartmentHead")
-                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Employee", null)
-                        .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.DepartmentHead", "EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Department");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.MedicalStaff", b =>
-                {
-                    b.HasOne("PolyclinicDomain.Entities.Department", "Department")
-                        .WithMany("MedicalStaffs")
+                        .WithMany("Doctors")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("PolyclinicDomain.Entities.Employee", null)
                         .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.MedicalStaff", "EmployeeId")
+                        .HasForeignKey("PolyclinicDomain.Entities.Doctor", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1247,15 +1235,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("Warehouse");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
-                {
-                    b.HasOne("PolyclinicDomain.Entities.MedicalStaff", null)
-                        .WithOne()
-                        .HasForeignKey("PolyclinicDomain.Entities.Doctor", "EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.ConsultationDerivation", b =>
                 {
                     b.Navigation("MedicationDerivations");
@@ -1268,17 +1247,26 @@ namespace PolyclinicInfrastructure.Migrations
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Department", b =>
                 {
-                    b.Navigation("DepartmentHead");
+                    b.Navigation("DepartmentHeads");
 
                     b.Navigation("DerivationsFrom");
 
                     b.Navigation("DerivationsTo");
 
-                    b.Navigation("MedicalStaffs");
+                    b.Navigation("Doctors");
 
                     b.Navigation("Referrals");
 
                     b.Navigation("StockDepartments");
+
+                    b.Navigation("WarehouseRequests");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
+                {
+                    b.Navigation("ConsultationDerivations");
+
+                    b.Navigation("ConsultationReferrals");
 
                     b.Navigation("WarehouseRequests");
                 });
@@ -1346,27 +1334,20 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("MedicationRequests");
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.DepartmentHead", b =>
-                {
-                    b.Navigation("ConsultationDerivations");
-
-                    b.Navigation("ConsultationReferrals");
-
-                    b.Navigation("WarehouseRequests");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
-                {
-                    b.Navigation("WarehouseRequests");
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.Doctor", b =>
                 {
                     b.Navigation("ConsultationDerivations");
 
                     b.Navigation("ConsultationReferrals");
 
+                    b.Navigation("DepartmentHeads");
+
                     b.Navigation("EmergencyRooms");
+                });
+
+            modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
+                {
+                    b.Navigation("WarehouseRequests");
                 });
 #pragma warning restore 612, 618
         }
