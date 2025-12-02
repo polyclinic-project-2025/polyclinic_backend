@@ -11,10 +11,10 @@ public class MedicationRequest
     public int Quantity { get; private set; }
     
     public Guid WarehouseRequestId { get; private set; }
-    public WarehouseRequest? WarehouseRequest { get; private set; }
+    public virtual WarehouseRequest? WarehouseRequest { get; private set; }
 
     public Guid MedicationId { get; private set; }
-    public Medication? Medication { get; private set; }
+    public virtual Medication? Medication { get; private set; }
 
     public MedicationRequest(
         Guid medicationRequestId,
@@ -28,5 +28,5 @@ public class MedicationRequest
         MedicationId = medicationId;
     }
 
-    private MedicationRequest() { }
+    protected MedicationRequest() { }
 }

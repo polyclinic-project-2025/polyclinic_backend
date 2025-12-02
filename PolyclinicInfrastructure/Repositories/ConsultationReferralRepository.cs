@@ -11,4 +11,21 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
     {
         _dbSet = _context.Set<ConsultationReferral>();
     }
+
+    public async Task<ConsultationReferral?> GetByIdWithDeepIncludesAsync(Guid id)
+    {
+        return await _dbSet
+            // 1. Incluir el Doctor
+            .Include(c => c.Doctor)
+                // 1a. Luego incluir el Departamento del Doctor
+                .ThenInclude(d => d!.Department) 
+            
+            // 2. Incluir el Referral (Remisión)
+            .Include(c => c.Referral)
+                // 2a. Luego incluir el Paciente del Referral
+                .ThenInclude(r => r!.Patient)
+            
+            // 3. Obtener el registro por ID
+            .FirstOrDefaultAsync(c => c.ConsultationReferralId == id);
+    }
 }

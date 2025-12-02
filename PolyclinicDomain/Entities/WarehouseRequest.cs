@@ -14,12 +14,12 @@ public class WarehouseRequest
     public DateTime RequestDate { get; private set; }
 
     public Guid DepartmentId { get; private set; }
-    public Department? Department { get; private set; }
+    public virtual Department? Department { get; private set; }
 
     public Guid WarehouseManagerId { get; private set; }
-    public WarehouseManager? WarehouseManager { get; private set; }
+    public virtual WarehouseManager? WarehouseManager { get; private set; }
 
-    public ICollection<MedicationRequest> MedicationRequests { get; private set; } = new List<MedicationRequest>();
+    public virtual ICollection<MedicationRequest> MedicationRequests { get; private set; } = new List<MedicationRequest>();
 
     public WarehouseRequest(
         Guid warehouseRequestId,
@@ -35,5 +35,5 @@ public class WarehouseRequest
         WarehouseManagerId = warehouseManagerId;
     }
 
-    private WarehouseRequest() { }
+    protected WarehouseRequest() { }
 }

@@ -1,14 +1,7 @@
-using System.ComponentModel.DataAnnotations;
+namespace PolyclinicApplication.DTOs.Request.Auth;
 
-namespace PolyclinicApplication.DTOs.Request.Auth
+public class LoginDto
 {
-    public class LoginDto
-    {
-        [Required(ErrorMessage = "El email es obligatorio.")]
-        [EmailAddress(ErrorMessage = "El email no es válido.")]
-        public string Email { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "La contraseña es obligatoria.")]
-        public string Password { get; set; } = string.Empty;
-    }
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }

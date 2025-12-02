@@ -14,4 +14,6 @@ public class ExternalMedicalPost
         ExternalMedicalPostId = externalMedicalPostId;
         Name = name;
     }
+
+    protected ExternalMedicalPost(){}
 }

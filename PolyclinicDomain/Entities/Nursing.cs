@@ -10,7 +10,7 @@ public class Nursing
     [MaxLength(200)]
     public string Name { get; private set; }
 
-    public ICollection<Nurse> Nurses { get; private set; } = new List<Nurse>();
+    public virtual ICollection<Nurse> Nurses { get; private set; } = new List<Nurse>();
 
     public Nursing(Guid nursingId, string name)
     {
@@ -18,5 +18,5 @@ public class Nursing
         Name = name;
     }
 
-    private Nursing() { }
+    protected Nursing() { }
 }

@@ -22,11 +22,11 @@ public class Patient
     [MaxLength(500)]
     public string Address { get; private set; } // Dirección_Pac
     
-    public ICollection<Derivation> Derivations { get; private set; } = new List<Derivation>();
-    public ICollection<Referral> Referrals { get; private set; } = new List<Referral>();
-    public ICollection<ConsultationDerivation> ConsultationDerivations { get; private set; } = new List<ConsultationDerivation>();
-    public ICollection<ConsultationReferral> ConsultationReferrals { get; private set; } = new List<ConsultationReferral>();
-    public ICollection<EmergencyRoomCare> EmergencyRoomCares { get; private set; } = new List<EmergencyRoomCare>();
+    public virtual ICollection<Derivation> Derivations { get; private set; } = new List<Derivation>();
+    public virtual ICollection<Referral> Referrals { get; private set; } = new List<Referral>();
+    public virtual ICollection<ConsultationDerivation> ConsultationDerivations { get; private set; } = new List<ConsultationDerivation>();
+    public virtual ICollection<ConsultationReferral> ConsultationReferrals { get; private set; } = new List<ConsultationReferral>();
+    public virtual ICollection<EmergencyRoomCare> EmergencyRoomCares { get; private set; } = new List<EmergencyRoomCare>();
     
     public string? UserId { get; set; }
 
@@ -39,6 +39,8 @@ public class Patient
         Contact = contact;
         Address = address;
     }
+
+    protected Patient(){}
     // -------------------------------
         // MÉTODOS DE CAMBIO
         // -------------------------------

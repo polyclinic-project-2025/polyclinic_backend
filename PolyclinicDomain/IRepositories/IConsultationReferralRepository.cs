@@ -7,6 +7,6 @@ namespace PolyclinicDomain.IRepositories
 
     public interface IConsultationReferralRepository : IRepository<ConsultationReferral>
     {
-        // Define aquí los métodos específicos para ConsultationReferral si es necesario
+        public Task<ConsultationReferral?> GetByIdWithDeepIncludesAsync(Guid id);
     }
 }

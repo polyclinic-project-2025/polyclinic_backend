@@ -10,9 +10,9 @@ public class Warehouse
     [MaxLength(200)]
     public string Name { get; private set; }
 
-    public WarehouseManager? WarehouseManager { get; private set; }
+    public virtual WarehouseManager? WarehouseManager { get; private set; }
 
-    public ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>();
+    public virtual ICollection<WarehouseRequest> WarehouseRequests { get; private set; } = new List<WarehouseRequest>();
 
     public Warehouse(Guid warehouseId, string name)
     {
@@ -20,5 +20,5 @@ public class Warehouse
         Name = name;
     }
 
-    private Warehouse() { }
+    protected Warehouse() { }
 }

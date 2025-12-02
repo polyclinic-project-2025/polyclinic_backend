@@ -11,17 +11,17 @@ public class EmergencyRoomCare
     public string Diagnosis { get; private set; }
     
     public Guid EmergencyRoomId { get; private set; }
-    public EmergencyRoom? EmergencyRoom { get; private set; }
+    public virtual EmergencyRoom? EmergencyRoom { get; private set; }
 
     [Required]
     public DateTime CareDate { get; private set; }
 
     public Guid PatientId { get; private set; }
-    public Patient? Patient { get; private set; }
+    public virtual Patient? Patient { get; private set; }
     
-    public ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();
+    public virtual ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();
 
-    private EmergencyRoomCare() { }
+    protected EmergencyRoomCare() { }
 
     public EmergencyRoomCare(
         Guid emergencyRoomCareId,
