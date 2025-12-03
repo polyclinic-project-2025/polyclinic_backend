@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PolyclinicApplication.DTOs.Departments;
+using PolyclinicDomain.Entities;
 
 namespace PolyclinicApplication.Services.Interfaces
 {
@@ -12,5 +13,7 @@ namespace PolyclinicApplication.Services.Interfaces
         Task<DepartmentDto?> GetByIdAsync(Guid id);
         Task UpdateAsync(Guid id, UpdateDepartmentDto dto);
         Task DeleteAsync(Guid id);
+
+        Task<List<Doctor>> GetDoctorsByDepartmentIdAsync(Guid departmentId);
     }
 }

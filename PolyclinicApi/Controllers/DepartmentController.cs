@@ -87,5 +87,13 @@ namespace PolyclinicAPI.Controllers
             await _departmentService.DeleteAsync(id);
             return NoContent();
         }
+
+
+        [HttpGet("{id}/doctors")]
+        public async Task<IActionResult> GetDoctorsByDepartment(Guid id)
+        {
+            var doctors = await _departmentService.GetDoctorsByDepartmentIdAsync(id);
+            return Ok(doctors);
+        }
     }
 }

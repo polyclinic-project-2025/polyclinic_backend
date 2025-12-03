@@ -33,4 +33,11 @@ public class DepartmentRepository : Repository<Department>, IDepartmentRepositor
     {
         return await _dbSet.AnyAsync(d => d.Name == name);
     }
+
+    public async Task<List<Doctor>> GetDoctorsByDepartmentIdAsync(Guid departmentId)
+    {
+        return await _context.Doctors
+            .Where(d => d.DepartmentId == departmentId)
+            .ToListAsync();
+    }
 }
