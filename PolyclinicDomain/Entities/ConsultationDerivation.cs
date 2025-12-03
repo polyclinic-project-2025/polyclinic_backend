@@ -40,5 +40,25 @@ public class ConsultationDerivation
         DepartmentHeadId = departmentHeadId;
     }
 
-    protected ConsultationDerivation() { }
+    private ConsultationDerivation() { }
+
+    public void UpdateDiagnosis(string diagnosis)
+    {
+        Diagnosis = diagnosis;
+    }
+
+    public void UpdateDateTimeCDer(DateTime dateTime)
+    {
+        DateTimeCDer = dateTime;
+    }
+
+    public void UpdateDoctorId(Guid doctorId)
+    {
+        DoctorId = doctorId;
+    }
+
+    public void UpdateDepartmentHeadId(Guid deptHeadId)
+    {
+        DepartmentHeadId = deptHeadId;
+    }
 }

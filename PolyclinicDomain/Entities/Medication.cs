@@ -48,7 +48,7 @@ public class Medication
         DateTime expirationDate,
         string batchNumber,
         string scientificName,
-        int quantityA,
+        int quantityWarehouse, // Renamed from quantityA
         int quantityNurse,
         int minQuantityWarehouse,
         int minQuantityNurse,
@@ -62,7 +62,7 @@ public class Medication
         ExpirationDate = expirationDate;
         BatchNumber = batchNumber;
         ScientificName = scientificName;
-        QuantityA = quantityA;
+        QuantityWarehouse = quantityWarehouse; // Corrected property name
         QuantityNurse = quantityNurse;
         MinQuantityWarehouse = minQuantityWarehouse;
         MinQuantityNurse = minQuantityNurse;
@@ -70,5 +70,59 @@ public class Medication
         MaxQuantityNurse = maxQuantityNurse;
     }
 
-    protected Medication(){}
+    public void Update(string format, string commercialName, string commercialCompany, 
+                   DateTime expirationDate, string batchNumber, string scientificName, 
+                   int quantityWarehouse, int quantityNurse, 
+                   int minQuantityWarehouse, int minQuantityNurse, 
+                   int maxQuantityWarehouse, int maxQuantityNurse)
+    {
+        Format = format;
+        CommercialName = commercialName;
+        CommercialCompany = commercialCompany;
+        ExpirationDate = expirationDate;
+        BatchNumber = batchNumber;
+        ScientificName = scientificName;
+        QuantityWarehouse = quantityWarehouse;
+        QuantityNurse = quantityNurse;
+        MinQuantityWarehouse = minQuantityWarehouse;
+        MinQuantityNurse = minQuantityNurse;
+        MaxQuantityWarehouse = maxQuantityWarehouse;
+        MaxQuantityNurse = maxQuantityNurse;
+    }
+
+    public void UpdateFormat(string format)
+    {
+        Format = format;
+    }
+
+    public void UpdateCommercialName(string commercialName)
+    {
+        CommercialName = commercialName;
+    }
+
+    public void UpdateCommercialCompany(string commercialCompany)
+    {
+        CommercialCompany = commercialCompany;
+    }
+
+    public void UpdateExpirationDate(DateTime expirationDate)
+    {
+        ExpirationDate = expirationDate;
+    }
+
+    public void UpdateScientificName(string scientificName)
+    {
+        ScientificName = scientificName;
+    }
+
+    public void UpdateQuantityWarehouse(int quantityWarehouse)
+    {
+        QuantityWarehouse = quantityWarehouse;
+    }
+
+    public void UpdateQuantityNurse(int quantityNurse)
+    {
+        QuantityNurse = quantityNurse;
+    }
+    
 }

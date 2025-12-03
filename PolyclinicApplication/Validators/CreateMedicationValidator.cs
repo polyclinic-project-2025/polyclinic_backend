@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Fluentvalidation;
+using FluentValidation;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicDomain.IRepositories;
 
 namespace PolyclinicApplication.Validators;
-public class CreateDoctorRequestValidator : AbstractValidator<CreateDoctorRequest>
+public class CreateMedicationValidator : AbstractValidator<CreateMedicationDto>
 {
-    public CreateMedicationRequestValidator(IMedicationRepository repository)
+    public CreateMedicationValidator(IMedicationRepository repository)
     {
         RuleFor(x => x.Format)
             .NotEmpty().WithMessage("Format is required.")

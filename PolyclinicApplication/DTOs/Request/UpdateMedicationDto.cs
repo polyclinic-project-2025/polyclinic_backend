@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PolyclinicApplication.DTOs.Request;
 
-public class CreateMedicationDto
+public class UpdateMedicationDto
 {
     public string Format { get; set; } = string.Empty;
     public string CommercialName { get; set; } = string.Empty;
@@ -14,8 +14,4 @@ public class CreateMedicationDto
     public string ScientificName { get; set; } = string.Empty;
     public int QuantityWarehouse { get; set; }
     public int QuantityNurse { get; set; }
-    public int MinQuantityWarehouse { get; set; }
-    public int MinQuantityNurse { get; set; }
-    public int MaxQuantityWarehouse { get; set; }
-    public int MaxQuantityNurse { get; set; }
 }

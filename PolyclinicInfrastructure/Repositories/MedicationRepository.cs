@@ -30,7 +30,8 @@ public class MedicationRepository : Repository<Medication>, IMedicationRepositor
     // Verificar si el lote existe
     public async Task<bool> ExistsBatchAsync(string batchNumber)
     {
-        return await _dbSet.AnyAsync(m => m.BatchNumber == batchNumber);
+        return await _dbSet
+            .AnyAsync(m => m.BatchNumber == batchNumber);
     }
 
     // Buscar medicamentos por empresa comercial

@@ -17,14 +17,14 @@ public class MedicationService : IMedicationService
 {
     private readonly IMedicationRepository _repository;
     private readonly IMapper _mapper;
-    private readonly IValidator<CreateMedicationRequest> _createValidator;
-    private readonly IValidator<UpdateMedicationRequest> _updateValidator;
+    private readonly IValidator<CreateMedicationDto> _createValidator;
+    private readonly IValidator<UpdateMedicationDto> _updateValidator;
 
     public MedicationService(
         IMedicationRepository repository,
         IMapper mapper,
-        IValidator<CreateMedicationRequest> createValidator,
-        IValidator<UpdateMedicationRequest> updateValidator)
+        IValidator<CreateMedicationDto> createValidator,
+        IValidator<UpdateMedicationDto> updateValidator)
     {
         _repository = repository;
         _mapper = mapper;
@@ -36,42 +36,48 @@ public class MedicationService : IMedicationService
     // CRUD
     // ============================================================
 
-    public async Task<Result<MedicationResponse>> CreateAsync(CreateMedicationRequest request)
+    public async Task<Result<MedicationDto>> CreateAsync(CreateMedicationDto request)
     {
         var validation = await _createValidator.ValidateAsync(request);
         if (!validation.IsValid)
-            return Result<MedicationResponse>.Failure(validation.Errors.First().ErrorMessage);
+            return Result<MedicationDto>.Failure(validation.Errors.First().ErrorMessage);
 
         // BatchNumber debe ser único
         if (await _repository.ExistsBatchAsync(request.BatchNumber))
-            return Result<MedicationResponse>.Failure("Ya existe un medicamento con este número de lote.");
+            return Result<MedicationDto>.Failure("Ya existe un medicamento con este número de lote.");
 
-        var medication = _mapper.Map<Medication>(request);
+        var medication = new Medication(
+            Guid.NewGuid(),
+            request.Name,
+            request.BatchNumber,
+            request.StockWarehouse,
+            request.StockNurse
+        );
         medication = await _repository.AddAsync(medication);
 
-        var response = _mapper.Map<MedicationResponse>(medication);
-        return Result<MedicationResponse>.Success(response);
+        var response = _mapper.Map<MedicationDto>(medication);
+        return Result<MedicationDto>.Success(response);
     }
 
-    public async Task<Result<MedicationResponse>> GetByIdAsync(Guid id)
+    public async Task<Result<MedicationDto>> GetByIdAsync(Guid id)
     {
         var medication = await _repository.GetByIdAsync(id);
         if (medication == null)
-            return Result<MedicationResponse>.Failure("Medicamento no encontrado.");
+            return Result<MedicationDto>.Failure("Medicamento no encontrado.");
 
-        var response = _mapper.Map<MedicationResponse>(medication);
+        var response = _mapper.Map<MedicationDto>(medication);
         
-        return Result<MedicationResponse>.Success(response);
+        return Result<MedicationDto>.Success(response);
     }
 
-    public async Task<Result<IEnumerable<MedicationResponse>>> GetAllAsync()
+    public async Task<Result<IEnumerable<MedicationDto>>> GetAllAsync()
     {
         var medications = await _repository.GetAllAsync();
-        var response = _mapper.Map<IEnumerable<MedicationResponse>>(medications);
-        return Result<IEnumerable<MedicationResponse>>.Success(response);
+        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+        return Result<IEnumerable<MedicationDto>>.Success(response);
     }
 
-    public async Task<Result<bool>> UpdateAsync(Guid id, UpdateMedicationRequest request)
+    public async Task<Result<bool>> UpdateAsync(Guid id, UpdateMedicationDto request)
     {
         var validation = await _updateValidator.ValidateAsync(request);
         if (!validation.IsValid)
@@ -81,12 +87,45 @@ public class MedicationService : IMedicationService
         if (medication == null)
             return Result<bool>.Failure("Medicamento no encontrado.");
 
-        // BatchNumber no se debe modificar así que no lo mapeamos
-        _mapper.Map(request, medication);
+        // Actualizar sólo campos provistos en el request
+        if (!string.IsNullOrEmpty(request.Format))
+        {
+            medication.UpdateFormat(request.Format);
+        }
+
+        if(!string.IsNullOrEmpty(request.CommercialName))
+        {
+            medication.UpdateCommercialName(request.CommercialName);
+        }
+    
+        // Si tienes otros campos editables (por ejemplo CommercialCompany), actualízalos aquí:
+        if (!string.IsNullOrEmpty(request.CommercialCompany))
+        {
+            // Asume que existe un método de dominio UpdateCommercialCompany
+            medication.UpdateCommercialCompany(request.CommercialCompany);
+        }
+
+        if(request.ExpirationDate != default)
+        {
+            medication.UpdateExpirationDate(request.ExpirationDate);
+        }
+
+        if(!string.IsNullOrEmpty(request.ScientificName))
+        {
+            medication.UpdateScientificName(request.ScientificName);
+        }
+
+        // Cantidades: sólo actualizar si el request las incluye (nullable ints)
+        if (request.QuantityWarehouse.HasValue)
+            medication.UpdateQuantityWarehouse(request.QuantityWarehouse.Value);
+
+        if (request.QuantityNurse.HasValue)
+            medication.UpdateQuantityNurse(request.QuantityNurse.Value);
 
         await _repository.UpdateAsync(medication);
         return Result<bool>.Success(true);
     }
+
 
     public async Task<Result<bool>> DeleteAsync(Guid id)
     {
@@ -102,60 +141,60 @@ public class MedicationService : IMedicationService
     // BÚSQUEDAS ESPECIALES
     // ============================================================
 
-    public async Task<Result<MedicationResponse>> GetByBatchNumberAsync(string batchNumber)
+    public async Task<Result<MedicationDto>> GetByBatchNumberAsync(string batchNumber)
     {
         var medication = await _repository.GetByBatchNumberAsync(batchNumber);
         if (medication == null)
-            return Result<MedicationResponse>.Failure("No existe un medicamento con ese número de lote.");
+            return Result<MedicationDto>.Failure("No existe un medicamento con ese número de lote.");
         
-        var response = _mapper.Map<MedicationResponse>(medication);
+        var response = _mapper.Map<MedicationDto>(medication);
         
-        return Result<MedicationResponse>.Success(response);
+        return Result<MedicationDto>.Success(response);
     }
 
-    public async Task<Result<IEnumerable<MedicationResponse>>> GetByCommercialCompanyAsync(string company)
+    public async Task<Result<IEnumerable<MedicationDto>>> GetByCommercialCompanyAsync(string company)
     {
         var medications = await _repository.GetByCommercialCompanyAsync(company);
-        var response = _mapper.Map<IEnumerable<MedicationResponse>>(medications);
-        return Result<IEnumerable<MedicationResponse>>.Success(response);
+        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+        return Result<IEnumerable<MedicationDto>>.Success(response);
     }
 
-    public async Task<Result<IEnumerable<MedicationResponse>>> SearchByNameAsync(string name)
+    public async Task<Result<IEnumerable<MedicationDto>>> SearchByNameAsync(string name)
     {
         var medications = await _repository.SearchByNameAsync(name);
-        var response = _mapper.Map<IEnumerable<MedicationResponse>>(medications);
-        return Result<IEnumerable<MedicationResponse>>.Success(response);
+        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+        return Result<IEnumerable<MedicationDto>>.Success(response);
     }
 
     // ============================================================
     // MÉTODOS ESPECIALES DE STOCK
     // ============================================================
 
-    public async Task<Result<IEnumerable<MedicationResponse>>> GetLowStockWarehouseAsync()
+    public async Task<Result<IEnumerable<MedicationDto>>> GetLowStockWarehouseAsync()
     {
         var medications = await _repository.GetLowStockWarehouseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationResponse>>(medications);
-        return Result<IEnumerable<MedicationResponse>>.Success(response);
+        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+        return Result<IEnumerable<MedicationDto>>.Success(response);
     }
 
-    public async Task<Result<IEnumerable<MedicationResponse>>> GetLowStockNurseAsync()
+    public async Task<Result<IEnumerable<MedicationDto>>> GetLowStockNurseAsync()
     {
         var medications = await _repository.GetLowStockNurseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationResponse>>(medications);
-        return Result<IEnumerable<MedicationResponse>>.Success(response);
+        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+        return Result<IEnumerable<MedicationDto>>.Success(response);
     }
 
-    public async Task<Result<IEnumerable<MedicationResponse>>> GetOverStockWarehouseAsync()
+    public async Task<Result<IEnumerable<MedicationDto>>> GetOverStockWarehouseAsync()
     {
         var medications = await _repository.GetOverstockWarehouseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationResponse>>(medications);
-        return Result<IEnumerable<MedicationResponse>>.Success(response);
+        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+        return Result<IEnumerable<MedicationDto>>.Success(response);
     }
 
-    public async Task<Result<IEnumerable<MedicationResponse>>> GetOverStockNurseAsync()
+    public async Task<Result<IEnumerable<MedicationDto>>> GetOverStockNurseAsync()
     {
         var medications = await _repository.GetOverstockNurseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationResponse>>(medications);
-        return Result<IEnumerable<MedicationResponse>>.Success(response);
+        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+        return Result<IEnumerable<MedicationDto>>.Success(response);
     }
 }

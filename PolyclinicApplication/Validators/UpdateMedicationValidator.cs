@@ -7,9 +7,9 @@ using PolyclinicApplication.DTOs.Request;
 using PolyclinicDomain.IRepositories;
 
 namespace PolyclinicApplication.Validators;
-public class UpdateMedicationRequestValidator : AbstractValidator<UpdateMedicationRequest>
+public class UpdateMedicationValidator : AbstractValidator<UpdateMedicationDto>
 {
-    public UpdateMedicationRequestValidator()
+    public UpdateMedicationValidator()
     {
         RuleFor(x => x.Format)
             .NotEmpty().WithMessage("Format is required.")
@@ -39,24 +39,6 @@ public class UpdateMedicationRequestValidator : AbstractValidator<UpdateMedicati
         RuleFor(x => x.QuantityNurse)
             .GreaterThanOrEqualTo(0)
             .WithMessage("QuantityNurse cannot be negative.");
-
-        // Límites mínimos
-        RuleFor(x => x.MinQuantityWarehouse)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("MinQuantityWarehouse must be >= 0.");
-
-        RuleFor(x => x.MinQuantityNurse)
-            .GreaterThanOrEqualTo(0)
-            .WithMessage("MinQuantityNurse must be >= 0.");
-
-        // Límites máximos
-        RuleFor(x => x.MaxQuantityWarehouse)
-            .GreaterThan(x => x.MinQuantityWarehouse)
-            .WithMessage("MaxQuantityWarehouse must be greater than MinQuantityWarehouse.");
-
-        RuleFor(x => x.MaxQuantityNurse)
-            .GreaterThan(x => x.MinQuantityNurse)
-            .WithMessage("MaxQuantityNurse must be greater than MinQuantityNurse.");
 
         // Validación lógica final (cantidades actuales dentro del rango)
         RuleFor(x => x)
