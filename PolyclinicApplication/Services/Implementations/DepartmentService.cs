@@ -102,5 +102,9 @@ namespace PolyclinicApplication.Services.Implementations
 
             await _repository.DeleteByIdAsync(id);
         }
+
+
+        public async Task<List<Doctor>> GetDoctorsByDepartmentIdAsync(Guid departmentId)
+            => await _repository.GetDoctorsByDepartmentIdAsync(departmentId);
     }
 }

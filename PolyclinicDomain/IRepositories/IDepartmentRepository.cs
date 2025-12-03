@@ -14,4 +14,6 @@ public interface IDepartmentRepository : IRepository<Department>
     // Opcionales, útiles para reglas de negocio
     Task<Department?> GetByNameAsync(string name);
     Task<bool> ExistsByNameAsync(string name);
+
+    Task<List<Doctor>> GetDoctorsByDepartmentIdAsync(Guid departmentId);
 }
