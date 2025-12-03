@@ -25,7 +25,7 @@ public class MedicationController : ControllerBase
     // ============================================================
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateMedicationRequest request)
+    public async Task<IActionResult> Create([FromBody] CreateMedicationDto request)
     {
         var result = await _service.CreateAsync(request);
 
@@ -33,7 +33,7 @@ public class MedicationController : ControllerBase
             return BadRequest(result.ErrorMessage);
 
         return CreatedAtAction(nameof(GetById),
-            new { id = result.Value!.Id },
+            new { id = result.Value!.MedicationId },
             result.Value);
     }
 
@@ -60,7 +60,7 @@ public class MedicationController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateMedicationRequest request)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateMedicationDto request)
     {
         var result = await _service.UpdateAsync(id, request);
 

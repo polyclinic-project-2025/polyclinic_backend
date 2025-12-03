@@ -72,7 +72,7 @@ public class MedicationRepository : Repository<Medication>, IMedicationRepositor
     }
 
     // STOCK ALTO - ALMACÉN
-    public async Task<IEnumerable<Medication>> GetOverStockWarehouseAsync()
+    public async Task<IEnumerable<Medication>> GetOverstockWarehouseAsync()
     {
         return await _dbSet
             .Where(m => m.QuantityWarehouse > m.MaxQuantityWarehouse)
@@ -80,7 +80,7 @@ public class MedicationRepository : Repository<Medication>, IMedicationRepositor
     }
 
     // STOCK ALTO - ENFERMERÍA
-    public async Task<IEnumerable<Medication>> GetOverStockNurseAsync()
+    public async Task<IEnumerable<Medication>> GetOverstockNurseAsync()
     {
         return await _dbSet
             .Where(m => m.QuantityNurse > m.MaxQuantityNurse)

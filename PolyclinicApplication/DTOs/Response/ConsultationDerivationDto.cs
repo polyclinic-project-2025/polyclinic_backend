@@ -18,9 +18,6 @@ public class ConsultationDerivationDto
     public Guid DoctorId { get; set; }
     public string? DoctorName { get; set; }
 
-    public Guid DepartmentHeadId { get; set; }
-    public string? DepartmentHeadName { get; set; }
-
     // Info del paciente obtenida a través de Derivation
     public Guid PatientId { get; set; }
     public string? PatientName { get; set; }

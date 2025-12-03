@@ -13,8 +13,8 @@ public class MedicationProfile : Profile
 {
     public MedicationProfile()
     {
-        CreateMap<Medication, MedicationResponse>();
-        CreateMap<CreateMedicationRequest, Medication>();
-        CreateMap<UpdateMedicationRequest, Medication>();
+        CreateMap<Medication, MedicationDto>();
+        CreateMap<CreateMedicationDto, Medication>();
+        CreateMap<UpdateMedicationDto, Medication>();
     }
 }

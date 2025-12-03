@@ -48,10 +48,17 @@ public class MedicationService : IMedicationService
 
         var medication = new Medication(
             Guid.NewGuid(),
-            request.Name,
+            request.CommercialName,
+            request.ScientificName,
+            request.Format,
+            request.CommercialCompany,
             request.BatchNumber,
-            request.StockWarehouse,
-            request.StockNurse
+            request.QuantityWarehouse,
+            request.QuantityNurse,
+            request.MinQuantityWarehouse,
+            request.MinQuantityNurse,
+            request.MaxQuantityWarehouse,
+            request.MaxQuantityNurse
         );
         medication = await _repository.AddAsync(medication);
 
@@ -114,13 +121,6 @@ public class MedicationService : IMedicationService
         {
             medication.UpdateScientificName(request.ScientificName);
         }
-
-        // Cantidades: sólo actualizar si el request las incluye (nullable ints)
-        if (request.QuantityWarehouse.HasValue)
-            medication.UpdateQuantityWarehouse(request.QuantityWarehouse.Value);
-
-        if (request.QuantityNurse.HasValue)
-            medication.UpdateQuantityNurse(request.QuantityNurse.Value);
 
         await _repository.UpdateAsync(medication);
         return Result<bool>.Success(true);

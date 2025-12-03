@@ -8,19 +8,19 @@ using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Interfaces;
 
-public interface IConsutationDerivationService
+public interface IConsultationDerivationService
 {
     //CRUD
-    Task<ResultT<ConsultationDerivationResponseDto>> CreateAsync(ConsultationDerivationCreateDto dto);
-    Task<ResultT<ConsultationDerivationResponseDto>> UpdateAsync(Guid id, ConsultationDerivationUpdateDto dto);
-    Task<ResultT<bool>> DeleteAsync(Guid id);
-    Task<ResultT<ConsultationDerivationResponseDto>> GetByIdAsync(Guid id);
-    Task<ResultT<IEnumerable<ConsultationDerivationResponseDto>>> GetAllAsync();
+    Task<Result<ConsultationDerivationDto>> CreateAsync(CreateConsultationDerivationDto dto);
+    Task<Result<bool>> UpdateAsync(Guid id, UpdateConsultationDerivationDto dto);
+    Task<Result<bool>> DeleteAsync(Guid id);
+    Task<Result<ConsultationDerivationDto>> GetByIdAsync(Guid id);
+    Task<Result<IEnumerable<ConsultationDerivationDto>>> GetAllAsync();
 
     //Custom
-    Task<ResultT<IEnumerable<ConsultationDerivationResponseDto>>> GetByDateRangeAsync(
+    Task<Result<IEnumerable<ConsultationDerivationDto>>> GetByDateRangeAsync(
         Guid patientId, DateTime startDate, DateTime endDate);
 
-    Task<ResultT<IEnumerable<ConsultationDerivationResponseDto>>> GetLast10ByPatientIdAsync(Guid patientId);
+    Task<Result<IEnumerable<ConsultationDerivationDto>>> GetLast10ByPatientIdAsync(Guid patientId);
 
 }

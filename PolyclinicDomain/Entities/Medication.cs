@@ -45,7 +45,6 @@ public class Medication
         string format,
         string commercialName,
         string commercialCompany,
-        DateTime expirationDate,
         string batchNumber,
         string scientificName,
         int quantityWarehouse, // Renamed from quantityA
@@ -59,30 +58,9 @@ public class Medication
         Format = format;
         CommercialName = commercialName;
         CommercialCompany = commercialCompany;
-        ExpirationDate = expirationDate;
         BatchNumber = batchNumber;
         ScientificName = scientificName;
         QuantityWarehouse = quantityWarehouse; // Corrected property name
-        QuantityNurse = quantityNurse;
-        MinQuantityWarehouse = minQuantityWarehouse;
-        MinQuantityNurse = minQuantityNurse;
-        MaxQuantityWarehouse = maxQuantityWarehouse;
-        MaxQuantityNurse = maxQuantityNurse;
-    }
-
-    public void Update(string format, string commercialName, string commercialCompany, 
-                   DateTime expirationDate, string batchNumber, string scientificName, 
-                   int quantityWarehouse, int quantityNurse, 
-                   int minQuantityWarehouse, int minQuantityNurse, 
-                   int maxQuantityWarehouse, int maxQuantityNurse)
-    {
-        Format = format;
-        CommercialName = commercialName;
-        CommercialCompany = commercialCompany;
-        ExpirationDate = expirationDate;
-        BatchNumber = batchNumber;
-        ScientificName = scientificName;
-        QuantityWarehouse = quantityWarehouse;
         QuantityNurse = quantityNurse;
         MinQuantityWarehouse = minQuantityWarehouse;
         MinQuantityNurse = minQuantityNurse;

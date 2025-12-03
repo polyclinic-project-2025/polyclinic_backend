@@ -45,25 +45,25 @@ public class ConsultationDerivationService : IConsultationDerivationService
     // **************************************
     // CREATE
     // **************************************
-    public async Task<ResultT<ConsultationDerivationDto>> CreateAsync(
+    public async Task<Result<ConsultationDerivationDto>> CreateAsync(
         CreateConsultationDerivationDto dto)
     {
         var validation = await _createValidator.ValidateAsync(dto);
         if (!validation.IsValid)
-            return ResultT<ConsultationDerivationDto>.Failure(validation.Errors);
+            return Result<ConsultationDerivationDto>.Failure(validation.Errors.First().ErrorMessage);
 
         // Validate foreign keys
         var derivation = await _derivationRepository.GetByIdAsync(dto.DerivationId);
         if (derivation is null)
-            return ResultT<ConsultationDerivationDto>.Failure("Derivation not found.");
+            return Result<ConsultationDerivationDto>.Failure("Derivation not found.");
 
         var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
         if (doctor is null)
-            return ResultT<ConsultationDerivationDto>.Failure("Doctor not found.");
+            return Result<ConsultationDerivationDto>.Failure("Doctor not found.");
 
         var deptHead = await _departmentHeadRepository.GetByIdAsync(dto.DepartmentHeadId);
         if (deptHead is null)
-            return ResultT<ConsultationDerivationDto>.Failure("DepartmentHead not found.");
+            return Result<ConsultationDerivationDto>.Failure("DepartmentHead not found.");
 
         var entity = new ConsultationDerivation(
             Guid.NewGuid(),
@@ -77,33 +77,33 @@ public class ConsultationDerivationService : IConsultationDerivationService
         await _repository.AddAsync(entity);
 
         var resultDto = _mapper.Map<ConsultationDerivationDto>(entity);
-        return ResultT<ConsultationDerivationDto>.Success(resultDto);
+        return Result<ConsultationDerivationDto>.Success(resultDto);
     }
 
     // **************************************
     // UPDATE
     // **************************************
-    public async Task<ResultT<ConsultationDerivationDto>> UpdateAsync(Guid id, UpdateConsultationDerivationDto dto)
+    public async Task<Result<bool>> UpdateAsync(Guid id, UpdateConsultationDerivationDto dto)
     {
         var validation = await _updateValidator.ValidateAsync(dto);
         if (!validation.IsValid)
-            return ResultT<ConsultationDerivationDto>.Failure(validation.Errors);
+            return Result<bool>.Failure(validation.Errors.First().ErrorMessage);
 
         var entity = await _repository.GetByIdAsync(id);
         if (entity is null)
-            return ResultT<ConsultationDerivationDto>.Failure("Record not found.");
+            return Result<bool>.Failure("Record not found.");
 
         // Validación de claves foráneas
         var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
         if (doctor is null)
-            return ResultT<ConsultationDerivationDto>.Failure("Doctor not found.");
+            return Result<bool>.Failure("Doctor not found.");
 
         var deptHead = await _departmentHeadRepository.GetByIdAsync(dto.DepartmentHeadId);
         if (deptHead is null)
-            return ResultT<ConsultationDerivationDto>.Failure("DepartmentHead not found.");
+            return Result<bool>.Failure("DepartmentHead not found.");
 
         if (!string.IsNullOrWhiteSpace(dto.Diagnosis))
-        entity.UpdateDiagnosis(dto.Diagnosis);
+            entity.UpdateDiagnosis(dto.Diagnosis);
 
         if (dto.DateTimeCDer != default)
             entity.UpdateDateTimeCDer(dto.DateTimeCDer);
@@ -116,63 +116,63 @@ public class ConsultationDerivationService : IConsultationDerivationService
 
         await _repository.UpdateAsync(entity);
 
-        return ResultT<bool>.Success(true);
+        return Result<bool>.Success(true);
     }
 
     // **************************************
     // DELETE
     // **************************************
-    public async Task<ResultT<bool>> DeleteAsync(Guid id)
+    public async Task<Result<bool>> DeleteAsync(Guid id)
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity is null)
-            return ResultT<bool>.Failure("Record not found.");
+            return Result<bool>.Failure("Record not found.");
 
         await _repository.DeleteAsync(entity);
-        return ResultT<bool>.Success(true);
+        return Result<bool>.Success(true);
     }
 
     // **************************************
     // GET BY ID
     // **************************************
-    public async Task<ResultT<ConsultationDerivationDto>> GetByIdAsync(Guid id)
+    public async Task<Result<ConsultationDerivationDto>> GetByIdAsync(Guid id)
     {
         var entity = await _repository.GetByIdAsync(id);
         if (entity is null)
-            return ResultT<ConsultationDerivationDto>.Failure("Record not found.");
+            return Result<ConsultationDerivationDto>.Failure("Record not found.");
 
         var resultDto = _mapper.Map<ConsultationDerivationDto>(entity);
-        return ResultT<ConsultationDerivationDto>.Success(resultDto);
+        return Result<ConsultationDerivationDto>.Success(resultDto);
     }
 
     // **************************************
     // GET ALL
     // **************************************
-    public async Task<ResultT<IEnumerable<ConsultationDerivationDto>>> GetAllAsync()
+    public async Task<Result<IEnumerable<ConsultationDerivationDto>>> GetAllAsync()
     {
         var entities = await _repository.GetAllAsync();
         var list = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(entities);
-        return ResultT<IEnumerable<ConsultationDerivationDto>>.Success(list);
+        return Result<IEnumerable<ConsultationDerivationDto>>.Success(list);
     }
 
     // **************************************
     // CUSTOM: Get by Date Range
     // **************************************
-    public async Task<ResultT<IEnumerable<ConsultationDerivationDto>>> GetByDateRangeAsync(
+    public async Task<Result<IEnumerable<ConsultationDerivationDto>>> GetByDateRangeAsync(
         Guid patientId, DateTime startDate, DateTime endDate)
     {
         var records = await _repository.GetByDateRangeAsync(patientId, startDate, endDate);
         var result = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(records);
-        return ResultT<IEnumerable<ConsultationDerivationDto>>.Success(result);
+        return Result<IEnumerable<ConsultationDerivationDto>>.Success(result);
     }
 
     // **************************************
     // CUSTOM: Last 10
     // **************************************
-    public async Task<ResultT<IEnumerable<ConsultationDerivationDto>>> GetLast10ByPatientIdAsync(Guid patientId)
+    public async Task<Result<IEnumerable<ConsultationDerivationDto>>> GetLast10ByPatientIdAsync(Guid patientId)
     {
         var records = await _repository.GetLast10ByPatientIdAsync(patientId);
         var result = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(records);
-        return ResultT<IEnumerable<ConsultationDerivationDto>>.Success(result);
+        return Result<IEnumerable<ConsultationDerivationDto>>.Success(result);
     }
 }

@@ -31,8 +31,8 @@ public class ConsultationDerivationController : ControllerBase
         if (!result.IsSuccess)
             return BadRequest(result.ErrorMessage);
 
-        return CreateValuection(nameof(GetById),
-            new { id = result.Value!.Id },
+        return CreatedAtAction(nameof(GetById),
+            new { id = result.Value!.ConsultationDerivationId },
             result.Value);
     }
 

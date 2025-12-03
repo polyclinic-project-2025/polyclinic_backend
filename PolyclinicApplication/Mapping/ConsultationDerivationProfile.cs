@@ -16,7 +16,7 @@ public class ConsultationDerivationProfile : Profile
     {
         CreateMap<CreateConsultationDerivationDto, ConsultationDerivation>();
         CreateMap<UpdateConsultationDerivationDto, ConsultationDerivation>();
-        CreateMap<ConsultationDerivation, ConsultationDerivationResponseDto>()
+        CreateMap<ConsultationDerivation, ConsultationDerivationDto>()
             .ForMember(dest => dest.PatientId,
                 opt => opt.MapFrom(src => src.Derivation!.PatientId))
             
@@ -30,10 +30,7 @@ public class ConsultationDerivationProfile : Profile
                 opt => opt.MapFrom(src => src.Derivation!.DepartmentTo!.Name))
 
             .ForMember(dest => dest.DoctorName,
-                opt => opt.MapFrom(src => src.Doctor!.Name))
-
-            .ForMember(dest => dest.DepartmentHeadName,
-                opt => opt.MapFrom(src => src.DepartmentHead!.Name));
+                opt => opt.MapFrom(src => src.Doctor!.Name));
 
     }
 }

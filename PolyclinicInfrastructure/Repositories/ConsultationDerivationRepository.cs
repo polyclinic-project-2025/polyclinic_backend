@@ -37,7 +37,6 @@ public class ConsultationDerivationRepository
             .Include(cd => cd.Derivation)
                 .ThenInclude(d => d.DepartmentTo)
             .Include(cd => cd.Doctor)
-            .Include(cd => cd.DepartmentHead)
             .Where(cd =>
                 cd.Derivation!.PatientId == patientId &&
                 cd.DateTimeCDer >= startDate &&
@@ -54,7 +53,6 @@ public class ConsultationDerivationRepository
             .Include(cd => cd.Derivation)
                 .ThenInclude(d => d.DepartmentTo)
             .Include(cd => cd.Doctor)
-            .Include(cd => cd.DepartmentHead)
             .Where(cd => cd.Derivation!.PatientId == patientId)
             .OrderByDescending(cd => cd.DateTimeCDer)
             .Take(10)

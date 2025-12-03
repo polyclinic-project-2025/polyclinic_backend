@@ -39,16 +39,5 @@ public class UpdateMedicationValidator : AbstractValidator<UpdateMedicationDto>
         RuleFor(x => x.QuantityNurse)
             .GreaterThanOrEqualTo(0)
             .WithMessage("QuantityNurse cannot be negative.");
-
-        // Validación lógica final (cantidades actuales dentro del rango)
-        RuleFor(x => x)
-            .Must(x => x.QuantityWarehouse <= x.MaxQuantityWarehouse)
-            .WithMessage("QuantityWarehouse cannot exceed MaxQuantityWarehouse.")
-            .Must(x => x.QuantityWarehouse >= x.MinQuantityWarehouse)
-            .WithMessage("QuantityWarehouse cannot be below MinQuantityWarehouse.")
-            .Must(x => x.QuantityNurse <= x.MaxQuantityNurse)
-            .WithMessage("QuantityNurse cannot exceed MaxQuantityNurse.")
-            .Must(x => x.QuantityNurse >= x.MinQuantityNurse)
-            .WithMessage("QuantityNurse cannot be below MinQuantityNurse.");
     }
 }
