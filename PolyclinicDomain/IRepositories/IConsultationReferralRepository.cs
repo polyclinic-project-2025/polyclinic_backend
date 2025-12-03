@@ -8,5 +8,6 @@ namespace PolyclinicDomain.IRepositories
     public interface IConsultationReferralRepository : IRepository<ConsultationReferral>
     {
         public Task<ConsultationReferral?> GetByIdWithDeepIncludesAsync(Guid id);
+
     }
 }

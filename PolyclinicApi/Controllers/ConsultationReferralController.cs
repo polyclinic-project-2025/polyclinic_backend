@@ -40,6 +40,27 @@ public class ConsultationReferralController : ControllerBase
         return Ok(result.Value);
     }
 
+    [HttpGet("recent")]
+
+    public async Task<ActionResult<IEnumerable<ConsultationReferralResponse>>> GetLastTen()
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+            
+        var result = await _consultationReferralService.GetLastTen();
+        return Ok(result.Value);
+    }
+
+    [HttpGet("{in-range}")]
+    public async Task<ActionResult<IEnumerable<ConsultationReferralResponse>>> GetInRange([FromQuery] DateTime start,
+    [FromQuery] DateTime end)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+        var result = await _consultationReferralService.GetConsultationInRange(start, end);
+        return Ok(result.Value);
+    } 
+
     [HttpPost]
     public async Task<ActionResult<ConsultationReferralResponse>> Create([FromBody] CreateConsultationReferralDto request)
     {

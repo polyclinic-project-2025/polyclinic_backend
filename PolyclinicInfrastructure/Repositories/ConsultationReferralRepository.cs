@@ -2,6 +2,7 @@ using PolyclinicDomain.Entities;
 using PolyclinicDomain.IRepositories;
 using PolyclinicInfrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+
 namespace PolyclinicInfrastructure.Repositories;
 
 public class ConsultationReferralRepository: Repository<ConsultationReferral>, IConsultationReferralRepository
@@ -28,4 +29,5 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
             // 3. Obtener el registro por ID
             .FirstOrDefaultAsync(c => c.ConsultationReferralId == id);
     }
+
 }

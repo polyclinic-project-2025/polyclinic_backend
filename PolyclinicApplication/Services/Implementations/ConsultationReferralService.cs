@@ -97,6 +97,36 @@ public class ConsultationReferralService : IConsultationReferralService
         return Result<ConsultationReferralResponse>.Success(response);
     }
 
+    public async Task<Result<IEnumerable<ConsultationReferralResponse>>> GetConsultationInRange(DateTime start, DateTime end)
+    {
+        var consultations = await _consultationReferralRepository.GetAllAsync();
+        var inRange = consultations.Where(c => c.DateTimeCRem >= start && c.DateTimeCRem <= end);
+        var response = _mapper.Map<IEnumerable<ConsultationReferralResponse>>(inRange);
+        return Result<IEnumerable<ConsultationReferralResponse>>.Success(response);
+    }
+
+    public async Task<Result<IEnumerable<ConsultationReferralResponse>>> GetLastTen()
+    {
+        var consultations = await _consultationReferralRepository.GetAllAsync();
+        var orderedConsultations = consultations.OrderBy(c => c.DateTimeCRem);
+        List<ConsultationReferralResponse> response = new List<ConsultationReferralResponse>();
+        if(orderedConsultations.Count() <= 10 )
+        {
+            response = _mapper.Map<IEnumerable<ConsultationReferralResponse>>(orderedConsultations).ToList();
+        }
+        else
+        {
+            var lastTen = new List<ConsultationReferral>();
+            foreach(var consultation in orderedConsultations)
+            {
+                lastTen.Add(consultation);
+            }
+
+            response = _mapper.Map<IEnumerable<ConsultationReferralResponse>>(lastTen).ToList();
+        }
+        return Result<IEnumerable<ConsultationReferralResponse>>.Success(response);
+    }
+
     public async Task<Result<ConsultationReferralResponse>> UpdateAsync(Guid id, UpdateConsultationReferralDto request)
 {
     // 1. Buscar la consulta original (ESTA instancia ya está trackeada)

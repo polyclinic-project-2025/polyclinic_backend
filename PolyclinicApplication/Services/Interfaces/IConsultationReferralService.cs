@@ -16,5 +16,8 @@ public interface IConsultationReferralService
     Task<Result<ConsultationReferralResponse>> UpdateAsync(Guid id, UpdateConsultationReferralDto request);
     
     Task<Result<bool>> DeleteAsync(Guid id);
+    Task<Result<IEnumerable<ConsultationReferralResponse>>> GetLastTen();
+    Task<Result<IEnumerable<ConsultationReferralResponse>>> GetConsultationInRange(DateTime start, DateTime end);
+
 }
 
