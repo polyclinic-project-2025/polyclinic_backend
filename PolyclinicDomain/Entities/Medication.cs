@@ -1,0 +1,62 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace PolyclinicDomain.Entities;
+
+public class Medication
+{
+    public Guid MedicationId { get; private set; }
+
+    [Required]
+    [MaxLength(100)]
+    public string Format { get; private set; }
+    [Required]
+    [MaxLength(100)]
+    public string CommercialName { get; private set; }
+    [Required]
+    [MaxLength(100)]
+    public string CommercialCompany { get; private set; }
+    [Required]
+    public DateTime ExpirationDate { get; private set; }
+    [Required]
+    [MaxLength(100)]
+    public string BatchNumber { get; private set; }
+    [Required]
+    [MaxLength(100)]
+    public string ScientificName { get; private set; }
+    [Required]
+    [Range(0, 1000000)]
+    public int QuantityA { get; private set; }
+    [Required]
+    [Range(0, 1000000)]
+    public int QuantityNurse { get; private set; }
+    
+    public virtual ICollection<MedicationDerivation> MedicationDerivations { get; private set; } = new List<MedicationDerivation>();
+    public virtual ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
+    public virtual ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();
+    public virtual ICollection<MedicationRequest> MedicationRequests { get; private set; } = new List<MedicationRequest>();
+    public virtual ICollection<StockDepartment> StockDepartments { get; private set; } = new List<StockDepartment>();
+
+    public Medication(
+        Guid medicationId,
+        string format,
+        string commercialName,
+        string commercialCompany,
+        DateTime expirationDate,
+        string batchNumber,
+        string scientificName,
+        int quantityA,
+        int quantityNurse)
+    {
+        MedicationId = medicationId;   
+        Format = format;
+        CommercialName = commercialName;
+        CommercialCompany = commercialCompany;
+        ExpirationDate = expirationDate;
+        BatchNumber = batchNumber;
+        ScientificName = scientificName;
+        QuantityA = quantityA;
+        QuantityNurse = quantityNurse;
+    }
+
+    protected Medication(){}
+}
