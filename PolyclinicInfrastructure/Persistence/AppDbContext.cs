@@ -28,7 +28,6 @@ public class AppDbContext : IdentityDbContext
     public DbSet<MedicationReferral> MedicationReferrals { get; set; }
     public DbSet<MedicationRequest> MedicationRequests { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
-    public DbSet<Nursing> Nursing { get; set; }
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Referral> Referrals { get; set; }
     public DbSet<StockDepartment> StockDepartments { get; set; }

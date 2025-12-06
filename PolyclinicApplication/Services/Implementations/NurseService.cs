@@ -43,15 +43,11 @@ public class NurseService :
         {
             return Result<NurseResponse>.Failure("Ya existe un empleado con esta identificación.");
         }
-
-        // TODO: Validar existencia request.NursingId
-        
         var nurse = new Nurse(
             Guid.NewGuid(),
             request.Identification,
             request.Name,
-            request.EmploymentStatus,
-            request.NursingId
+            request.EmploymentStatus
         );
         await _nurseRepository.AddAsync(nurse);
         var nurseResponse = _mapper.Map<NurseResponse>(nurse);
@@ -87,9 +83,7 @@ public class NurseService :
         {
             nurse.UpdateEmploymentStatus(request.EmploymentStatus);
         }
-        
-        // TODO: Actualizar NursingId si es necesario
-        
+
         await _nurseRepository.UpdateAsync(nurse);
         return Result<bool>.Success(true);
     }

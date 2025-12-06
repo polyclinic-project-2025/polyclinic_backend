@@ -5,7 +5,4 @@ using System.Threading.Tasks;
 
 namespace PolyclinicApplication.DTOs.Response;
 
-public class NurseResponse : EmployeeResponse
-{
-    public Guid NursingId { get; set; }
-}
+public class NurseResponse : EmployeeResponse {}
