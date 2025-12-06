@@ -31,7 +31,6 @@ public class AppDbContext : IdentityDbContext
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Referral> Referrals { get; set; }
     public DbSet<StockDepartment> StockDepartments { get; set; }
-    public DbSet<Warehouse> Warehouse { get; set; }
     public DbSet<WarehouseManager> WarehouseManagers { get; set; }
     public DbSet<WarehouseRequest> WarehouseRequests { get; set; }
 
