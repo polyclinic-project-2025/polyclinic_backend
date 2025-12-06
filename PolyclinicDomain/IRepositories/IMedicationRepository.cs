@@ -14,6 +14,9 @@ public interface IMedicationRepository : IRepository<Medication>
         // Verificar existencia del lote antes de crear o actualizar
         Task<bool> ExistsBatchAsync(string batchNumber);
 
+        // Verificar existencia de medicamento con ese nombre 
+        Task<bool> ExistsMedicationAsync(string name);
+
         // Buscar por compañía comercial
         Task<IEnumerable<Medication>> GetByCommercialCompanyAsync(string company);
 

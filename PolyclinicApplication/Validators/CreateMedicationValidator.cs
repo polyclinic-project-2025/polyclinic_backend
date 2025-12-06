@@ -29,14 +29,12 @@ public class CreateMedicationValidator : AbstractValidator<CreateMedicationDto>
 
         RuleFor(x => x.BatchNumber)
             .NotEmpty().WithMessage("Batch number is required.")
-            .MaximumLength(100)
-            .MustAsync(async (batch, _) => !await repository.ExistsBatchAsync(batch))
-            .WithMessage("Batch number already exists.");
-
+            .MaximumLength(100);
+            
         RuleFor(x => x.ExpirationDate)
-            .GreaterThan(DateTime.UtcNow)
-            .WithMessage("Expiration date must be in the future.");
-
+            .NotEmpty()
+            .Must(date => DateOnly.TryParse(date, out _))
+            .WithMessage("ExpirationDate must be a valid date in format yyyy-MM-dd.");
         // Cantidades actuales
         RuleFor(x => x.QuantityWarehouse)
             .GreaterThanOrEqualTo(0)

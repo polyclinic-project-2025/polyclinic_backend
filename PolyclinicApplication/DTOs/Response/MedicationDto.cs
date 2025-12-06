@@ -13,6 +13,7 @@ public class MedicationDto
     public string CommercialCompany { get; set; } = string.Empty;
     public string BatchNumber { get; set; } = string.Empty; 
     public string ScientificName { get; set; } = string.Empty;
+    public DateOnly ExpirationDate { get; set; }
     public int QuantityWarehouse { get; set; }
     public int QuantityNurse { get; set; }
     public int MinQuantityWarehouse { get; set; }

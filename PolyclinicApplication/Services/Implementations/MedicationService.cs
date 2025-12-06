@@ -43,22 +43,25 @@ public class MedicationService : IMedicationService
             return Result<MedicationDto>.Failure(validation.Errors.First().ErrorMessage);
 
         // BatchNumber debe ser único
-        if (await _repository.ExistsBatchAsync(request.BatchNumber))
+        if (await _repository.ExistsBatchAsync(request.BatchNumber) && await _repository.ExistsMedicationAsync(request.CommercialName) && await _repository.ExistsMedicationAsync(request.ScientificName))
             return Result<MedicationDto>.Failure("Ya existe un medicamento con este número de lote.");
 
+        var expirationDate = DateOnly.ParseExact(request.ExpirationDate,"yyyy-MM-dd");    
+
         var medication = new Medication(
-            Guid.NewGuid(),
-            request.CommercialName,
-            request.ScientificName,
-            request.Format,
-            request.CommercialCompany,
-            request.BatchNumber,
-            request.QuantityWarehouse,
-            request.QuantityNurse,
-            request.MinQuantityWarehouse,
-            request.MinQuantityNurse,
-            request.MaxQuantityWarehouse,
-            request.MaxQuantityNurse
+            Guid.NewGuid(),                    
+            request.Format,                    
+            request.CommercialName,            
+            request.CommercialCompany,         
+            request.BatchNumber,               
+            request.ScientificName,            
+            expirationDate,                    
+            request.QuantityWarehouse,         
+            request.QuantityNurse,             
+            request.MinQuantityWarehouse,      
+            request.MinQuantityNurse,          
+            request.MaxQuantityWarehouse,      
+            request.MaxQuantityNurse           
         );
         medication = await _repository.AddAsync(medication);
 
@@ -112,9 +115,10 @@ public class MedicationService : IMedicationService
             medication.UpdateCommercialCompany(request.CommercialCompany);
         }
 
-        if(request.ExpirationDate != default)
+        if(!string.IsNullOrWhiteSpace(request.ExpirationDate))
         {
-            medication.UpdateExpirationDate(request.ExpirationDate);
+            var expiration = DateOnly.ParseExact(request.ExpirationDate, "yyyy-MM-dd");
+            medication.UpdateExpirationDate(expiration);
         }
 
         if(!string.IsNullOrEmpty(request.ScientificName))

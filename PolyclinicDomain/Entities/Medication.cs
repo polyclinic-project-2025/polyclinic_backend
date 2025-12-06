@@ -16,7 +16,7 @@ public class Medication
     [MaxLength(100)]
     public string CommercialCompany { get; private set; }
     [Required]
-    public DateTime ExpirationDate { get; private set; }
+    public DateOnly ExpirationDate { get; private set; }
     [Required]
     [MaxLength(100)]
     public string BatchNumber { get; private set; }
@@ -47,6 +47,7 @@ public class Medication
         string commercialCompany,
         string batchNumber,
         string scientificName,
+        DateOnly expirationDate,    
         int quantityWarehouse, // Renamed from quantityA
         int quantityNurse,
         int minQuantityWarehouse,
@@ -60,6 +61,7 @@ public class Medication
         CommercialCompany = commercialCompany;
         BatchNumber = batchNumber;
         ScientificName = scientificName;
+        ExpirationDate = expirationDate;
         QuantityWarehouse = quantityWarehouse; // Corrected property name
         QuantityNurse = quantityNurse;
         MinQuantityWarehouse = minQuantityWarehouse;
@@ -83,7 +85,7 @@ public class Medication
         CommercialCompany = commercialCompany;
     }
 
-    public void UpdateExpirationDate(DateTime expirationDate)
+    public void UpdateExpirationDate(DateOnly expirationDate)
     {
         ExpirationDate = expirationDate;
     }

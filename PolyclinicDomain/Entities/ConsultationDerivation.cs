@@ -40,7 +40,7 @@ public class ConsultationDerivation
         DepartmentHeadId = departmentHeadId;
     }
 
-    private ConsultationDerivation() { }
+    protected ConsultationDerivation() { }
 
     public void UpdateDiagnosis(string diagnosis)
     {

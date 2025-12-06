@@ -28,8 +28,10 @@ public class UpdateMedicationValidator : AbstractValidator<UpdateMedicationDto>
             .MaximumLength(100);
 
         RuleFor(x => x.ExpirationDate)
-            .GreaterThan(DateTime.UtcNow)
-            .WithMessage("Expiration date must be in the future.");
+            .NotEmpty()
+            .Must(date => DateOnly.TryParse(date, out _))
+            .WithMessage("ExpirationDate must be a valid date in format yyyy-MM-dd.");
+
 
         // Cantidades actuales
         RuleFor(x => x.QuantityWarehouse)

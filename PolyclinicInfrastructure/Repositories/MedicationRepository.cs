@@ -34,6 +34,12 @@ public class MedicationRepository : Repository<Medication>, IMedicationRepositor
             .AnyAsync(m => m.BatchNumber == batchNumber);
     }
 
+    //Verificar si ese nombre ya existe
+    public async Task<bool> ExistsMedicationAsync(string name)
+    {
+        return await _dbSet
+            .AnyAsync(m => m.CommercialName == name || m.ScientificName == name);
+    }
     // Buscar medicamentos por empresa comercial
     public async Task<IEnumerable<Medication>> GetByCommercialCompanyAsync(string company)
     {

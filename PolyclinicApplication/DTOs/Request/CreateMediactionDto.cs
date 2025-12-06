@@ -10,7 +10,7 @@ public class CreateMedicationDto
     public string Format { get; set; } = string.Empty;
     public string CommercialName { get; set; } = string.Empty;
     public string CommercialCompany { get; set; } = string.Empty;
-    public DateTime ExpirationDate { get; set; }
+    public string ExpirationDate { get; set; }
     public string BatchNumber { get; set; } = string.Empty;
     public string ScientificName { get; set; } = string.Empty;
     public int QuantityWarehouse { get; set; }
