@@ -11,5 +11,5 @@ namespace PolyclinicApplication.Validators;
 public class UpdateNurseRequestValidator : 
     UpdateEmployeeRequestValidator<UpdateNurseRequest>
 {
-    public UpdateNurseRequestValidator(IDoctorRepository doctorRepository) {}
+    public UpdateNurseRequestValidator() {}
 }

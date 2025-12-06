@@ -11,10 +11,5 @@ namespace PolyclinicApplication.Validators;
 public class CreateNurseRequestValidator :
     CreateEmployeeRequestValidator<CreateNurseRequest>
 {
-    public CreateNurseRequestValidator()
-    {
-        RuleFor(x => x.NursingId)
-            .NotEmpty()
-            .WithMessage("El ID de enfermería es obligatorio.");
-    }
+    public CreateNurseRequestValidator() {}
 }

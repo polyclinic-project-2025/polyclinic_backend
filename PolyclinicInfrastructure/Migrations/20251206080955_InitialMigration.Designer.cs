@@ -12,8 +12,8 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251206070536_InitialMigrationRamon")]
-    partial class InitialMigrationRamon
+    [Migration("20251206080955_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -636,22 +636,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.ToTable("MedicationRequest", (string)null);
                 });
 
-            modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
-                {
-                    b.Property<Guid>("NursingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.HasKey("NursingId");
-
-                    b.ToTable("Nursing", (string)null);
-                });
-
             modelBuilder.Entity("PolyclinicDomain.Entities.Patient", b =>
                 {
                     b.Property<Guid>("PatientId")
@@ -823,11 +807,6 @@ namespace PolyclinicInfrastructure.Migrations
             modelBuilder.Entity("PolyclinicDomain.Entities.Nurse", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
-
-                    b.Property<Guid>("NursingId")
-                        .HasColumnType("uuid");
-
-                    b.HasIndex("NursingId");
 
                     b.ToTable("Nurse", (string)null);
                 });
@@ -1223,14 +1202,6 @@ namespace PolyclinicInfrastructure.Migrations
                         .HasForeignKey("PolyclinicDomain.Entities.Nurse", "EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("PolyclinicDomain.Entities.Nursing", "Nursing")
-                        .WithMany("Nurses")
-                        .HasForeignKey("NursingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Nursing");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
@@ -1312,11 +1283,6 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Navigation("MedicationRequests");
 
                     b.Navigation("StockDepartments");
-                });
-
-            modelBuilder.Entity("PolyclinicDomain.Entities.Nursing", b =>
-                {
-                    b.Navigation("Nurses");
                 });
 
             modelBuilder.Entity("PolyclinicDomain.Entities.Patient", b =>

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace PolyclinicInfrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddLazyLoadingMigration : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -44,27 +44,19 @@ namespace PolyclinicInfrastructure.Migrations
                     Format = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CommercialName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CommercialCompany = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpirationDate = table.Column<DateOnly>(type: "date", nullable: false),
                     BatchNumber = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     ScientificName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    QuantityA = table.Column<int>(type: "integer", nullable: false),
-                    QuantityNurse = table.Column<int>(type: "integer", nullable: false)
+                    QuantityWarehouse = table.Column<int>(type: "integer", nullable: false),
+                    QuantityNurse = table.Column<int>(type: "integer", nullable: false),
+                    MinQuantityWarehouse = table.Column<int>(type: "integer", nullable: false),
+                    MinQuantityNurse = table.Column<int>(type: "integer", nullable: false),
+                    MaxQuantityWarehouse = table.Column<int>(type: "integer", nullable: false),
+                    MaxQuantityNurse = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Medication", x => x.MedicationId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Nursing",
-                columns: table => new
-                {
-                    NursingId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Nursing", x => x.NursingId);
                 });
 
             migrationBuilder.CreateTable(
@@ -322,8 +314,7 @@ namespace PolyclinicInfrastructure.Migrations
                 name: "Nurse",
                 columns: table => new
                 {
-                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    NursingId = table.Column<Guid>(type: "uuid", nullable: false)
+                    EmployeeId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -334,12 +325,6 @@ namespace PolyclinicInfrastructure.Migrations
                         principalTable: "Employee",
                         principalColumn: "EmployeeId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Nurse_Nursing_NursingId",
-                        column: x => x.NursingId,
-                        principalTable: "Nursing",
-                        principalColumn: "NursingId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -879,11 +864,6 @@ namespace PolyclinicInfrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Nurse_NursingId",
-                table: "Nurse",
-                column: "NursingId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Patient_Identification",
                 table: "Patient",
                 column: "Identification",
@@ -1039,9 +1019,6 @@ namespace PolyclinicInfrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "WarehouseRequest");
-
-            migrationBuilder.DropTable(
-                name: "Nursing");
 
             migrationBuilder.DropTable(
                 name: "Medication");
