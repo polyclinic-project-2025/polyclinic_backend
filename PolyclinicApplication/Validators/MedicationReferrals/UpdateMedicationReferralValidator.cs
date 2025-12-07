@@ -18,23 +18,23 @@ public class UpdateMedicationReferralValidator : AbstractValidator<UpdateMedicat
 
         RuleFor(x => x.Quantity)
             .GreaterThan(0)
-            .WithMessage("Quantity must be greater than 0.")
+            .WithMessage("La cantidad debe ser mayor que 0.")
             .LessThanOrEqualTo(1000000)
-            .WithMessage("Quantity cannot exceed 1,000,000.")
+            .WithMessage("La cantidad no puede exceder 1,000,000.")
             .When(x => x.Quantity.HasValue);
 
         RuleFor(x => x.ConsultationReferralId)
             .NotEmpty()
-            .WithMessage("ConsultationReferralId cannot be empty.")
+            .WithMessage("El ID de la consulta de remision es obligatorio.")
             .MustAsync(async (id, cancellation) => await ConsultationReferralExistsAsync(id!.Value))
-            .WithMessage("The specified ConsultationReferral does not exist.")
+            .WithMessage("La consulta de remision especificada no existe.")
             .When(x => x.ConsultationReferralId.HasValue);
 
         RuleFor(x => x.MedicationId)
             .NotEmpty()
-            .WithMessage("MedicationId cannot be empty.")
+            .WithMessage("El ID del medicamento es obligatorio.")
             .MustAsync(async (id, cancellation) => await MedicationExistsAsync(id!.Value))
-            .WithMessage("The specified Medication does not exist.")
+            .WithMessage("El medicamento especificado no existe.")
             .When(x => x.MedicationId.HasValue);
     }
 

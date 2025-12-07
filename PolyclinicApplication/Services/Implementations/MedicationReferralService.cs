@@ -51,7 +51,7 @@ public class MedicationReferralService : IMedicationReferralService
     {
         var medicationReferral = await _repository.GetByIdAsync(id);
         if (medicationReferral == null)
-            return Result<MedicationReferralDto>.Failure("MedicationReferral not found.");
+            return Result<MedicationReferralDto>.Failure("La remisión de medicamento no fue encontrada.");
 
         var response = _mapper.Map<MedicationReferralDto>(medicationReferral);
         return Result<MedicationReferralDto>.Success(response);
@@ -72,7 +72,7 @@ public class MedicationReferralService : IMedicationReferralService
 
         var medicationReferral = await _repository.GetByIdAsync(id);
         if (medicationReferral == null)
-            return Result<bool>.Failure("MedicationReferral not found.");
+            return Result<bool>.Failure("La remisión de medicamento no fue encontrada.");
 
         // Update only provided fields
         if (request.Quantity.HasValue)
@@ -98,7 +98,7 @@ public class MedicationReferralService : IMedicationReferralService
     {
         var medicationReferral = await _repository.GetByIdAsync(id);
         if (medicationReferral == null)
-            return Result<bool>.Failure("MedicationReferral not found.");
+            return Result<bool>.Failure("La remisión de medicamento no fue encontrada.");
 
         await _repository.DeleteAsync(medicationReferral);
         return Result<bool>.Success(true);
