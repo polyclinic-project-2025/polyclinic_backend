@@ -12,7 +12,7 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251206235517_InitialMigration")]
+    [Migration("20251207175553_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -718,8 +718,14 @@ namespace PolyclinicInfrastructure.Migrations
                     b.Property<Guid>("DepartmentId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("MaxQuantity")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("MedicationId")
                         .HasColumnType("uuid");
+
+                    b.Property<int>("MinQuantity")
+                        .HasColumnType("integer");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");

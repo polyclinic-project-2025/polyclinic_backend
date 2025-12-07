@@ -105,7 +105,9 @@ namespace PolyclinicInfrastructure.Migrations
                     StockDepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
                     DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
-                    MedicationId = table.Column<Guid>(type: "uuid", nullable: false)
+                    MedicationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MinQuantity = table.Column<int>(type: "integer", nullable: false),
+                    MaxQuantity = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
