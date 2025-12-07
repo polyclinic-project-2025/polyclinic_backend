@@ -25,25 +25,25 @@ public class CreateMedicationReferralValidator : AbstractValidator<CreateMedicat
         RuleFor(x => x.ConsultationReferralId)
             .NotEmpty()
             .WithMessage("El ID de la consulta de remision es obligatorio.")
-            .MustAsync(async (id, cancellation) => await ConsultationReferralExistsAsync(id))
+            .Must(ConsultationReferralExists)
             .WithMessage("La consulta de remision especificada no existe.");
 
         RuleFor(x => x.MedicationId)
             .NotEmpty()
             .WithMessage("El ID del medicamento es obligatorio.")
-            .MustAsync(async (id, cancellation) => await MedicationExistsAsync(id))
+            .Must(MedicationExists)
             .WithMessage("El medicamento especificado no existe.");
     }
 
-    private async Task<bool> ConsultationReferralExistsAsync(Guid id)
+    private bool ConsultationReferralExists(Guid id)
     {
-        var consultation = await _consultationReferralRepository.GetByIdAsync(id);
+        var consultation = _consultationReferralRepository.GetByIdAsync(id).GetAwaiter().GetResult();
         return consultation != null;
     }
 
-    private async Task<bool> MedicationExistsAsync(Guid id)
+    private bool MedicationExists(Guid id)
     {
-        var medication = await _medicationRepository.GetByIdAsync(id);
+        var medication = _medicationRepository.GetByIdAsync(id).GetAwaiter().GetResult();
         return medication != null;
     }
 }
