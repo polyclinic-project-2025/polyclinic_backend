@@ -22,7 +22,7 @@ public class CreateConsultationReferralValidator : AbstractValidator<CreateConsu
         RuleFor(x => x.DateTimeCRem)
             .NotEmpty()
             .WithMessage("La fecha es requerida")
-            .LessThanOrEqualTo(DateTime.Now)
+            .LessThan(DateTime.Now)
             .WithMessage("La fecha no puede ser futura");
 
         RuleFor(x => x.DepartmentHeadId)

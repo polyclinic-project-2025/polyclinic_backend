@@ -29,4 +29,20 @@ public class MedicationReferral
     }
 
     protected MedicationReferral(){}
+
+    // Update methods
+    public void UpdateQuantity(int quantity)
+    {
+        Quantity = quantity;
+    }
+
+    public void UpdateConsultationReferralId(Guid consultationReferralId)
+    {
+        ConsultationReferralId = consultationReferralId;
+    }
+
+    public void UpdateMedicationId(Guid medicationId)
+    {
+        MedicationId = medicationId;
+    }
 }

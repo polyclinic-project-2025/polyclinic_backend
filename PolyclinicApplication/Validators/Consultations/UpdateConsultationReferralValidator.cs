@@ -24,7 +24,7 @@ public class UpdateConsultationReferralValidator : AbstractValidator<UpdateConsu
         When(x => x.DateTimeCRem.HasValue, () =>
         {
             RuleFor(x => x.DateTimeCRem!.Value)
-                .LessThanOrEqualTo(DateTime.Now)
+                .LessThan(DateTime.Now)
                 .WithMessage("La fecha no puede ser futura");
         });
 
