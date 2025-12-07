@@ -12,7 +12,7 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251206225949_InitialMigration")]
+    [Migration("20251206235517_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -793,6 +793,9 @@ namespace PolyclinicInfrastructure.Migrations
             modelBuilder.Entity("PolyclinicDomain.Entities.WarehouseManager", b =>
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.ToTable("WarehouseManager", (string)null);
                 });
