@@ -222,6 +222,7 @@ builder.Services.AddScoped<IConsultationDerivationRepository, ConsultationDeriva
 // Repositorio generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
+builder.Services.AddScoped<IEmployeeRepository<WarehouseManager>, WarehouseManagerRepository>();
 // Repositorio de perfil de usuario (optimizado para obtener empleado o paciente vinculado)
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
