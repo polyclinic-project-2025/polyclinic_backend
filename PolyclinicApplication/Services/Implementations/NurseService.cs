@@ -83,7 +83,6 @@ public class NurseService :
         {
             nurse.UpdateEmploymentStatus(request.EmploymentStatus);
         }
-
         await _nurseRepository.UpdateAsync(nurse);
         return Result<bool>.Success(true);
     }

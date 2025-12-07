@@ -791,6 +791,9 @@ namespace PolyclinicInfrastructure.Migrations
                 {
                     b.HasBaseType("PolyclinicDomain.Entities.Employee");
 
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.ToTable("WarehouseManager", (string)null);
                 });
 
