@@ -10,11 +10,5 @@ public class WarehouseManagerConfiguration : IEntityTypeConfiguration<WarehouseM
     public void Configure(EntityTypeBuilder<WarehouseManager> entity)
     {
         entity.ToTable("WarehouseManager");
-
-        entity.HasOne(wm => wm.Warehouse)
-                .WithOne(w => w.WarehouseManager)
-                .HasForeignKey<WarehouseManager>(wm => wm.WarehouseId)
-                .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired();
     }
 }

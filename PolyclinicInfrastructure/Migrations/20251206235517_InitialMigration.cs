@@ -99,18 +99,6 @@ namespace PolyclinicInfrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Warehouse",
-                columns: table => new
-                {
-                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Warehouse", x => x.WarehouseId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "StockDepartment",
                 columns: table => new
                 {
@@ -332,7 +320,7 @@ namespace PolyclinicInfrastructure.Migrations
                 columns: table => new
                 {
                     EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
-                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: false)
+                    AssignedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -343,12 +331,6 @@ namespace PolyclinicInfrastructure.Migrations
                         principalTable: "Employee",
                         principalColumn: "EmployeeId",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_WarehouseManager_Warehouse_WarehouseId",
-                        column: x => x.WarehouseId,
-                        principalTable: "Warehouse",
-                        principalColumn: "WarehouseId",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -551,8 +533,7 @@ namespace PolyclinicInfrastructure.Migrations
                     RequestDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     WarehouseManagerId = table.Column<Guid>(type: "uuid", nullable: false),
-                    DepartmentHeadId = table.Column<Guid>(type: "uuid", nullable: true),
-                    WarehouseId = table.Column<Guid>(type: "uuid", nullable: true)
+                    DepartmentHeadId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -574,11 +555,6 @@ namespace PolyclinicInfrastructure.Migrations
                         principalTable: "WarehouseManager",
                         principalColumn: "EmployeeId",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_WarehouseRequest_Warehouse_WarehouseId",
-                        column: x => x.WarehouseId,
-                        principalTable: "Warehouse",
-                        principalColumn: "WarehouseId");
                 });
 
             migrationBuilder.CreateTable(
@@ -940,12 +916,6 @@ namespace PolyclinicInfrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_WarehouseManager_WarehouseId",
-                table: "WarehouseManager",
-                column: "WarehouseId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_WarehouseRequest_DepartmentHeadId",
                 table: "WarehouseRequest",
                 column: "DepartmentHeadId");
@@ -960,11 +930,6 @@ namespace PolyclinicInfrastructure.Migrations
                 table: "WarehouseRequest",
                 columns: new[] { "RequestDate", "DepartmentId" },
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_WarehouseRequest_WarehouseId",
-                table: "WarehouseRequest",
-                column: "WarehouseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WarehouseRequest_WarehouseManagerId",
@@ -1049,9 +1014,6 @@ namespace PolyclinicInfrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Doctor");
-
-            migrationBuilder.DropTable(
-                name: "Warehouse");
 
             migrationBuilder.DropTable(
                 name: "Department");
