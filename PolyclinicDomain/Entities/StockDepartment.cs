@@ -34,4 +34,19 @@ public class StockDepartment{
     }
 
     protected StockDepartment(){}
+
+    public void UpdateQuantity(int quantity)
+    {
+        Quantity = quantity;
+    }
+
+    public void UpdateMinQuantity(int minQuantity)
+    {
+        MinQuantity = minQuantity;
+    }
+
+    public void UpdateMaxQuantity(int maxQuantity)
+    {
+        MaxQuantity = maxQuantity;
+    }
 }
