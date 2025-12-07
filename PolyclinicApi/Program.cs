@@ -218,6 +218,8 @@ builder.Services.AddScoped<IConsultationDerivationRepository, ConsultationDeriva
 // Repositorio generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
+// Repositorio de perfil de usuario (optimizado para obtener empleado o paciente vinculado)
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -228,6 +230,7 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IConsultationReferralService, ConsultationReferralService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IPatientService, PatientService>();

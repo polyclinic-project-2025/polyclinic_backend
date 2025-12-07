@@ -16,11 +16,16 @@ public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
     private readonly ITokenService _tokenService;
+    private readonly IUserProfileService _userProfileService;
 
-    public UserController(IUserService userService, ITokenService tokenService)
+    public UserController(
+        IUserService userService, 
+        ITokenService tokenService,
+        IUserProfileService userProfileService)
     {
         _userService = userService;
         _tokenService = tokenService;
+        _userProfileService = userProfileService;
     }
 
     //GET: api/user - Solo Admin puede ver todos los usuarios
@@ -117,5 +122,83 @@ public class UserController : ControllerBase
 
         
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Obtiene solo el tipo de entidad vinculada a un usuario.
+    /// Útil para verificaciones rápidas sin cargar todos los datos.
+    /// Debe ir ANTES de {id}/profile para que no sea capturada por esa ruta.
+    /// </summary>
+    /// <param name="id">ID del usuario en Identity</param>
+    /// <returns>"Doctor", "Nurse", "WarehouseManager" o "Patient"</returns>
+    [HttpGet("{id}/profile/type")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<string>> GetUserProfileTypeAsync(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return BadRequest("El ID de usuario es requerido.");
+
+        // Verificar autorización: Admin o el propio usuario
+        var authorization = Request.Headers["Authorization"].ToString();
+        Console.WriteLine($"autorizacion: {authorization}");
+        var currentUser = await _tokenService.DecodingAuthAsync(authorization);
+        if(!currentUser.IsSuccess) return Unauthorized();
+        var user = currentUser.Value;
+        Console.WriteLine("Current User ID: " + user?.Id);
+        var isAdmin = user!.Roles!.Contains("Admin");
+        var isOwner = user!.Id == id;
+
+        if (!isAdmin && !isOwner)
+            return Forbid();
+
+        var result = await _userProfileService.GetLinkedEntityTypeAsync(id);
+
+        if (!result.IsSuccess)
+            return NotFound(result.ErrorMessage);
+
+        return Ok(new { profileType = result.Value });
+    }
+
+    /// <summary>
+    /// Obtiene el perfil vinculado a un usuario (Doctor, Nurse, WarehouseManager o Patient).
+    /// Retorna la información completa según la categoría más alta del empleado.
+    /// </summary>
+    /// <param name="id">ID del usuario en Identity</param>
+    /// <returns>UserProfileResponse con el tipo y datos del perfil</returns>
+    [HttpGet("{id}/profile")]
+    [ProducesResponseType(typeof(UserProfileResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserProfileResponse>> GetUserProfileAsync(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return BadRequest("El ID de usuario es requerido.");
+
+        // Verificar autorización: Admin o el propio usuario
+        var authorization = Request.Headers["Authorization"].ToString();
+        Console.WriteLine($"autorizacion: {authorization}");
+        var currentUser = await _tokenService.DecodingAuthAsync(authorization);
+        if (!currentUser.IsSuccess) 
+            return Unauthorized();
+        
+        var user = currentUser.Value;
+        var isAdmin = user!.Roles!.Contains("Admin");
+        var isOwner = user!.Id == id;
+
+        if (!isAdmin && !isOwner)
+            return Forbid();
+
+        var result = await _userProfileService.GetUserProfileAsync(id);
+
+        if (!result.IsSuccess)
+            return NotFound(result.ErrorMessage);
+
+        return Ok(result.Value);
     }
 }
