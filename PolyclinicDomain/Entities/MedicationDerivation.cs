@@ -29,4 +29,21 @@ public class MedicationDerivation
     }
 
     protected MedicationDerivation(){}
+
+    // Update methods
+    public void UpdateQuantity(int quantity)
+    {
+        Quantity = quantity;
+
+    }
+
+    public void UpdateConsultationDerivationId(Guid consultationDerivationId)
+    {
+        ConsultationDerivationId = consultationDerivationId;
+    }
+
+    public void UpdateMedicationId(Guid medicationId)
+    {
+        MedicationId = medicationId;
+    }
 }
