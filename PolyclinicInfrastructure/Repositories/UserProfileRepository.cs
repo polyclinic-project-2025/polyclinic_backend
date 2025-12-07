@@ -33,9 +33,7 @@ public class UserProfileRepository : IUserProfileRepository
 
     public async Task<WarehouseManager?> GetWarehouseManagerByUserIdAsync(string userId)
     {
-        return await _context.WarehouseManagers
-            .Include(w => w.Warehouse)
-            .FirstOrDefaultAsync(w => w.UserId == userId);
+        return await _context.WarehouseManagers.FirstOrDefaultAsync(w => w.UserId == userId);
     }
 
     public async Task<Patient?> GetPatientByUserIdAsync(string userId)
@@ -120,7 +118,6 @@ public class UserProfileRepository : IUserProfileRepository
 
         // 3. Intentar WarehouseManager (incluye Warehouse)
         var warehouseManager = await _context.WarehouseManagers
-            .Include(w => w.Warehouse)
             .FirstOrDefaultAsync(w => w.UserId == userId);
         
         if (warehouseManager != null)
@@ -133,8 +130,6 @@ public class UserProfileRepository : IUserProfileRepository
                 Identification = warehouseManager.Identification,
                 Name = warehouseManager.Name,
                 EmploymentStatus = warehouseManager.EmploymentStatus,
-                WarehouseId = warehouseManager.WarehouseId,
-                WarehouseName = warehouseManager.Warehouse?.Name
             };
         }
 

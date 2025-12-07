@@ -84,8 +84,6 @@ public class UserProfileService : IUserProfileService
                 Identification = data.Identification ?? string.Empty,
                 Name = data.Name ?? string.Empty,
                 EmploymentStatus = data.EmploymentStatus ?? string.Empty,
-                WarehouseId = data.WarehouseId!.Value,
-                WarehouseName = data.WarehouseName ?? string.Empty
             },
             
             "Patient" => new PatientProfileResponse

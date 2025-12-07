@@ -61,10 +61,7 @@ public class WarehouseManagerProfileResponse
     public string Identification { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
     public string EmploymentStatus { get; set; } = string.Empty;
-    
-    // Almacén asignado
-    public Guid WarehouseId { get; set; }
-    public string WarehouseName { get; set; } = string.Empty;
+
 }
 
 /// <summary>
