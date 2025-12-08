@@ -42,7 +42,7 @@ public static class ApplicationRoles
     /// <summary>
     /// Jefe de departamento médico
     /// </summary>
-    public const string DepartmentHead = "Jefe de Departamente";
+    public const string DepartmentHead = "Jefe de Departamento";
 
     // ==========================================
     // ROLES DE CONSULTA Y PACIENTES
@@ -51,7 +51,7 @@ public static class ApplicationRoles
     /// <summary>
     /// Paciente con acceso limitado a su información
     /// </summary>
-    public const string Patient = "Patient";
+    public const string Patient = "Paciente";
     
     // ==========================================
     // COLECCIONES DE ROLES

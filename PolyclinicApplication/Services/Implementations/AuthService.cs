@@ -49,6 +49,7 @@ public class AuthService: IAuthService
         var entityNotLinkedResult = await _roleValidationService.ValidateEntityNotLinkedAsync(
             registerDto.Roles,
             registerDto.ValidationData);
+        Console.WriteLine("Entity Not Linked Result: ", entityNotLinkedResult);
             
         if (!entityNotLinkedResult.IsSuccess)
         {
