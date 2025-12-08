@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request;
@@ -14,10 +15,12 @@ namespace PolyclinicApi.Controllers;
 public class MedicationController : ControllerBase
 {
     private readonly IMedicationService _service;
+    private readonly IExportService _exportService;
 
-    public MedicationController(IMedicationService service)
+    public MedicationController(IMedicationService service, IExportService exportService)
     {
         _service = service;
+        _exportService = exportService;
     }
 
     // ============================================================
@@ -164,5 +167,36 @@ public class MedicationController : ControllerBase
             return BadRequest(result.ErrorMessage);
 
         return Ok(result.Value);
+    }
+
+    // ============================
+    // GET: api/medication/export
+    // Exportar todos los medicamentos a PDF
+    // ============================
+    [HttpGet("export")]
+    public async Task<ActionResult> ExportMedications()
+    {
+        // Obtener todos los medicamentos
+        var medicationsResult = await _service.GetAllAsync();
+        if (!medicationsResult.IsSuccess)
+        {
+            return BadRequest(medicationsResult.ErrorMessage);
+        }
+
+        // Serializar a JSON
+        string jsonData = JsonSerializer.Serialize(medicationsResult.Value);
+
+        // Generar archivo temporal
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"medications_{Guid.NewGuid()}.pdf");
+
+        // Exportar usando el servicio
+        var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+        
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(exportResult.ErrorMessage);
+        }
+
+        return Ok(exportResult.Value);
     }
 }

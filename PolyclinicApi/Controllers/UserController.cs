@@ -4,6 +4,7 @@ using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Services.Interfaces;
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using PolyclinicApplication.Common.Interfaces;
 
@@ -17,15 +18,18 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
     private readonly ITokenService _tokenService;
     private readonly IUserProfileService _userProfileService;
+    private readonly IExportService _exportService;
 
     public UserController(
         IUserService userService, 
         ITokenService tokenService,
-        IUserProfileService userProfileService)
+        IUserProfileService userProfileService,
+        IExportService exportService)
     {
         _userService = userService;
         _tokenService = tokenService;
         _userProfileService = userProfileService;
+        _exportService = exportService;
     }
 
     //GET: api/user - Solo Admin puede ver todos los usuarios
@@ -200,5 +204,36 @@ public class UserController : ControllerBase
             return NotFound(result.ErrorMessage);
 
         return Ok(result.Value);
+    }
+
+    // ============================
+    // GET: api/user/export
+    // Exportar todos los usuarios a PDF
+    // ============================
+    [HttpGet("export")]
+    public async Task<ActionResult> ExportUsers()
+    {
+        // Obtener todos los usuarios
+        var usersResult = await _userService.GetAllAsync();
+        if (!usersResult.IsSuccess)
+        {
+            return BadRequest(usersResult.ErrorMessage);
+        }
+
+        // Serializar a JSON
+        string jsonData = JsonSerializer.Serialize(usersResult.Value);
+
+        // Generar archivo temporal
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"users_{Guid.NewGuid()}.pdf");
+
+        // Exportar usando el servicio
+        var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+        
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(exportResult.ErrorMessage);
+        }
+
+        return Ok(exportResult.Value);
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Departments;
 using PolyclinicApplication.Services.Interfaces;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace PolyclinicAPI.Controllers
@@ -11,10 +12,12 @@ namespace PolyclinicAPI.Controllers
     public class DepartmentsController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;
+        private readonly IExportService _exportService;
 
-        public DepartmentsController(IDepartmentService departmentService)
+        public DepartmentsController(IDepartmentService departmentService, IExportService exportService)
         {
             _departmentService = departmentService;
+            _exportService = exportService;
         }
 
         // ============================
@@ -94,6 +97,33 @@ namespace PolyclinicAPI.Controllers
         {
             var doctors = await _departmentService.GetDoctorsByDepartmentIdAsync(id);
             return Ok(doctors);
+        }
+
+        // ============================
+        // GET: api/departments/export
+        // Exportar todos los departamentos a PDF
+        // ============================
+        [HttpGet("export")]
+        public async Task<ActionResult> ExportDepartments()
+        {
+            // Obtener todos los departamentos
+            var departments = await _departmentService.GetAllAsync();
+
+            // Serializar a JSON
+            string jsonData = JsonSerializer.Serialize(departments);
+
+            // Generar archivo temporal
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"departments_{Guid.NewGuid()}.pdf");
+
+            // Exportar usando el servicio
+            var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+            
+            if (!exportResult.IsSuccess)
+            {
+                return BadRequest(exportResult.ErrorMessage);
+            }
+
+            return Ok(exportResult.Value);
         }
     }
 }
