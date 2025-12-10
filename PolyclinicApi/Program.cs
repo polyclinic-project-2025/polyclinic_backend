@@ -265,12 +265,15 @@ builder.Services.AddScoped<IMedicationDerivationService, MedicationDerivationSer
 builder.Services.AddScoped<IConsultationDerivationService, ConsultationDerivationService>();
 builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
 builder.Services.AddScoped<IStockDepartmentService, StockDepartmentService>();
+builder.Services.AddScoped<IUnifiedConsultationService, UnifiedConsultationService>();
 // Servico generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 builder.Services.AddScoped<IEmployeeService<WarehouseManagerResponse>, EmployeeService<WarehouseManager, WarehouseManagerResponse>>();
 // Export services
 builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddSingleton<IExportStrategyFactory, ExportStrategyFactory>();
+
+
 
 var app = builder.Build();
 
