@@ -19,6 +19,7 @@ public class MedicationDerivationRepository : Repository<MedicationDerivation>, 
     public async Task<IEnumerable<MedicationDerivation>> GetByConsultationDerivationIdAsync(Guid consultationDerivationId)
     {
         return await _dbSet
+            .Include(md => md.Medication) 
             .Where(md => md.ConsultationDerivationId == consultationDerivationId)
             .ToListAsync();
     }
@@ -26,6 +27,7 @@ public class MedicationDerivationRepository : Repository<MedicationDerivation>, 
     public async Task<IEnumerable<MedicationDerivation>> GetByMedicationIdAsync(Guid medicationId)
     {
         return await _dbSet
+            .Include(md => md.Medication)
             .Where(md => md.MedicationId == medicationId)
             .ToListAsync();
     }

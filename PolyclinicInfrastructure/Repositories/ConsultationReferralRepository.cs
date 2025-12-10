@@ -30,4 +30,36 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
             .FirstOrDefaultAsync(c => c.ConsultationReferralId == id);
     }
 
+    public async Task<IEnumerable<ConsultationReferral>> GetByDateRangeAsync(
+        Guid patientId,
+        DateTime startDate,
+        DateTime endDate)
+    {
+        return await _dbSet
+            .Include(cr => cr.Referral)
+                .ThenInclude(r => r.Patient)
+            .Include(cr => cr.Referral)
+                .ThenInclude(r => r.DepartmentTo)
+            .Include(cr => cr.Doctor)
+            .Where(cr =>
+                cr.Referral!.PatientId == patientId &&
+                cr.DateTimeCRem >= startDate &&
+                cr.DateTimeCRem <= endDate)
+            .OrderByDescending(cr => cr.DateTimeCRem)
+            .ToListAsync();        
+    }
+
+    public async Task<IEnumerable<ConsultationReferral>> GetLast10ByPatientIdAsync(Guid patientId)
+    {
+        return await _dbSet
+            .Include(cr => cr.Referral)
+                .ThenInclude(r => r.Patient)
+            .Include(cr => cr.Referral)
+                .ThenInclude(r => r.DepartmentTo)
+            .Include(cr => cr.Doctor)
+            .Where(cr => cr.Referral!.PatientId == patientId)
+            .OrderByDescending(cr => cr.DateTimeCRem)
+            .Take(10)
+            .ToListAsync();
+    }                
 }

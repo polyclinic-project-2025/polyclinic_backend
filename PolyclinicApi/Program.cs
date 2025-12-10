@@ -21,6 +21,7 @@ using PolyclinicDomain.Entities;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.DTOs.Request;
 using System.Text.Json.Serialization;
+using PolyclinicApplication.Mappings;
 
 IdentityModelEventSource.ShowPII = true;
 var builder = WebApplication.CreateBuilder(args);
@@ -181,6 +182,8 @@ builder.Services.AddAutoMapper(typeof(MedicationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(MedicationReferralProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ConsultationDerivationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(MedicationDerivationProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(UnifiedConsultationProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(StockDepartmentProfile).Assembly);
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -207,6 +210,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateWarehouseManagerRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.MedicationDerivation.CreateMedicationDerivationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.MedicationDerivation.UpdateMedicationDerivationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.CreateStockDepartmentValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.UpdateStockDepartmentValidator>();
 
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
@@ -226,6 +231,7 @@ builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
 builder.Services.AddScoped<IMedicationReferralRepository, MedicationReferralRepository>();
 builder.Services.AddScoped<IMedicationDerivationRepository, MedicationDerivationRepository>();
 builder.Services.AddScoped<IConsultationDerivationRepository, ConsultationDerivationRepository>();
+builder.Services.AddScoped<IStockDepartmentRepository, StockDepartmentRepository>();
 // Repositorio generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
@@ -257,10 +263,11 @@ builder.Services.AddScoped<IMedicationReferralService, MedicationReferralService
 builder.Services.AddScoped<IMedicationDerivationService, MedicationDerivationService>();
 builder.Services.AddScoped<IConsultationDerivationService, ConsultationDerivationService>();
 builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
+builder.Services.AddScoped<IStockDepartmentService, StockDepartmentService>();
 // Servico generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 builder.Services.AddScoped<IEmployeeService<WarehouseManagerResponse>, EmployeeService<WarehouseManager, WarehouseManagerResponse>>();
-
+builder.Services.AddScoped<IUnifiedConsultationService, UnifiedConsultationService>();
 var app = builder.Build();
 
 // ==========================================

@@ -174,4 +174,18 @@ public class ConsultationReferralService : IConsultationReferralService
     return Result<ConsultationReferralResponse>.Success(response);
 }
 
+    public async Task<Result<IEnumerable<ConsultationReferralResponse>>> GetByDateRangeAsync(
+        Guid patientId, DateTime startDate, DateTime endDate)
+    {
+        var consultations = await _consultationReferralRepository.GetByDateRangeAsync(patientId, startDate, endDate);
+        var response = _mapper.Map<IEnumerable<ConsultationReferralResponse>>(consultations);
+        return Result<IEnumerable<ConsultationReferralResponse>>.Success(response);
+    }
+
+    public async Task<Result<IEnumerable<ConsultationReferralResponse>>> GetLast10ByPatientIdAsync(Guid patientId)
+    {
+        var consultations = await _consultationReferralRepository.GetLast10ByPatientIdAsync(patientId);
+        var response = _mapper.Map<IEnumerable<ConsultationReferralResponse>>(consultations);
+        return Result<IEnumerable<ConsultationReferralResponse>>.Success(response);
+    }
 }
