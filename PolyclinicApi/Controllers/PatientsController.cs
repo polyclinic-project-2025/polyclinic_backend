@@ -4,6 +4,7 @@ using PolyclinicApplication.DTOs.Response.Patients;
 using PolyclinicApplication.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using PolyclinicDomain.Entities;
 
@@ -14,10 +15,12 @@ namespace PolyclinicApi.Controllers
     public class PatientsController : ControllerBase
     {
         private readonly IPatientService _patientService;
+        private readonly IExportService _exportService;
 
-        public PatientsController(IPatientService patientService)
+        public PatientsController(IPatientService patientService, IExportService exportService)
         {
             _patientService = patientService;
+            _exportService = exportService;
         }
 
         // ============================
@@ -125,5 +128,36 @@ namespace PolyclinicApi.Controllers
         }
         return NoContent();
     }
+
+        // ============================
+        // GET: api/patients/export
+        // Exportar todos los pacientes a PDF
+        // ============================
+        [HttpGet("export")]
+        public async Task<ActionResult> ExportPatients()
+        {
+            // Obtener todos los pacientes
+            var patientsResult = await _patientService.GetAllAsync();
+            if (!patientsResult.IsSuccess)
+            {
+                return BadRequest(patientsResult.ErrorMessage);
+            }
+
+            // Serializar a JSON
+            string jsonData = JsonSerializer.Serialize(patientsResult.Value);
+
+            // Generar archivo temporal
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"patients_{Guid.NewGuid()}.pdf");
+
+            // Exportar usando el servicio
+            var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+            
+            if (!exportResult.IsSuccess)
+            {
+                return BadRequest(exportResult.ErrorMessage);
+            }
+
+            return Ok(exportResult.Value);
+        }
     }
 }

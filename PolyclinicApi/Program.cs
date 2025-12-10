@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using PolyclinicInfrastructure.Persistence;
 using PolyclinicInfrastructure.Repositories;
 using PolyclinicInfrastructure.Identity;
+using PolyclinicInfrastructure.Export;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Services.Interfaces;
@@ -267,7 +268,10 @@ builder.Services.AddScoped<IStockDepartmentService, StockDepartmentService>();
 // Servico generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 builder.Services.AddScoped<IEmployeeService<WarehouseManagerResponse>, EmployeeService<WarehouseManager, WarehouseManagerResponse>>();
-builder.Services.AddScoped<IUnifiedConsultationService, UnifiedConsultationService>();
+// Export services
+builder.Services.AddScoped<IExportService, ExportService>();
+builder.Services.AddSingleton<IExportStrategyFactory, ExportStrategyFactory>();
+
 var app = builder.Build();
 
 // ==========================================

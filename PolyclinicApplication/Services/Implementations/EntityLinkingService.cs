@@ -11,15 +11,18 @@ public class EntityLinkingService : IEntityLinkingService
     private readonly IRepository<Doctor> _doctorRepository;
     private readonly IRepository<Nurse> _nurseRepository;
     private readonly IRepository<Patient> _patientRepository;
+    private readonly IRepository<WarehouseManager> _warehouseManagerRepository;
 
     public EntityLinkingService(
         IRepository<Doctor> doctorRepository,
         IRepository<Nurse> nurseRepository,
-        IRepository<Patient> patientRepository)
+        IRepository<Patient> patientRepository,
+        IRepository<WarehouseManager> warehouseManagerRepository)
     {
         _doctorRepository = doctorRepository;
         _nurseRepository = nurseRepository;
         _patientRepository = patientRepository;
+        _warehouseManagerRepository = warehouseManagerRepository;
     }
 
     public async Task<Result<bool>> LinkEntityToUserAsync(Guid entityId, string userId, string role)
@@ -53,6 +56,14 @@ public class EntityLinkingService : IEntityLinkingService
 
                     patient.UserId = userId;
                     await _patientRepository.UpdateAsync(patient);
+                    break;
+                case ApplicationRoles.WarehouseManager:
+                    var warehouseManager = await _warehouseManagerRepository.GetByIdAsync(entityId);
+                    if (warehouseManager == null)
+                        return Result<bool>.Failure("Encargado de almacén no encontrado.");
+
+                    warehouseManager.UserId = userId;
+                    await _warehouseManagerRepository.UpdateAsync(warehouseManager);
                     break;
 
                 default:

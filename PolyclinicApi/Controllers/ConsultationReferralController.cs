@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request.Consultations;
 using PolyclinicApplication.DTOs.Response.Consultations;
 using PolyclinicApplication.Services.Interfaces;
+using System.Text.Json;
 
 namespace PolyclinicApi.Controllers;
 
@@ -10,10 +11,12 @@ namespace PolyclinicApi.Controllers;
 public class ConsultationReferralController : ControllerBase
 {
     private readonly IConsultationReferralService _consultationReferralService;
+    private readonly IExportService _exportService;
 
-    public ConsultationReferralController(IConsultationReferralService consultationReferralService)
+    public ConsultationReferralController(IConsultationReferralService consultationReferralService, IExportService exportService)
     {
         _consultationReferralService = consultationReferralService;
+        _exportService = exportService;
     }
 
     [HttpGet]
@@ -101,5 +104,36 @@ public class ConsultationReferralController : ControllerBase
             return NotFound(result.ErrorMessage);
         }
         return NoContent();
+    }
+
+    // ============================
+    // GET: api/consultationreferral/export
+    // Exportar todas las consultas de referencia a PDF
+    // ============================
+    [HttpGet("export")]
+    public async Task<ActionResult> ExportConsultationReferrals()
+    {
+        // Obtener todas las consultas de referencia
+        var consultationsResult = await _consultationReferralService.GetAllAsync();
+        if (!consultationsResult.IsSuccess)
+        {
+            return BadRequest(consultationsResult.ErrorMessage);
+        }
+
+        // Serializar a JSON
+        string jsonData = JsonSerializer.Serialize(consultationsResult.Value);
+
+        // Generar archivo temporal
+        string tempFilePath = Path.Combine(Path.GetTempPath(), $"consultation_referrals_{Guid.NewGuid()}.pdf");
+
+        // Exportar usando el servicio
+        var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+        
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(exportResult.ErrorMessage);
+        }
+
+        return Ok(exportResult.Value);
     }
 }
