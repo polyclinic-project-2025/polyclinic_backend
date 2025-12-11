@@ -37,8 +37,8 @@ public class StockDepartmentService : IStockDepartmentService
         var stockDepartment = new StockDepartment(
             Guid.NewGuid(),
             request.Quantity,
-            request.MedicationId,
             request.DepartmentId,
+            request.MedicationId,
             request.MinQuantity,
             request.MaxQuantity
         );
@@ -83,7 +83,10 @@ public class StockDepartmentService : IStockDepartmentService
             stockDepartment.UpdateMinQuantity(request.MinQuantity.Value);
 
         if (request.MaxQuantity >= stockDepartment.MinQuantity)
-            stockDepartment.UpdateMaxQuantity(request.MaxQuantity.Value);        
+            stockDepartment.UpdateMaxQuantity(request.MaxQuantity.Value); 
+
+        await _repository.UpdateAsync(stockDepartment);
+                   
         return Result<bool>.Success(true);
     }
 
