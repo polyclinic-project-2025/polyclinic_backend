@@ -7,12 +7,12 @@ public class MedicationEmergency{
     
     [Required]
     [Range(0, 1000000)]
-    public int Quantity {get; private set;}
+    public int Quantity {get; set;}
 
-    public Guid EmergencyRoomCareId { get; private set; }
+    public Guid EmergencyRoomCareId { get; set; }
     public virtual EmergencyRoomCare? EmergencyRoomCare { get; private set; }
 
-    public Guid MedicationId { get; private set; }
+    public Guid MedicationId { get; set; }
     public virtual Medication? Medication { get; private set; }
     
     public MedicationEmergency(

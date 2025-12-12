@@ -24,7 +24,7 @@ namespace PolyclinicInfrastructure.Repositories
         public async Task<IEnumerable<Patient>> GetByNameAsync(string name)
         {
             return await _dbSet
-                .Where(p => EF.Functions.Like(p.Name, $"%{name}%"))
+                .Where(p => p.Name.Contains(name))
                 .ToListAsync();
         }
 

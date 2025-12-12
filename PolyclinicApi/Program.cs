@@ -22,7 +22,6 @@ using PolyclinicDomain.Entities;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.DTOs.Request;
 using System.Text.Json.Serialization;
-using PolyclinicApplication.Mappings;
 
 IdentityModelEventSource.ShowPII = true;
 var builder = WebApplication.CreateBuilder(args);
@@ -187,6 +186,9 @@ builder.Services.AddAutoMapper(typeof(WarehouseRequestProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(MedicationRequestProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(UnifiedConsultationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(StockDepartmentProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmergencyRoomProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmergencyRoomCareProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationEmergencyProfile).Assembly);
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -217,6 +219,13 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.CreateStockDepartmentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.UpdateStockDepartmentValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateEmergencyRoomValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateEmergencyRoomValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateEmergencyRoomCareValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateEmergencyRoomCareValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationEmergencyValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationEmergencyValidator>();
+
 
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
@@ -245,6 +254,10 @@ builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
 builder.Services.AddScoped<IEmployeeRepository<WarehouseManager>, WarehouseManagerRepository>();
 // Repositorio de perfil de usuario (optimizado para obtener empleado o paciente vinculado)
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<IEmergencyRoomRepository, EmergencyRoomRepository>();
+builder.Services.AddScoped<IEmergencyRoomCareRepository, EmergencyRoomCareRepository>();
+builder.Services.AddScoped<IMedicationEmergencyRepository, MedicationEmergencyRepository>();
+
 
 
 // ==========================================
@@ -281,6 +294,10 @@ builder.Services.AddScoped<IEmployeeService<WarehouseManagerResponse>, EmployeeS
 builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddSingleton<IExportStrategyFactory, ExportStrategyFactory>();
 
+
+builder.Services.AddScoped<IEmergencyRoomService, EmergencyRoomService>();
+builder.Services.AddScoped<IEmergencyRoomCareService, EmergencyRoomCareService>();
+builder.Services.AddScoped<IMedicationEmergencyService, MedicationEmergencyService>();
 
 
 var app = builder.Build();
