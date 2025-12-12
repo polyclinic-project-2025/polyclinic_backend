@@ -126,6 +126,16 @@ public class MedicationService : IMedicationService
             medication.UpdateScientificName(request.ScientificName);
         }
 
+        if(request.QuantityWarehouse != null)
+        {
+            medication.UpdateQuantityNurse(request.QuantityNurse);
+        }
+
+        if(request.QuantityWarehouseNurse != null)
+        {
+            medication.UpdateQuantityNurse(request.QuantityNurse);
+        }
+
         await _repository.UpdateAsync(medication);
         return Result<bool>.Success(true);
     }
