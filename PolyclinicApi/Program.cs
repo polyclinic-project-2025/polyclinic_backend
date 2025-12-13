@@ -188,6 +188,8 @@ builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(NurseProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ConsultationReferralProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(WarehouseManagerProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(WarehouseRequestProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationRequestProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(MedicationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(MedicationReferralProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ConsultationDerivationProfile).Assembly);
@@ -222,6 +224,8 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.MedicationDerivation.UpdateMedicationDerivationValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.CreateStockDepartmentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.UpdateStockDepartmentValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationRequestValidator>();
 
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
@@ -236,6 +240,8 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<INurseRepository, NurseRepository>();
 builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
+builder.Services.AddScoped<IWarehouseRequestRepository, WarehouseRequestRepository>();
+builder.Services.AddScoped<IMedicationRequestRepository, MedicationRequestRepository>();
 builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
 builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
 builder.Services.AddScoped<IMedicationReferralRepository, MedicationReferralRepository>();
@@ -273,6 +279,8 @@ builder.Services.AddScoped<IMedicationReferralService, MedicationReferralService
 builder.Services.AddScoped<IMedicationDerivationService, MedicationDerivationService>();
 builder.Services.AddScoped<IConsultationDerivationService, ConsultationDerivationService>();
 builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
+builder.Services.AddScoped<IWarehouseRequestService, WarehouseRequestService>();
+builder.Services.AddScoped<IMedicationRequestService, MedicationRequestService>();
 builder.Services.AddScoped<IStockDepartmentService, StockDepartmentService>();
 builder.Services.AddScoped<IUnifiedConsultationService, UnifiedConsultationService>();
 // Servico generico para empleados, definir para cada uno
