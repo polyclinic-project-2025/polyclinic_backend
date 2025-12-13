@@ -30,89 +30,114 @@ public class UnifiedConsultationService : IUnifiedConsultationService
 
     public async Task<Result<IEnumerable<UnifiedConsultationDto>>> GetLast10ByPatientIdAsync(Guid patientId)
     {
-        var derivations = await _derivationRepo.GetLast10ByPatientIdAsync(patientId);
-        var referrals = await _referralRepo.GetLast10ByPatientIdAsync(patientId);
+        try
+        {
+            var derivations = await _derivationRepo.GetLast10ByPatientIdAsync(patientId);
+            var referrals = await _referralRepo.GetLast10ByPatientIdAsync(patientId);
 
-        var unifiedList = new List<UnifiedConsultationDto>();
-        
-        // Mapear derivaciones
-        var derivationDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(derivations);
-        unifiedList.AddRange(derivationDtos);
-        
-        // Mapear remisiones
-        var referralDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(referrals);
-        unifiedList.AddRange(referralDtos);
+            var unifiedList = new List<UnifiedConsultationDto>();
+            
+            // Mapear derivaciones
+            var derivationDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(derivations);
+            unifiedList.AddRange(derivationDtos);
+            
+            // Mapear remisiones
+            var referralDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(referrals);
+            unifiedList.AddRange(referralDtos);
 
-        // Cargar medicamentos para cada consulta
-        await LoadMedicationsForConsultations(unifiedList);
+            // Cargar medicamentos para cada consulta
+            await LoadMedicationsForConsultations(unifiedList);
 
-        // Ordenar y tomar las últimas 10
-        var result = unifiedList
-            .OrderByDescending(c => c.ConsultationDate)
-            .Take(10)
-            .ToList();
+            // Ordenar y tomar las últimas 10
+            var result = unifiedList
+                .OrderByDescending(c => c.ConsultationDate)
+                .Take(10)
+                .ToList();
 
-        return Result<IEnumerable<UnifiedConsultationDto>>.Success(result);
+            return Result<IEnumerable<UnifiedConsultationDto>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<UnifiedConsultationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<UnifiedConsultationDto>>> GetByDateRangeAsync(
         Guid patientId, DateTime startDate, DateTime endDate)
     {
-        if (startDate > endDate)
-            return Result<IEnumerable<UnifiedConsultationDto>>.Failure(
-                "La fecha de inicio no puede ser mayor que la fecha de fin.");
+        try
+        {
+            if (startDate > endDate)
+                return Result<IEnumerable<UnifiedConsultationDto>>.Failure(
+                    "La fecha de inicio no puede ser mayor que la fecha de fin.");
 
-        var derivations = await _derivationRepo.GetByDateRangeAsync(patientId, startDate, endDate);
-        var referrals = await _referralRepo.GetByDateRangeAsync(patientId, startDate, endDate);
+            var derivations = await _derivationRepo.GetByDateRangeAsync(patientId, startDate, endDate);
+            var referrals = await _referralRepo.GetByDateRangeAsync(patientId, startDate, endDate);
 
-        var unifiedList = new List<UnifiedConsultationDto>();
-        
-        // Mapear derivaciones
-        var derivationDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(derivations);
-        unifiedList.AddRange(derivationDtos);
-        
-        // Mapear remisiones
-        var referralDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(referrals);
-        unifiedList.AddRange(referralDtos);
+            var unifiedList = new List<UnifiedConsultationDto>();
+            
+            // Mapear derivaciones
+            var derivationDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(derivations);
+            unifiedList.AddRange(derivationDtos);
+            
+            // Mapear remisiones
+            var referralDtos = _mapper.Map<IEnumerable<UnifiedConsultationDto>>(referrals);
+            unifiedList.AddRange(referralDtos);
 
-        // Cargar medicamentos para cada consulta
-        await LoadMedicationsForConsultations(unifiedList);
+            // Cargar medicamentos para cada consulta
+            await LoadMedicationsForConsultations(unifiedList);
 
-        // Ordenar por fecha descendente
-        var result = unifiedList
-            .OrderByDescending(c => c.ConsultationDate)
-            .ToList();
+            // Ordenar por fecha descendente
+            var result = unifiedList
+                .OrderByDescending(c => c.ConsultationDate)
+                .ToList();
 
-        return Result<IEnumerable<UnifiedConsultationDto>>.Success(result);
+            return Result<IEnumerable<UnifiedConsultationDto>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<UnifiedConsultationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+        }
     }
 
     private async Task LoadMedicationsForConsultations(List<UnifiedConsultationDto> consultations)
     {
-        foreach (var consultation in consultations)
+        try
         {
-            if (consultation.Type == "Derivation")
+            foreach (var consultation in consultations)
             {
-                // Obtener medicamentos de derivación
-                var medications = await _medicationDerivationRepo.GetByConsultationDerivationIdAsync(consultation.Id);
-                
-                consultation.Medications = medications.Select(m => new MedicationInfoDto
+                if (consultation.Type == "Derivation")
                 {
-                    MedicationId = m.MedicationId,
-                    MedicationName = m.Medication?.CommercialName ?? "Desconocido",
-                    Quantity = m.Quantity
-                }).ToList();
+                    // Obtener medicamentos de derivación
+                    var medications = await _medicationDerivationRepo.GetByConsultationDerivationIdAsync(consultation.Id);
+                    
+                    consultation.Medications = medications.Select(m => new MedicationInfoDto
+                    {
+                        MedicationId = m.MedicationId,
+                        MedicationName = m.Medication?.CommercialName ?? "Desconocido",
+                        Quantity = m.Quantity
+                    }).ToList();
+                }
+                else if (consultation.Type == "Referral")
+                {
+                    // Obtener medicamentos de remisión
+                    var medications = await _medicationReferralRepo.GetByConsultationReferralIdAsync(consultation.Id);
+                    
+                    consultation.Medications = medications.Select(m => new MedicationInfoDto
+                    {
+                        MedicationId = m.MedicationId,
+                        MedicationName = m.Medication?.CommercialName ?? "Desconocido",
+                        Quantity = m.Quantity
+                    }).ToList();
+                }
             }
-            else if (consultation.Type == "Referral")
+        }
+        catch (Exception)
+        {
+            // En caso de error, dejar la lista de medicamentos vacía
+            foreach (var consultation in consultations)
             {
-                // Obtener medicamentos de remisión
-                var medications = await _medicationReferralRepo.GetByConsultationReferralIdAsync(consultation.Id);
-                
-                consultation.Medications = medications.Select(m => new MedicationInfoDto
-                {
-                    MedicationId = m.MedicationId,
-                    MedicationName = m.Medication?.CommercialName ?? "Desconocido",
-                    Quantity = m.Quantity
-                }).ToList();
+                consultation.Medications = new List<MedicationInfoDto>();
             }
         }
     }

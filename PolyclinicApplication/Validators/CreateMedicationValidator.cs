@@ -12,65 +12,65 @@ public class CreateMedicationValidator : AbstractValidator<CreateMedicationDto>
     public CreateMedicationValidator(IMedicationRepository repository)
     {
         RuleFor(x => x.Format)
-            .NotEmpty().WithMessage("Format is required.")
+            .NotEmpty().WithMessage("El formato es requerido.")
             .MaximumLength(100);
 
         RuleFor(x => x.CommercialName)
-            .NotEmpty().WithMessage("Commercial name is required.")
+            .NotEmpty().WithMessage("El nombre comercial es requerido.")
             .MaximumLength(100);
 
         RuleFor(x => x.CommercialCompany)
-            .NotEmpty().WithMessage("Commercial company is required.")
+            .NotEmpty().WithMessage("La compañía comercial es requerida.")
             .MaximumLength(100);
 
         RuleFor(x => x.ScientificName)
-            .NotEmpty().WithMessage("Scientific name is required.")
+            .NotEmpty().WithMessage("El nombre científico es requerido.")
             .MaximumLength(100);
 
         RuleFor(x => x.BatchNumber)
-            .NotEmpty().WithMessage("Batch number is required.")
+            .NotEmpty().WithMessage("El número de lote es requerido.")
             .MaximumLength(100);
             
         RuleFor(x => x.ExpirationDate)
             .NotEmpty()
             .Must(date => DateOnly.TryParse(date, out _))
-            .WithMessage("ExpirationDate must be a valid date in format yyyy-MM-dd.");
+            .WithMessage("La fecha de expiración debe ser válida en formato yyyy-MM-dd.");
         // Cantidades actuales
         RuleFor(x => x.QuantityWarehouse)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("QuantityWarehouse cannot be negative.");
+            .WithMessage("La cantidad en almacén no puede ser negativa.");
 
         RuleFor(x => x.QuantityNurse)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("QuantityNurse cannot be negative.");
+            .WithMessage("La cantidad en enfermería no puede ser negativa.");
 
         // Límites mínimos
         RuleFor(x => x.MinQuantityWarehouse)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("MinQuantityWarehouse must be >= 0.");
+            .WithMessage("La cantidad mínima en almacén debe ser mayor o igual a 0.");
 
         RuleFor(x => x.MinQuantityNurse)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("MinQuantityNurse must be >= 0.");
+            .WithMessage("La cantidad mínima en enfermería debe ser mayor o igual a 0.");
 
         // Límites máximos
         RuleFor(x => x.MaxQuantityWarehouse)
             .GreaterThan(x => x.MinQuantityWarehouse)
-            .WithMessage("MaxQuantityWarehouse must be greater than MinQuantityWarehouse.");
+            .WithMessage("La cantidad máxima en almacén debe ser mayor que la cantidad mínima.");
 
         RuleFor(x => x.MaxQuantityNurse)
             .GreaterThan(x => x.MinQuantityNurse)
-            .WithMessage("MaxQuantityNurse must be greater than MinQuantityNurse.");
+            .WithMessage("La cantidad máxima en enfermería debe ser mayor que la cantidad mínima.");
 
         // Validación lógica final (cantidades actuales dentro del rango)
         RuleFor(x => x)
             .Must(x => x.QuantityWarehouse <= x.MaxQuantityWarehouse)
-            .WithMessage("QuantityWarehouse cannot exceed MaxQuantityWarehouse.")
+            .WithMessage("La cantidad en almacén no puede exceder la cantidad máxima.")
             .Must(x => x.QuantityWarehouse >= x.MinQuantityWarehouse)
-            .WithMessage("QuantityWarehouse cannot be below MinQuantityWarehouse.")
+            .WithMessage("La cantidad en almacén no puede estar por debajo de la cantidad mínima.")
             .Must(x => x.QuantityNurse <= x.MaxQuantityNurse)
-            .WithMessage("QuantityNurse cannot exceed MaxQuantityNurse.")
+            .WithMessage("La cantidad en enfermería no puede exceder la cantidad máxima.")
             .Must(x => x.QuantityNurse >= x.MinQuantityNurse)
-            .WithMessage("QuantityNurse cannot be below MinQuantityNurse.");         
+            .WithMessage("La cantidad en enfermería no puede estar por debajo de la cantidad mínima.");         
     }
 }

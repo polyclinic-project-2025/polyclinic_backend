@@ -13,18 +13,18 @@ public class UpdateConsultationDerivationValidator : AbstractValidator<UpdateCon
     public UpdateConsultationDerivationValidator(IConsultationDerivationRepository repository)
     {
         RuleFor(x => x.Diagnosis)
-            .NotEmpty().WithMessage("Diagnosis is required.")
-            .MaximumLength(1000).WithMessage("Diagnosis cannot exceed 1000 characters.");
+            .NotEmpty().WithMessage("El diagnóstico es requerido.")
+            .MaximumLength(1000).WithMessage("El diagnóstico no puede exceder los 1000 caracteres.");
 
         RuleFor(x => x.DateTimeCDer)
-            .NotEmpty().WithMessage("DateTimeCDer is required.")
-            .Must(BeAValidDate).WithMessage("DateTimeCDer must be a valid date.");
+            .NotEmpty().WithMessage("La fecha de consulta es requerida.")
+            .Must(BeAValidDate).WithMessage("La fecha de consulta debe ser válida.");
 
         RuleFor(x => x.DoctorId)
-            .NotEmpty().WithMessage("DoctorId is required.");
+            .NotEmpty().WithMessage("El ID del doctor es requerido.");
 
         RuleFor(x => x.DepartmentHeadId)
-            .NotEmpty().WithMessage("DepartmentHeadId is required.");
+            .NotEmpty().WithMessage("El ID del jefe de departamento es requerido.");
     }
 
     private bool BeAValidDate(DateTime date)
