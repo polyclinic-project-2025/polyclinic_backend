@@ -106,9 +106,20 @@ public class MedicationService : IMedicationService
             if (medication == null)
                 return Result<bool>.Failure("Medicamento no encontrado.");
 
-            medication.UpdateFormat(request.Format);
-            medication.UpdateCommercialName(request.CommercialName);
-            medication.UpdateCommercialCompany(request.CommercialCompany);
+            if(request.Format != null)
+            {
+                medication.UpdateFormat(request.Format);
+            }
+
+            if(request.CommercialName != null)
+            {
+                medication.UpdateCommercialName(request.CommercialName);
+            }
+
+            if(request.CommercialCompany != null)
+            {
+                medication.UpdateCommercialCompany(request.CommercialCompany);
+            }
             
             // Convertir string a DateOnly
             if (DateOnly.TryParse(request.ExpirationDate, out var expirationDate))
@@ -116,9 +127,18 @@ public class MedicationService : IMedicationService
                 medication.UpdateExpirationDate(expirationDate);
             }
             
-            medication.UpdateScientificName(request.ScientificName);
-            medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
-            medication.UpdateQuantityNurse(request.QuantityNurse);
+            if(request.ScientificName != null)
+            {
+                medication.UpdateScientificName(request.ScientificName);
+            }
+            if(request.QuantityWarehouse != null)
+            {
+                medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
+            }
+            if(request.ScientificName != null)
+            {
+                medication.UpdateScientificName(request.ScientificName);
+            }
 
             await _repository.UpdateAsync(medication);
             return Result<bool>.Success(true);
@@ -127,6 +147,7 @@ public class MedicationService : IMedicationService
         {
             return Result<bool>.Failure($"Error al actualizar el medicamento: {ex.Message}");
         }
+
     }
 
 
