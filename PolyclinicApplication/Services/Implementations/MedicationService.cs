@@ -102,51 +102,7 @@ public class MedicationService : IMedicationService
     {
         try
         {
-            var medication = await _repository.GetByIdAsync(id);
-            if (medication == null)
-                return Result<bool>.Failure("Medicamento no encontrado.");
-
-            // Actualizar sólo campos provistos en el request
-            if (!string.IsNullOrEmpty(request.Format))
-            {
-                medication.UpdateFormat(request.Format);
-            }
-
-            if(!string.IsNullOrEmpty(request.CommercialName))
-            {
-                medication.UpdateCommercialName(request.CommercialName);
-            }
-        
-            // Si tienes otros campos editables (por ejemplo CommercialCompany), actualízalos aquí:
-            if (!string.IsNullOrEmpty(request.CommercialCompany))
-            {
-                // Asume que existe un método de dominio UpdateCommercialCompany
-                medication.UpdateCommercialCompany(request.CommercialCompany);
-            }
-
-            if(!string.IsNullOrWhiteSpace(request.ExpirationDate))
-            {
-                var expiration = DateOnly.ParseExact(request.ExpirationDate, "yyyy-MM-dd");
-                medication.UpdateExpirationDate(expiration);
-            }
-
-            if(!string.IsNullOrEmpty(request.ScientificName))
-            {
-                medication.UpdateScientificName(request.ScientificName);
-            }
-
-            if(request.QuantityWarehouse != null)
-            {
-                medication.UpdateQuantityNurse(request.QuantityNurse);
-            }
-
-            if(request.QuantityNurse != null)
-            {
-                medication.UpdateQuantityNurse(request.QuantityNurse);
-            }
-
-            await _repository.UpdateAsync(medication);
-            return Result<bool>.Success(true);
+            medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
         }
         catch (Exception ex)
         {
