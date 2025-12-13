@@ -35,62 +35,100 @@ public class DepartmentHeadService : IDepartmentHeadService
 
     public async Task<Result<IEnumerable<DepartmentHeadResponse>>> GetAllDepartmentHeadAsync()
     {
-        var departmentHeads = await _repository.GetAllAsync();
-        var departmentHeadResponses = _mapper.Map<IEnumerable<DepartmentHeadResponse>>(departmentHeads);
-        return Result<IEnumerable<DepartmentHeadResponse>>.Success(departmentHeadResponses);
+        try
+        {
+            var departmentHeads = await _repository.GetAllAsync();
+            var departmentHeadResponses = _mapper.Map<IEnumerable<DepartmentHeadResponse>>(departmentHeads);
+            return Result<IEnumerable<DepartmentHeadResponse>>.Success(departmentHeadResponses);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<DepartmentHeadResponse>>.Failure($"Error al obtener jefes de departamento: {ex.Message}");
+        }
     }
 
     public async Task<Result<DepartmentHeadResponse>> GetDepartmentHeadByIdAsync(Guid id)
     {
-        var departmentHead = await _repository.GetByIdAsync(id);
-        if (departmentHead == null)
+        try
         {
-            return Result<DepartmentHeadResponse>.Failure("Jefe de departamento no encontrado.");
+            var departmentHead = await _repository.GetByIdAsync(id);
+            if (departmentHead == null)
+            {
+                return Result<DepartmentHeadResponse>.Failure("Jefe de departamento no encontrado.");
+            }
+            var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
+            return Result<DepartmentHeadResponse>.Success(response);
         }
-        var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
-        return Result<DepartmentHeadResponse>.Success(response);
+        catch (Exception ex)
+        {
+            return Result<DepartmentHeadResponse>.Failure($"Error al obtener jefe de departamento: {ex.Message}");
+        }
     }
 
     public async Task<Result<DepartmentHeadResponse>> GetDepartmentHeadByDepartmentIdAsync(Guid departmentId)
     {
-        if(await _departmentRepository.GetByIdAsync(departmentId) == null)
+        try
         {
-            return Result<DepartmentHeadResponse>.Failure("Departamento no encontrado.");
+            if(await _departmentRepository.GetByIdAsync(departmentId) == null)
+            {
+                return Result<DepartmentHeadResponse>.Failure("Departamento no encontrado.");
+            }
+            var departmentHead = await _repository.GetByDepartmentIdAsync(departmentId);
+            if (departmentHead == null)
+            {
+                return Result<DepartmentHeadResponse>.Failure("Jefe de departamento no encontrado.");
+            }
+            var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
+            return Result<DepartmentHeadResponse>.Success(response);
         }
-        var departmentHead = await _repository.GetByDepartmentIdAsync(departmentId);
-        if (departmentHead == null)
+        catch (Exception ex)
         {
-            return Result<DepartmentHeadResponse>.Failure("Jefe de departamento no encontrado.");
+            return Result<DepartmentHeadResponse>.Failure($"Error al obtener jefe de departamento: {ex.Message}");
         }
-        var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
-        return Result<DepartmentHeadResponse>.Success(response);
     }
 
     public async Task<Result<DepartmentHeadResponse>> AssignDepartmentHeadAsync(AssignDepartmentHeadRequest request)
     {
-        if(await _doctorRepository.GetByIdAsync(request.DoctorId) == null)
+        try
         {
-            return Result<DepartmentHeadResponse>.Failure("Doctor no encontrado.");
+            if(await _doctorRepository.GetByIdAsync(request.DoctorId) == null)
+            {
+                return Result<DepartmentHeadResponse>.Failure("Doctor no encontrado.");
+            }
+            if(await _repository.GetByIdAsync(request.DoctorId) != null)
+            {
+                return Result<DepartmentHeadResponse>.Failure("El doctor ya es jefe de departamento.");
+            }
+            var doctor = await _doctorRepository.GetByIdAsync(request.DoctorId);
+            var departmentHead = new DepartmentHead(Guid.NewGuid(), request.DoctorId, doctor!.DepartmentId, DateTime.UtcNow);
+            
+            await _repository.AddAsync(departmentHead);
+            
+            var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
+            return Result<DepartmentHeadResponse>.Success(response);
         }
-        if(await _repository.GetByIdAsync(request.DoctorId) != null)
+        catch (Exception ex)
         {
-            return Result<DepartmentHeadResponse>.Failure("El doctor ya es jefe de departamento.");
+            return Result<DepartmentHeadResponse>.Failure($"Error al guardar el jefe de departamento: {ex.Message}");
         }
-        var doctor = await _doctorRepository.GetByIdAsync(request.DoctorId);
-        var departmentHead = new DepartmentHead(Guid.NewGuid(), request.DoctorId, doctor.DepartmentId, DateTime.UtcNow);
-        await _repository.AddAsync(departmentHead);
-        var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
-        return Result<DepartmentHeadResponse>.Success(response);
     }
 
     public async Task<Result<bool>> RemoveDepartmentHeadAsync(Guid departmentHeadId)
     {
-        var departmentHead = await _repository.GetByIdAsync(departmentHeadId);
-        if (departmentHead == null)
+        try
         {
-            return Result<bool>.Failure("Jefe de departamento no encontrado.");
+            var departmentHead = await _repository.GetByIdAsync(departmentHeadId);
+            if (departmentHead == null)
+            {
+                return Result<bool>.Failure("Jefe de departamento no encontrado.");
+            }
+            
+            await _repository.DeleteAsync(departmentHead);
+            return Result<bool>.Success(true);
         }
-        await _repository.DeleteAsync(departmentHead);
-        return Result<bool>.Success(true);
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar el jefe de departamento: {ex.Message}");
+        }
     }
 }

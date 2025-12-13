@@ -31,10 +31,19 @@ var builder = WebApplication.CreateBuilder(args);
 // CONFIGURACIÓN DE SERVICIOS
 // ==========================================
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add(new PolyclinicAPI.Filters.ValidationFilter());
+    })
     .AddJsonOptions(x => 
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
+
+// Homogeneizar manejo de errores de validación (evitar ProblemDetails por defecto)
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // ==========================================
 // SWAGGER con soporte para JWT

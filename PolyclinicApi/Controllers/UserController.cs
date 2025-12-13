@@ -7,6 +7,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using PolyclinicApplication.Common.Interfaces;
+using PolyclinicApplication.Common.Results;
+using PolyclinicApplication.DTOs.Response.Export;
 
 namespace PolyclinicAPI.Controllers;
 
@@ -44,10 +46,10 @@ public class UserController : ControllerBase
         if (!ModelState.IsValid) return BadRequest(ModelState);
         
         var result = await _userService.GetAllAsync();
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<UserResponse>>.Error(result.ErrorMessage!));
         
-        if (!result.IsSuccess) return BadRequest(result);
-        
-        return Ok(result);
+        return Ok(ApiResult<IEnumerable<UserResponse>>.Ok(result.Value!, "Usuarios obtenidos exitosamente"));
     }
 
     //DELETE: api/user/{id} - Admin o el dueño de la cuenta
@@ -77,10 +79,10 @@ public class UserController : ControllerBase
         }
         
         var result = await _userService.RemoveUserAsync(id);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<string>.Error(result.ErrorMessage!));
         
-        if (!result.IsSuccess) return BadRequest(result);
-        
-        return Ok(result);
+        return Ok(ApiResult<string>.Ok(result.Value!, "Usuario eliminado exitosamente"));
     }
 
     //PATCH: api/user/{id} - Admin o el dueño de la cuenta
@@ -117,15 +119,13 @@ public class UserController : ControllerBase
         }
 
         var result = await _userService.UpdateUserValueAsync(id, updateUserDto);
-        
         if (!result.IsSuccess)
         {
             Console.WriteLine(result.ErrorMessage);
-            return BadRequest(result);
+            return BadRequest(ApiResult<UserResponse>.Error(result.ErrorMessage!));
         }
 
-        
-        return Ok(result);
+        return Ok(ApiResult<UserResponse>.Ok(result.Value!, "Usuario actualizado exitosamente"));
     }
 
     /// <summary>
@@ -160,11 +160,10 @@ public class UserController : ControllerBase
             return Forbid();
 
         var result = await _userProfileService.GetLinkedEntityTypeAsync(id);
-
         if (!result.IsSuccess)
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<string>.NotFound(result.ErrorMessage!));
 
-        return Ok(new { profileType = result.Value });
+        return Ok(ApiResult<object>.Ok(new { profileType = result.Value }, "Tipo de perfil obtenido"));
     }
 
     /// <summary>
@@ -199,11 +198,10 @@ public class UserController : ControllerBase
             return Forbid();
 
         var result = await _userProfileService.GetUserProfileAsync(id);
-
         if (!result.IsSuccess)
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<UserProfileResponse>.NotFound(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<UserProfileResponse>.Ok(result.Value!, "Perfil obtenido exitosamente"));
     }
 
     // ============================
@@ -216,9 +214,7 @@ public class UserController : ControllerBase
         // Obtener todos los usuarios
         var usersResult = await _userService.GetAllAsync();
         if (!usersResult.IsSuccess)
-        {
-            return BadRequest(usersResult.ErrorMessage);
-        }
+            return BadRequest(ApiResult<string>.Error(usersResult.ErrorMessage!));
 
         // Serializar a JSON
         string jsonData = JsonSerializer.Serialize(usersResult.Value);
@@ -228,12 +224,9 @@ public class UserController : ControllerBase
 
         // Exportar usando el servicio
         var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
-        
         if (!exportResult.IsSuccess)
-        {
-            return BadRequest(exportResult.ErrorMessage);
-        }
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
 
-        return Ok(exportResult.Value);
+        return Ok(ApiResult<ExportResponse>.Ok(exportResult.Value!, "Usuarios exportados exitosamente"));
     }
 }
