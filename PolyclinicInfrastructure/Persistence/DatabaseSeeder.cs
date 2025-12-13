@@ -725,7 +725,7 @@ public class DatabaseSeeder
 
             for (int i = 0; i < Math.Min(4, departments.Count); i++)
             {
-                var status = i % 2 == 0 ? "Aprobado" : "Pendiente";
+                var status = (i % 5 - 2).ToString();
                 requests.Add(new WarehouseRequest(
                     Guid.NewGuid(),
                     status,
