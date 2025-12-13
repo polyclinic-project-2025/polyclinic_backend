@@ -28,6 +28,13 @@ public class DatabaseSeeder
             // Asegurar que la base de datos existe y está actualizada
             await _context.Database.MigrateAsync();
 
+            // Verificar si ya hay datos sembrados
+            if (await _context.Departments.AnyAsync())
+            {
+                Console.WriteLine("ℹ La base de datos ya contiene datos. Omitiendo seeding.");
+                return;
+            }
+
             // Sembrar datos en orden de dependencias
             await SeedRolesAsync();
             await SeedUsersAsync();
@@ -35,7 +42,9 @@ public class DatabaseSeeder
             await SeedExternalMedicalPostsAsync();
             await SeedPatientsAsync();
             await SeedDoctorsAsync();
+            await LinkDoctorUserAsync(); // Vincular usuario doctor después de crear doctores
             await SeedNursesAsync();
+            await LinkNurseUserAsync(); // Vincular usuario enfermero después de crear enfermeros
             await SeedWarehouseManagersAsync();
             await SeedDepartmentHeadsAsync();
             await SeedMedicationsAsync();
@@ -93,12 +102,17 @@ public class DatabaseSeeder
                 Console.WriteLine($"✓ Usuario administrador creado: {adminEmail}");
             }
         }
+    }
 
-        // Usuario Doctor
+    private async Task LinkDoctorUserAsync()
+    {
+        // Vincular usuario doctor con la entidad Doctor
         var doctorEmail = "doctor@polyclinic.com";
-        if (await _userManager.FindByEmailAsync(doctorEmail) == null)
+        var doctorUser = await _userManager.FindByEmailAsync(doctorEmail);
+        
+        if (doctorUser == null)
         {
-            var doctorUser = new IdentityUser
+            doctorUser = new IdentityUser
             {
                 UserName = doctorEmail,
                 Email = doctorEmail,
@@ -113,11 +127,25 @@ public class DatabaseSeeder
             }
         }
 
-        // Usuario Enfermero
-        var nurseEmail = "nurse@polyclinic.com";
-        if (await _userManager.FindByEmailAsync(nurseEmail) == null)
+        // Buscar el primer doctor y vincularlo
+        var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == null);
+        if (doctor != null && doctorUser != null)
         {
-            var nurseUser = new IdentityUser
+            doctor.UserId = doctorUser.Id;
+            await _context.SaveChangesAsync();
+            Console.WriteLine($"✓ Usuario doctor vinculado con: {doctor.Name}");
+        }
+    }
+
+    private async Task LinkNurseUserAsync()
+    {
+        // Vincular usuario nurse con la entidad Nurse
+        var nurseEmail = "nurse@polyclinic.com";
+        var nurseUser = await _userManager.FindByEmailAsync(nurseEmail);
+        
+        if (nurseUser == null)
+        {
+            nurseUser = new IdentityUser
             {
                 UserName = nurseEmail,
                 Email = nurseEmail,
@@ -130,6 +158,15 @@ public class DatabaseSeeder
                 await _userManager.AddToRoleAsync(nurseUser, ApplicationRoles.Nurse);
                 Console.WriteLine($"✓ Usuario enfermero creado: {nurseEmail}");
             }
+        }
+
+        // Buscar el primer enfermero y vincularlo
+        var nurse = await _context.Nurses.FirstOrDefaultAsync(n => n.UserId == null);
+        if (nurse != null && nurseUser != null)
+        {
+            nurse.UserId = nurseUser.Id;
+            await _context.SaveChangesAsync();
+            Console.WriteLine($"✓ Usuario enfermero vinculado con: {nurse.Name}");
         }
     }
 

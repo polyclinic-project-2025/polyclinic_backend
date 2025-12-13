@@ -6,6 +6,7 @@ using AutoMapper;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.DTOs.Departments;
+using PolyclinicApplication.DTOs.Response;
 using PolyclinicDomain.Entities;
 using PolyclinicApplication.Common.Results;
 
@@ -129,16 +130,17 @@ namespace PolyclinicApplication.Services.Implementations
         }
 
 
-        public async Task<Result<List<Doctor>>> GetDoctorsByDepartmentIdAsync(Guid departmentId)
+        public async Task<Result<List<DoctorResponse>>> GetDoctorsByDepartmentIdAsync(Guid departmentId)
         {
             try
             {
                 var doctors = await _repository.GetDoctorsByDepartmentIdAsync(departmentId);
-                return Result<List<Doctor>>.Success(doctors);
+                var doctorsDto = _mapper.Map<List<DoctorResponse>>(doctors);
+                return Result<List<DoctorResponse>>.Success(doctorsDto);
             }
             catch (Exception ex)
             {
-                return Result<List<Doctor>>.Failure($"Error al obtener doctores del departamento: {ex.Message}");
+                return Result<List<DoctorResponse>>.Failure($"Error al obtener doctores del departamento: {ex.Message}");
             }
         }
     }

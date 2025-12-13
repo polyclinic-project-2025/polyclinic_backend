@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PolyclinicApplication.DTOs.Departments;
-using PolyclinicDomain.Entities;
+using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Interfaces
@@ -15,6 +15,6 @@ namespace PolyclinicApplication.Services.Interfaces
         Task<Result<bool>> UpdateAsync(Guid id, UpdateDepartmentDto dto);
         Task<Result<bool>> DeleteAsync(Guid id);
 
-        Task<Result<List<Doctor>>> GetDoctorsByDepartmentIdAsync(Guid departmentId);
+        Task<Result<List<DoctorResponse>>> GetDoctorsByDepartmentIdAsync(Guid departmentId);
     }
 }

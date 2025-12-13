@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Departments;
+using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicDomain.Entities;
@@ -122,16 +123,16 @@ namespace PolyclinicAPI.Controllers
         /// Obtiene los doctores de un departamento específico
         /// </summary>
         [HttpGet("{id:guid}/doctors")]
-        [ProducesResponseType(typeof(ApiResult<List<Doctor>>), 200)]
+        [ProducesResponseType(typeof(ApiResult<List<DoctorResponse>>), 200)]
         [ProducesResponseType(typeof(ApiResult<object>), 400)]
-        public async Task<ActionResult<ApiResult<List<Doctor>>>> GetDoctorsByDepartment(Guid id)
+        public async Task<ActionResult<ApiResult<List<DoctorResponse>>>> GetDoctorsByDepartment(Guid id)
         {
             var result = await _departmentService.GetDoctorsByDepartmentIdAsync(id);
             
             if (!result.IsSuccess)
-                return BadRequest(ApiResult<List<Doctor>>.Error(result.ErrorMessage!));
+                return BadRequest(ApiResult<List<DoctorResponse>>.Error(result.ErrorMessage!));
 
-            return Ok(ApiResult<List<Doctor>>.Ok(result.Value!, "Doctores obtenidos exitosamente"));
+            return Ok(ApiResult<List<DoctorResponse>>.Ok(result.Value!, "Doctores obtenidos exitosamente"));
         }
 
         /// <summary>
