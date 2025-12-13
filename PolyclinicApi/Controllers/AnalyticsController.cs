@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Services.Interfaces;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApi.Controllers;
 
@@ -25,11 +26,10 @@ public class AnalyticsController : ControllerBase
     public async Task<IActionResult> GetLast10(Guid patientId)
     {
         var result = await _service.GetLast10ByPatientIdAsync(patientId);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<UnifiedConsultationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<UnifiedConsultationDto>>.Ok(result.Value!, "Últimas consultas obtenidas"));
     }
 
     // GET: api/UnifiedConsultation/range?patientId=...&startDate=...&endDate=...
@@ -40,10 +40,9 @@ public class AnalyticsController : ControllerBase
         [FromQuery] DateTime endDate)
     {
         var result = await _service.GetByDateRangeAsync(patientId, startDate, endDate);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<UnifiedConsultationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<UnifiedConsultationDto>>.Ok(result.Value!, "Consultas en rango obtenidas"));
     }
 }

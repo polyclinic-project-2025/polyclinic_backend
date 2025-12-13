@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Services.Interfaces;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApi.Controllers;
 
@@ -27,13 +28,10 @@ public class ConsultationDerivationController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateConsultationDerivationDto dto)
     {
         var result = await _service.CreateAsync(dto);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<ConsultationDerivationDto>.BadRequest(result.ErrorMessage!));
 
-        return CreatedAtAction(nameof(GetById),
-            new { id = result.Value!.ConsultationDerivationId },
-            result.Value);
+        return Ok(ApiResult<ConsultationDerivationDto>.Ok(result.Value!, "Consulta creada exitosamente"));
     }
 
     // ************************************************************
@@ -43,11 +41,10 @@ public class ConsultationDerivationController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateConsultationDerivationDto dto)
     {
         var result = await _service.UpdateAsync(id, dto);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<bool>.Ok(true, "Consulta actualizada exitosamente"));
     }
 
     // ************************************************************
@@ -57,11 +54,10 @@ public class ConsultationDerivationController : ControllerBase
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _service.DeleteAsync(id);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
 
-        return Ok(true);
+        return Ok(ApiResult<bool>.Ok(true, "Consulta eliminada exitosamente"));
     }
 
     // ************************************************************
@@ -71,11 +67,10 @@ public class ConsultationDerivationController : ControllerBase
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _service.GetByIdAsync(id);
-
         if (!result.IsSuccess)
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<ConsultationDerivationDto>.NotFound(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<ConsultationDerivationDto>.Ok(result.Value!, "Consulta obtenida exitosamente"));
     }
 
     // ************************************************************
@@ -85,7 +80,10 @@ public class ConsultationDerivationController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var result = await _service.GetAllAsync();
-        return Ok(result.Value);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<ConsultationDerivationDto>>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<ConsultationDerivationDto>>.Ok(result.Value!, "Consultas obtenidas exitosamente"));
     }
 
     // ************************************************************
@@ -98,11 +96,10 @@ public class ConsultationDerivationController : ControllerBase
         [FromQuery] DateTime endDate)
     {
         var result = await _service.GetByDateRangeAsync(patientId, startDate, endDate);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<ConsultationDerivationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<ConsultationDerivationDto>>.Ok(result.Value!, "Consultas en rango obtenidas"));
     }
 
     // ************************************************************
@@ -112,10 +109,9 @@ public class ConsultationDerivationController : ControllerBase
     public async Task<IActionResult> GetLast10(Guid patientId)
     {
         var result = await _service.GetLast10ByPatientIdAsync(patientId);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<ConsultationDerivationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<ConsultationDerivationDto>>.Ok(result.Value!, "Últimas consultas obtenidas"));
     }
 }

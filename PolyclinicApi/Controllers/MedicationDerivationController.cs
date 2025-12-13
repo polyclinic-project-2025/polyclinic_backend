@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.DTOs.Request.MedicationDerivation;
+using PolyclinicApplication.Common.Results;
 
 
 namespace PolyclinicApi.Controllers;
@@ -20,56 +21,49 @@ public class MedicationDerivationController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateMedicationDerivationDto request)
     {
         var result = await _service.CreateAsync(request);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<object>.Error(result.ErrorMessage!));
 
-        return CreatedAtAction(nameof(GetById),
-            new { id = result.Value!.MedicationDerivationId },
-            result.Value);
+        return Ok(ApiResult<object>.Ok(result.Value!, "Medicamento de derivación creado exitosamente"));
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id)
     {
         var result = await _service.GetByIdAsync(id);
-
         if (!result.IsSuccess)
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<object>.NotFound(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<object>.Ok(result.Value!, "Medicamento de derivación obtenido"));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var result = await _service.GetAllAsync();
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<object>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<object>.Ok(result.Value!, "Medicamentos de derivación obtenidos"));
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateMedicationDerivationDto request)
     {
         var result = await _service.UpdateAsync(id, request);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<object>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<object>.Ok(result.Value!, "Medicamento de derivación actualizado"));
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await _service.DeleteAsync(id);
-
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage!));
 
-        return NoContent();
+        return Ok(ApiResult<bool>.Ok(true, "Medicamento de derivación eliminado"));
     }
 }

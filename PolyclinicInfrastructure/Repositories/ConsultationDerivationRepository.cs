@@ -58,13 +58,4 @@ public class ConsultationDerivationRepository
             .Take(10)
             .ToListAsync();
     }
-
-    // ✨ NUEVO MÉTODO
-    public async Task<ConsultationDerivation?> GetWithDepartmentAsync(Guid consultationDerivationId)
-    {
-        return await _dbSet
-            .Include(cd => cd.DepartmentHead)
-                .ThenInclude(dh => dh.Department)
-            .FirstOrDefaultAsync(cd => cd.ConsultationDerivationId == consultationDerivationId);
-    }
 }

@@ -36,9 +36,4 @@ public class WarehouseRequest
     }
 
     protected WarehouseRequest() { }
-
-    public void UpdateStatus(string status)
-    {
-        Status = status;
-    }
 }

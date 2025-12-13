@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Services.Interfaces;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApi.Controllers;
 
@@ -24,7 +25,10 @@ public class MedicationRequestController : ControllerBase
     public async Task<ActionResult<IEnumerable<MedicationRequestResponse>>> GetAll()
     {
         var result = await _medicationRequestService.GetAllMedicationRequestAsync();
-        return Ok(result.Value);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<MedicationRequestResponse>>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<MedicationRequestResponse>>.Ok(result.Value!, "Solicitudes obtenidas"));
     }
 
     [HttpGet("{id:guid}")]
@@ -32,10 +36,9 @@ public class MedicationRequestController : ControllerBase
     {
         var result = await _medicationRequestService.GetMedicationRequestByIdAsync(id);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return NotFound(ApiResult<MedicationRequestResponse>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<MedicationRequestResponse>.Ok(result.Value!, "Solicitud obtenida"));
     }
 
     [HttpGet("warehouse-request")]
@@ -43,10 +46,9 @@ public class MedicationRequestController : ControllerBase
     {
         var result = await _medicationRequestService.GetMedicationRequestByWarehouseRequestIdAsync(warehouseRequestId);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return NotFound(ApiResult<IEnumerable<MedicationRequestResponse>>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<MedicationRequestResponse>>.Ok(result.Value!, "Solicitudes obtenidas"));
     }
 
     [HttpPost]
@@ -54,10 +56,9 @@ public class MedicationRequestController : ControllerBase
     {
         var result = await _medicationRequestService.CreateMedicationRequestAsync(request);
         if(!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-        return CreatedAtAction(nameof(GetById), new { id = result.Value.MedicationRequestId }, result.Value);
+            return BadRequest(ApiResult<MedicationRequestResponse>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<MedicationRequestResponse>.Ok(result.Value!, "Solicitud creada exitosamente"));
     }
 
     [HttpPut("{id:guid}")]
@@ -65,10 +66,9 @@ public class MedicationRequestController : ControllerBase
     {
         var result = await _medicationRequestService.UpdateMedicationRequestAsync(id, request);
         if(!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-        return NoContent();
+            return BadRequest(ApiResult<bool>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<bool>.Ok(true, "Solicitud actualizada"));
     }
 
     [HttpDelete("{id:guid}")]
@@ -76,9 +76,8 @@ public class MedicationRequestController : ControllerBase
     {
         var result = await _medicationRequestService.DeleteMedicationRequestAsync(id);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return NoContent();
+            return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<bool>.Ok(true, "Solicitud eliminada"));
     }
 }
