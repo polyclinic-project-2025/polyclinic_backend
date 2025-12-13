@@ -102,7 +102,26 @@ public class MedicationService : IMedicationService
     {
         try
         {
+            var medication = await _repository.GetByIdAsync(id);
+            if (medication == null)
+                return Result<bool>.Failure("Medicamento no encontrado.");
+
+            medication.UpdateFormat(request.Format);
+            medication.UpdateCommercialName(request.CommercialName);
+            medication.UpdateCommercialCompany(request.CommercialCompany);
+            
+            // Convertir string a DateOnly
+            if (DateOnly.TryParse(request.ExpirationDate, out var expirationDate))
+            {
+                medication.UpdateExpirationDate(expirationDate);
+            }
+            
+            medication.UpdateScientificName(request.ScientificName);
             medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
+            medication.UpdateQuantityNurse(request.QuantityNurse);
+
+            await _repository.UpdateAsync(medication);
+            return Result<bool>.Success(true);
         }
         catch (Exception ex)
         {
