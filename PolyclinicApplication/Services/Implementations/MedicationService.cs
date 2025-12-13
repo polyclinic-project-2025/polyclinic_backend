@@ -100,16 +100,13 @@ public class MedicationService : IMedicationService
 
      public async Task<Result<bool>> UpdateAsync(Guid id, UpdateMedicationDto request)
     {
-        var validation = await _updateValidator.ValidateAsync(request);
-        if (!validation.IsValid)
-            return Result<bool>.Failure(validation.Errors.First().ErrorMessage);
         try
         {
             var medication = await _repository.GetByIdAsync(id);
             if (medication == null)
                 return Result<bool>.Failure("Medicamento no encontrado.");
 
-            if(request.Format)
+            if(request.Format != null)
             {
                 medication.UpdateFormat(request.Format);
             }
@@ -138,16 +135,19 @@ public class MedicationService : IMedicationService
             {
                 medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
             }
-        }
+            if(request.ScientificName != null)
+            {
+                medication.UpdateScientificName(request.ScientificName);
+            }
 
+            await _repository.UpdateAsync(medication);
+            return Result<bool>.Success(true);
+        }
         catch (Exception ex)
         {
-            medication.UpdateScientificName(request.ScientificName);
             return Result<bool>.Failure($"Error al actualizar el medicamento: {ex.Message}");
         }
 
-        await _repository.UpdateAsync(medication);
-        return Result<bool>.Success(true);
     }
 
 
