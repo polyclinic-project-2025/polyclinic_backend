@@ -61,5 +61,13 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
             .OrderByDescending(cr => cr.DateTimeCRem)
             .Take(10)
             .ToListAsync();
-    }                
+    } 
+
+    public async Task<ConsultationReferral?> GetWithDepartmentAsync(Guid consultationReferralId)
+    {
+        return await _dbSet
+            .Include(cr => cr.DepartmentHead)
+                .ThenInclude(dh => dh.Department)
+            .FirstOrDefaultAsync(cr => cr.ConsultationReferralId == consultationReferralId);
+    }          
 }
