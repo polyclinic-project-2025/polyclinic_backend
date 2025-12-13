@@ -19,4 +19,9 @@ public class WarehouseManager : Employee
     protected WarehouseManager() { }
 
     public override string GetPrimaryRole() => ApplicationRoles.WarehouseManager;
+    
+    public Guid GetEmployeeId()
+    {
+        return EmployeeId;
+    }
 }
