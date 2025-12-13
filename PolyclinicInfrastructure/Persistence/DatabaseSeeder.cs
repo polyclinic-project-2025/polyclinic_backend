@@ -28,6 +28,10 @@ public class DatabaseSeeder
             // Asegurar que la base de datos existe y está actualizada
             await _context.Database.MigrateAsync();
 
+            // Aplicar triggers de validación (siempre se ejecuta, usa CREATE OR REPLACE)
+            await _context.ApplyDatabaseTriggersAsync();
+            Console.WriteLine("✓ Triggers de validación aplicados");
+
             // Verificar si ya hay datos sembrados
             if (await _context.Departments.AnyAsync())
             {
@@ -509,23 +513,49 @@ public class DatabaseSeeder
     {
         if (!await _context.ConsultationDerivations.AnyAsync())
         {
-            var derivations = await _context.Derivations.ToListAsync();
-            var doctors = await _context.Doctors.Where(d => d.EmploymentStatus == EmploymentStatus.Active).ToListAsync();
-            var departmentHeads = await _context.DepartmentHeads.ToListAsync();
+            var derivations = await _context.Derivations
+                .Include(d => d.DepartmentTo)
+                .ToListAsync();
+            var doctors = await _context.Doctors
+                .Include(d => d.Department)
+                .Where(d => d.EmploymentStatus == EmploymentStatus.Active)
+                .ToListAsync();
+            var departmentHeads = await _context.DepartmentHeads
+                .Include(dh => dh.Department)
+                .ToListAsync();
 
             if (derivations.Count == 0 || doctors.Count == 0 || departmentHeads.Count == 0) return;
 
             var consultations = new List<ConsultationDerivation>();
 
-            for (int i = 0; i < Math.Min(derivations.Count, doctors.Count); i++)
+            foreach (var derivation in derivations)
             {
+                // Buscar el DepartmentHead que pertenece al departamento destino de la derivación
+                var matchingHead = departmentHeads.FirstOrDefault(dh => dh.DepartmentId == derivation.DepartmentToId);
+                
+                if (matchingHead == null) 
+                {
+                    Console.WriteLine($"⚠ No se encontró DepartmentHead para el departamento {derivation.DepartmentTo?.Name ?? derivation.DepartmentToId.ToString()}");
+                    continue;
+                }
+
+                // Buscar un doctor que pertenezca al departamento destino de la derivación
+                var matchingDoctor = doctors.FirstOrDefault(d => d.DepartmentId == derivation.DepartmentToId);
+                if (matchingDoctor == null)
+                {
+                    Console.WriteLine($"⚠ No se encontró Doctor para el departamento {derivation.DepartmentTo?.Name ?? derivation.DepartmentToId.ToString()}");
+                    continue;
+                }
+
+                Console.WriteLine($"✓ Creando consulta: Derivación a {derivation.DepartmentTo?.Name} -> DepartmentHead de {matchingHead.Department?.Name}, Doctor de {matchingDoctor.Department?.Name}");
+
                 consultations.Add(new ConsultationDerivation(
                     Guid.NewGuid(),
-                    $"Diagnóstico de derivación {i + 1}: Requiere seguimiento especializado",
-                    derivations[i].DerivationId,
-                    DateTime.UtcNow.AddDays(-i),
-                    doctors[i].EmployeeId,
-                    departmentHeads[Math.Min(i, departmentHeads.Count - 1)].DepartmentHeadId
+                    $"Diagnóstico de derivación: Requiere seguimiento especializado",
+                    derivation.DerivationId,
+                    DateTime.UtcNow.AddDays(-1),
+                    matchingDoctor.EmployeeId,
+                    matchingHead.DepartmentHeadId
                 ));
             }
 
@@ -539,23 +569,49 @@ public class DatabaseSeeder
     {
         if (!await _context.ConsultationReferrals.AnyAsync())
         {
-            var referrals = await _context.Referrals.ToListAsync();
-            var doctors = await _context.Doctors.Where(d => d.EmploymentStatus == EmploymentStatus.Active).ToListAsync();
-            var departmentHeads = await _context.DepartmentHeads.ToListAsync();
+            var referrals = await _context.Referrals
+                .Include(r => r.DepartmentTo)
+                .ToListAsync();
+            var doctors = await _context.Doctors
+                .Include(d => d.Department)
+                .Where(d => d.EmploymentStatus == EmploymentStatus.Active)
+                .ToListAsync();
+            var departmentHeads = await _context.DepartmentHeads
+                .Include(dh => dh.Department)
+                .ToListAsync();
 
             if (referrals.Count == 0 || doctors.Count == 0 || departmentHeads.Count == 0) return;
 
             var consultations = new List<ConsultationReferral>();
 
-            for (int i = 0; i < Math.Min(referrals.Count, doctors.Count); i++)
+            foreach (var referral in referrals)
             {
+                // Buscar el DepartmentHead que pertenece al departamento destino de la remisión
+                var matchingHead = departmentHeads.FirstOrDefault(dh => dh.DepartmentId == referral.DepartmentToId);
+                
+                if (matchingHead == null) 
+                {
+                    Console.WriteLine($"⚠ No se encontró DepartmentHead para el departamento {referral.DepartmentTo?.Name ?? referral.DepartmentToId.ToString()}");
+                    continue;
+                }
+
+                // Buscar un doctor que pertenezca al departamento destino de la remisión
+                var matchingDoctor = doctors.FirstOrDefault(d => d.DepartmentId == referral.DepartmentToId);
+                if (matchingDoctor == null)
+                {
+                    Console.WriteLine($"⚠ No se encontró Doctor para el departamento {referral.DepartmentTo?.Name ?? referral.DepartmentToId.ToString()}");
+                    continue;
+                }
+
+                Console.WriteLine($"✓ Creando consulta: Referral a {referral.DepartmentTo?.Name} -> DepartmentHead de {matchingHead.Department?.Name}, Doctor de {matchingDoctor.Department?.Name}");
+
                 consultations.Add(new ConsultationReferral(
                     Guid.NewGuid(),
-                    $"Diagnóstico de remisión {i + 1}: Atención especializada requerida desde puesto externo",
-                    departmentHeads[Math.Min(i, departmentHeads.Count - 1)].DepartmentHeadId,
-                    doctors[i].EmployeeId,
-                    referrals[i].ReferralId,
-                    DateTime.UtcNow.AddDays(-i - 1)
+                    $"Diagnóstico de remisión: Atención especializada requerida desde puesto externo",
+                    matchingHead.DepartmentHeadId,
+                    matchingDoctor.EmployeeId,
+                    referral.ReferralId,
+                    DateTime.UtcNow.AddDays(-1)
                 ));
             }
 
