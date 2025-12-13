@@ -37,12 +37,5 @@ namespace PolyclinicInfrastructure.Repositories
                 .Include(sd => sd.Medication)
                 .ToListAsync();
         }
-
-        // ✨ NUEVO MÉTODO
-        public async Task<StockDepartment?> GetByDepartmentAndMedicationAsync(Guid departmentId, Guid medicationId)
-        {
-            return await _context.StockDepartments
-                .FirstOrDefaultAsync(sd => sd.DepartmentId == departmentId && sd.MedicationId == medicationId);
-        }
     }
 }

@@ -11,6 +11,5 @@ namespace PolyclinicDomain.IRepositories
 
         Task<IEnumerable<ConsultationReferral>> GetByDateRangeAsync(Guid patientId, DateTime startDate, DateTime endDate);
         Task<IEnumerable<ConsultationReferral>> GetLast10ByPatientIdAsync(Guid patientId);
-        Task<ConsultationReferral?> GetWithDepartmentAsync(Guid consultationReferralId);
     }
 }
