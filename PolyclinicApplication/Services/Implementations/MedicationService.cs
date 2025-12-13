@@ -98,16 +98,92 @@ public class MedicationService : IMedicationService
         }
     }
 
-    public async Task<Result<bool>> UpdateAsync(Guid id, UpdateMedicationDto request)
+     public async Task<Result<bool>> UpdateAsync(Guid id, UpdateMedicationDto request)
     {
+        var validation = await _updateValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+            return Result<bool>.Failure(validation.Errors.First().ErrorMessage);
         try
         {
-            medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
+            var medication = await _repository.GetByIdAsync(id);
+            if (medication == null)
+                return Result<bool>.Failure("Medicamento no encontrado.");
+
+        var medication = await _repository.GetByIdAsync(id);
+        if (medication == null)
+            return Result<bool>.Failure("Medicamento no encontrado.");
+            // Actualizar sólo campos provistos en el request
+            if (!string.IsNullOrEmpty(request.Format))
+            {
+                medication.UpdateFormat(request.Format);
+            }
+
+        // Actualizar sólo campos provistos en el request
+        if (!string.IsNullOrEmpty(request.Format))
+        {
+            medication.UpdateFormat(request.Format);
+        }
+            if(!string.IsNullOrEmpty(request.CommercialName))
+            {
+                medication.UpdateCommercialName(request.CommercialName);
+            }
+        
+            // Si tienes otros campos editables (por ejemplo CommercialCompany), actualízalos aquí:
+            if (!string.IsNullOrEmpty(request.CommercialCompany))
+            {
+                // Asume que existe un método de dominio UpdateCommercialCompany
+                medication.UpdateCommercialCompany(request.CommercialCompany);
+            }
+
+        if(!string.IsNullOrEmpty(request.CommercialName))
+        {
+            medication.UpdateCommercialName(request.CommercialName);
+        }
+    
+        // Si tienes otros campos editables (por ejemplo CommercialCompany), actualízalos aquí:
+        if (!string.IsNullOrEmpty(request.CommercialCompany))
+        {
+            // Asume que existe un método de dominio UpdateCommercialCompany
+            medication.UpdateCommercialCompany(request.CommercialCompany);
+        }
+            if(!string.IsNullOrWhiteSpace(request.ExpirationDate))
+            {
+                var expiration = DateOnly.ParseExact(request.ExpirationDate, "yyyy-MM-dd");
+                medication.UpdateExpirationDate(expiration);
+            }
+
+        if(!string.IsNullOrWhiteSpace(request.ExpirationDate))
+        {
+            var expiration = DateOnly.ParseExact(request.ExpirationDate, "yyyy-MM-dd");
+            medication.UpdateExpirationDate(expiration);
+        }
+            if(!string.IsNullOrEmpty(request.ScientificName))
+            {
+                medication.UpdateScientificName(request.ScientificName);
+            }
+
+            if(request.QuantityWarehouse != null)
+            {
+                medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
+            }
+
+            if(request.QuantityNurse != null)
+            {
+                medication.UpdateQuantityNurse(request.QuantityNurse);
+            }
+
+        if(!string.IsNullOrEmpty(request.ScientificName))
+            await _repository.UpdateAsync(medication);
+            return Result<bool>.Success(true);
         }
         catch (Exception ex)
         {
+            medication.UpdateScientificName(request.ScientificName);
             return Result<bool>.Failure($"Error al actualizar el medicamento: {ex.Message}");
         }
+
+        await _repository.UpdateAsync(medication);
+        return Result<bool>.Success(true);
     }
 
 
