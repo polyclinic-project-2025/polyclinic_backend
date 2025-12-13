@@ -63,7 +63,15 @@ public class MedicationService : IMedicationService
             request.MaxQuantityWarehouse,      
             request.MaxQuantityNurse           
         );
-        medication = await _repository.AddAsync(medication);
+
+        try
+        {
+            medication = await _repository.AddAsync(medication);
+        }
+        catch (Exception ex)
+        {
+            return Result<MedicationDto>.Failure($"Error al guardar el medicamento: {ex.Message}");
+        }
 
         var response = _mapper.Map<MedicationDto>(medication);
         return Result<MedicationDto>.Success(response);
@@ -136,8 +144,15 @@ public class MedicationService : IMedicationService
             medication.UpdateQuantityNurse(request.QuantityNurse);
         }
 
-        await _repository.UpdateAsync(medication);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.UpdateAsync(medication);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar el medicamento: {ex.Message}");
+        }
     }
 
 
@@ -147,8 +162,15 @@ public class MedicationService : IMedicationService
         if (medication == null)
             return Result<bool>.Failure("Medicamento no encontrado.");
 
-        await _repository.DeleteAsync(medication);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.DeleteAsync(medication);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar el medicamento: {ex.Message}");
+        }
     }
 
     // ============================================================

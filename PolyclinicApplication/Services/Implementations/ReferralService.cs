@@ -52,8 +52,15 @@ public class ReferralService : IReferralService
             var existPe = await _PeRepo.GetByNameAsync(dto.PuestoExterno);
             if (existPe is null)
             {
-                var pe = await _PeRepo.AddAsync(new ExternalMedicalPost(Guid.NewGuid(),dto.PuestoExterno));
-                existPe = pe;
+                try
+                {
+                    var pe = await _PeRepo.AddAsync(new ExternalMedicalPost(Guid.NewGuid(),dto.PuestoExterno));
+                    existPe = pe;
+                }
+                catch (Exception ex)
+                {
+                    return Result<ReferralDto>.Failure($"Error al guardar el puesto externo: {ex.Message}");
+                }
             }   
                 
 
@@ -73,7 +80,14 @@ public class ReferralService : IReferralService
                 dto.DepartmentToId
             );
 
-            await _repo.AddAsync(referral);
+            try
+            {
+                await _repo.AddAsync(referral);
+            }
+            catch (Exception ex)
+            {
+                return Result<ReferralDto>.Failure($"Error al guardar la remisión: {ex.Message}");
+            }
 
             var referraldto = _mapper.Map<ReferralDto>(referral);
             return Result<ReferralDto>.Success(referraldto);
@@ -88,8 +102,15 @@ public class ReferralService : IReferralService
             if (result is null)
                 return Result<bool>.Failure("Remision no encontrada.");
 
-            await _repo.DeleteByIdAsync(id);
-            return Result<bool>.Success(true);
+            try
+            {
+                await _repo.DeleteByIdAsync(id);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Error al eliminar la remisión: {ex.Message}");
+            }
         }
 
     //READ

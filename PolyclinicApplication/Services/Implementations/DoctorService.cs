@@ -59,7 +59,16 @@ public class DoctorService :
             request.EmploymentStatus,
             request.DepartmentId
         );
-        await _doctorRepository.AddAsync(doctor);
+        
+        try
+        {
+            await _doctorRepository.AddAsync(doctor);
+        }
+        catch (Exception ex)
+        {
+            return Result<DoctorResponse>.Failure($"Error al guardar el doctor: {ex.Message}");
+        }
+        
         var doctorResponse = _mapper.Map<DoctorResponse>(doctor);
         return Result<DoctorResponse>.Success(doctorResponse);
     }
@@ -97,7 +106,15 @@ public class DoctorService :
         {
             doctor.UpdateDepartmentId(request.DepartmentId.Value);
         }
-        await _doctorRepository.UpdateAsync(doctor);
-        return Result<bool>.Success(true);
+        
+        try
+        {
+            await _doctorRepository.UpdateAsync(doctor);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar el doctor: {ex.Message}");
+        }
     }
 }

@@ -74,7 +74,15 @@ public class MedicationRequestService : IMedicationRequestService
             request.WarehouseRequestId,
             request.MedicationId
         );
-        await _repository.AddAsync(medicationRequest);
+
+        try
+        {
+            await _repository.AddAsync(medicationRequest);
+        }
+        catch (Exception ex)
+        {
+            return Result<MedicationRequestResponse>.Failure($"Error al guardar la solicitud: {ex.Message}");
+        }
         var response = _mapper.Map<MedicationRequestResponse>(medicationRequest);
         return Result<MedicationRequestResponse>.Success(response);
     }
@@ -91,8 +99,16 @@ public class MedicationRequestService : IMedicationRequestService
         {
             return Result<bool>.Failure("Solicitud de medicamentos al almacén no encontrada.");
         }
-        await _repository.UpdateAsync(medicationRequest);
-        return Result<bool>.Success(true);
+
+        try
+        {
+            await _repository.UpdateAsync(medicationRequest);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar la solicitud: {ex.Message}");
+        }
     }
     
     public async Task<Result<bool>> DeleteMedicationRequestAsync(Guid id)
@@ -102,7 +118,15 @@ public class MedicationRequestService : IMedicationRequestService
         {
             return Result<bool>.Failure("Solicitud de medicamentos al almacén no encontrada.");
         }
-        await _repository.DeleteAsync(medicationRequest);
-        return Result<bool>.Success(true);
+
+        try
+        {
+            await _repository.DeleteAsync(medicationRequest);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar la solicitud: {ex.Message}");
+        }
     }
 }

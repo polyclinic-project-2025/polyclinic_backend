@@ -56,7 +56,14 @@ namespace PolyclinicApplication.Services.Implementations
                 dto.Address
             );
 
-            await _repository.AddAsync(patient);
+            try
+            {
+                await _repository.AddAsync(patient);
+            }
+            catch (Exception ex)
+            {
+                return Result<PatientDto>.Failure($"Error al guardar el paciente: {ex.Message}");
+            }
 
             var patientdto = _mapper.Map<PatientDto>(patient);
             return Result<PatientDto>.Success(patientdto);
@@ -150,8 +157,15 @@ namespace PolyclinicApplication.Services.Implementations
             if (!string.IsNullOrWhiteSpace(dto.Contact)) patient.ChangeContact(dto.Contact);
             if (!string.IsNullOrWhiteSpace(dto.Address)) patient.ChangeAddress(dto.Address);
 
-            await _repository.UpdateAsync(patient);
-            return Result<bool>.Success(true);
+            try
+            {
+                await _repository.UpdateAsync(patient);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Error al actualizar el paciente: {ex.Message}");
+            }
         }
 
         // -------------------------------
@@ -163,8 +177,15 @@ namespace PolyclinicApplication.Services.Implementations
             if (result == null)
                 return Result<bool>.Failure("Paciente no encontrado.");
 
-            await _repository.DeleteByIdAsync(id);
-            return Result<bool>.Success(true);
+            try
+            {
+                await _repository.DeleteByIdAsync(id);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Error al eliminar el paciente: {ex.Message}");
+            }
         }
     }
 }

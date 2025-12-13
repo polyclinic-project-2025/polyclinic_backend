@@ -65,7 +65,14 @@ public class DerivationService : IDerivationService
                 dto.DepartmentToId
             );
 
-            await _repo.AddAsync(derivation);
+            try
+            {
+                await _repo.AddAsync(derivation);
+            }
+            catch (Exception ex)
+            {
+                return Result<DerivationDto>.Failure($"Error al guardar la derivación: {ex.Message}");
+            }
 
             var derivationdto = _mapper.Map<DerivationDto>(derivation);
             return Result<DerivationDto>.Success(derivationdto);
@@ -80,8 +87,15 @@ public class DerivationService : IDerivationService
             if (result is null)
                 return Result<bool>.Failure("Derivacion no encontrada.");
 
-            await _repo.DeleteByIdAsync(id);
-            return Result<bool>.Success(true);
+            try
+            {
+                await _repo.DeleteByIdAsync(id);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Error al eliminar la derivación: {ex.Message}");
+            }
         }
 
     //READ

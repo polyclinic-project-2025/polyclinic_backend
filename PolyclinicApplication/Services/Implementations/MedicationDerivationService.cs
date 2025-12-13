@@ -41,7 +41,14 @@ public class MedicationDerivationService : IMedicationDerivationService
             request.MedicationId
         );
 
-        medicationDerivation = await _repository.AddAsync(medicationDerivation);
+        try
+        {
+            medicationDerivation = await _repository.AddAsync(medicationDerivation);
+        }
+        catch (Exception ex)
+        {
+            return Result<MedicationDerivationDto>.Failure($"Error al guardar la derivación: {ex.Message}");
+        }
 
         var response = _mapper.Map<MedicationDerivationDto>(medicationDerivation);
         return Result<MedicationDerivationDto>.Success(response);
@@ -83,8 +90,15 @@ public class MedicationDerivationService : IMedicationDerivationService
         if (request.MedicationId.HasValue)
             medicationDerivation.UpdateMedicationId(request.MedicationId.Value);
 
-        await _repository.UpdateAsync(medicationDerivation);
-        return Result<bool>.Success(true);                    
+        try
+        {
+            await _repository.UpdateAsync(medicationDerivation);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar la derivación: {ex.Message}");
+        }                    
     }
 
     public async Task<Result<bool>> DeleteAsync(Guid id)
@@ -93,7 +107,14 @@ public class MedicationDerivationService : IMedicationDerivationService
         if (medicationDerivation == null)
             return Result<bool>.Failure("La derivación de medicamento no fue encontrada.");
 
-        await _repository.DeleteAsync(medicationDerivation);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.DeleteAsync(medicationDerivation);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar la derivación: {ex.Message}");
+        }
     }
 }

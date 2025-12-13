@@ -43,7 +43,14 @@ public class StockDepartmentService : IStockDepartmentService
             request.MaxQuantity
         );
 
-        stockDepartment = await _repository.AddAsync(stockDepartment);
+        try
+        {
+            stockDepartment = await _repository.AddAsync(stockDepartment);
+        }
+        catch (Exception ex)
+        {
+            return Result<StockDepartmentDto>.Failure($"Error al guardar el stock: {ex.Message}");
+        }
 
         var response = _mapper.Map<StockDepartmentDto>(stockDepartment);
         return Result<StockDepartmentDto>.Success(response);
@@ -85,9 +92,15 @@ public class StockDepartmentService : IStockDepartmentService
         if (request.MaxQuantity >= stockDepartment.MinQuantity)
             stockDepartment.UpdateMaxQuantity(request.MaxQuantity.Value); 
 
-        await _repository.UpdateAsync(stockDepartment);
-                   
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.UpdateAsync(stockDepartment);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar el stock: {ex.Message}");
+        }
     }
 
     public async Task<Result<bool>> DeleteAsync(Guid id)
@@ -96,8 +109,15 @@ public class StockDepartmentService : IStockDepartmentService
         if (stockDepartment == null)
             return Result<bool>.Failure("El stock del departamento no fue encontrado.");
 
-        await _repository.DeleteAsync(stockDepartment);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.DeleteAsync(stockDepartment);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar el stock: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<StockDepartmentDto>>> GetStockByDepartmentIdAsync(Guid departmentId)

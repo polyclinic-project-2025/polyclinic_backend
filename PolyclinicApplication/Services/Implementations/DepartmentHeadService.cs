@@ -78,7 +78,16 @@ public class DepartmentHeadService : IDepartmentHeadService
         }
         var doctor = await _doctorRepository.GetByIdAsync(request.DoctorId);
         var departmentHead = new DepartmentHead(Guid.NewGuid(), request.DoctorId, doctor.DepartmentId, DateTime.UtcNow);
-        await _repository.AddAsync(departmentHead);
+        
+        try
+        {
+            await _repository.AddAsync(departmentHead);
+        }
+        catch (Exception ex)
+        {
+            return Result<DepartmentHeadResponse>.Failure($"Error al guardar el jefe de departamento: {ex.Message}");
+        }
+        
         var response = _mapper.Map<DepartmentHeadResponse>(departmentHead);
         return Result<DepartmentHeadResponse>.Success(response);
     }
@@ -90,7 +99,15 @@ public class DepartmentHeadService : IDepartmentHeadService
         {
             return Result<bool>.Failure("Jefe de departamento no encontrado.");
         }
-        await _repository.DeleteAsync(departmentHead);
-        return Result<bool>.Success(true);
+        
+        try
+        {
+            await _repository.DeleteAsync(departmentHead);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar el jefe de departamento: {ex.Message}");
+        }
     }
 }

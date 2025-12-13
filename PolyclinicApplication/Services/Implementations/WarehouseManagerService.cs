@@ -61,7 +61,16 @@ public class WarehouseManagerService :
             request.EmploymentStatus,
             DateTime.UtcNow
         );
-        await _warehouseManagerRepository.AddAsync(warehouseManager);
+        
+        try
+        {
+            await _warehouseManagerRepository.AddAsync(warehouseManager);
+        }
+        catch (Exception ex)
+        {
+            return Result<WarehouseManagerResponse>.Failure($"Error al guardar el jefe de almacén: {ex.Message}");
+        }
+        
         var warehouseManagerResponse = _mapper.Map<WarehouseManagerResponse>(warehouseManager);
         return Result<WarehouseManagerResponse>.Success(warehouseManagerResponse);
     }
@@ -95,7 +104,15 @@ public class WarehouseManagerService :
         {
             warehouseManager.UpdateEmploymentStatus(request.EmploymentStatus);
         }
-        await _warehouseManagerRepository.UpdateAsync(warehouseManager);
-        return Result<bool>.Success(true);
+        
+        try
+        {
+            await _warehouseManagerRepository.UpdateAsync(warehouseManager);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar el jefe de almacén: {ex.Message}");
+        }
     }
 }

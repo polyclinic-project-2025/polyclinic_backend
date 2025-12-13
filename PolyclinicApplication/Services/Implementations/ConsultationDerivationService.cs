@@ -74,7 +74,14 @@ public class ConsultationDerivationService : IConsultationDerivationService
             dto.DepartmentHeadId
         );
 
-        await _repository.AddAsync(entity);
+        try
+        {
+            await _repository.AddAsync(entity);
+        }
+        catch (Exception ex)
+        {
+            return Result<ConsultationDerivationDto>.Failure($"Error al guardar la consulta: {ex.Message}");
+        }
 
         var resultDto = _mapper.Map<ConsultationDerivationDto>(entity);
         return Result<ConsultationDerivationDto>.Success(resultDto);
@@ -114,9 +121,15 @@ public class ConsultationDerivationService : IConsultationDerivationService
         if (dto.DepartmentHeadId != Guid.Empty)
             entity.UpdateDepartmentHeadId(dto.DepartmentHeadId);
 
-        await _repository.UpdateAsync(entity);
-
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.UpdateAsync(entity);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar la consulta: {ex.Message}");
+        }
     }
 
     // **************************************
@@ -128,8 +141,15 @@ public class ConsultationDerivationService : IConsultationDerivationService
         if (entity is null)
             return Result<bool>.Failure("Record not found.");
 
-        await _repository.DeleteAsync(entity);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.DeleteAsync(entity);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar la consulta: {ex.Message}");
+        }
     }
 
     // **************************************

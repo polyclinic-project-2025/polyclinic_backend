@@ -49,7 +49,16 @@ public class NurseService :
             request.Name,
             request.EmploymentStatus
         );
-        await _nurseRepository.AddAsync(nurse);
+        
+        try
+        {
+            await _nurseRepository.AddAsync(nurse);
+        }
+        catch (Exception ex)
+        {
+            return Result<NurseResponse>.Failure($"Error al guardar el enfermero: {ex.Message}");
+        }
+        
         var nurseResponse = _mapper.Map<NurseResponse>(nurse);
         return Result<NurseResponse>.Success(nurseResponse);
     }
@@ -83,7 +92,15 @@ public class NurseService :
         {
             nurse.UpdateEmploymentStatus(request.EmploymentStatus);
         }
-        await _nurseRepository.UpdateAsync(nurse);
-        return Result<bool>.Success(true);
+        
+        try
+        {
+            await _nurseRepository.UpdateAsync(nurse);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar el enfermero: {ex.Message}");
+        }
     }
 }

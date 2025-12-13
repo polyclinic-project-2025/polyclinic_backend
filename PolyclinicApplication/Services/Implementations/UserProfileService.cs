@@ -96,7 +96,7 @@ public class UserProfileService : IUserProfileService
                 Address = data.Address ?? string.Empty
             },
             
-            _ => throw new InvalidOperationException($"Tipo de entidad no soportado: {data.EntityType}")
+            _ => new { Error = $"Tipo de entidad no soportado: {data.EntityType}" }
         };
     }
 }

@@ -41,7 +41,14 @@ public class MedicationReferralService : IMedicationReferralService
             request.MedicationId
         );
 
-        medicationReferral = await _repository.AddAsync(medicationReferral);
+        try
+        {
+            medicationReferral = await _repository.AddAsync(medicationReferral);
+        }
+        catch (Exception ex)
+        {
+            return Result<MedicationReferralDto>.Failure($"Error al guardar la remisión: {ex.Message}");
+        }
 
         var response = _mapper.Map<MedicationReferralDto>(medicationReferral);
         return Result<MedicationReferralDto>.Success(response);
@@ -90,8 +97,15 @@ public class MedicationReferralService : IMedicationReferralService
             medicationReferral.UpdateMedicationId(request.MedicationId.Value);
         }
 
-        await _repository.UpdateAsync(medicationReferral);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.UpdateAsync(medicationReferral);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar la remisión: {ex.Message}");
+        }
     }
 
     public async Task<Result<bool>> DeleteAsync(Guid id)
@@ -100,7 +114,14 @@ public class MedicationReferralService : IMedicationReferralService
         if (medicationReferral == null)
             return Result<bool>.Failure("La remisión de medicamento no fue encontrada.");
 
-        await _repository.DeleteAsync(medicationReferral);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _repository.DeleteAsync(medicationReferral);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar la remisión: {ex.Message}");
+        }
     }
 }

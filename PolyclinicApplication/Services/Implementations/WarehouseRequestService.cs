@@ -96,7 +96,15 @@ public class WarehouseRequestService : IWarehouseRequestService
             request.DepartmentId,
             warehouseManager.GetEmployeeId()
         );
-        await _repository.AddAsync(warehouseRequest);
+
+        try
+        {
+            await _repository.AddAsync(warehouseRequest);
+        }
+        catch (Exception ex)
+        {
+            return Result<WarehouseRequestResponse>.Failure($"Error al guardar la solicitud al almacén: {ex.Message}");
+        }
         var response = _mapper.Map<WarehouseRequestResponse>(warehouseRequest);
         return Result<WarehouseRequestResponse>.Success(response);
     }
@@ -111,9 +119,17 @@ public class WarehouseRequestService : IWarehouseRequestService
         if(!string.IsNullOrEmpty(request.Status)){
             warehouseRequest.UpdateStatus(request.Status);
         }
-        await _repository.UpdateAsync(warehouseRequest);
-        var response = _mapper.Map<WarehouseRequestResponse>(warehouseRequest);
-        return Result<bool>.Success(true);
+
+        try
+        {
+            await _repository.UpdateAsync(warehouseRequest);
+            var response = _mapper.Map<WarehouseRequestResponse>(warehouseRequest);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar la solicitud al almacén: {ex.Message}");
+        }
     }
 
     public async Task<Result<bool>> DeleteWarehouseRequestAsync(Guid id)
@@ -123,7 +139,15 @@ public class WarehouseRequestService : IWarehouseRequestService
         {
             return Result<bool>.Failure("Solicitud al almacén no encontrada.");
         }
-        await _repository.DeleteAsync(warehouseRequest);
-        return Result<bool>.Success(true);
+
+        try
+        {
+            await _repository.DeleteAsync(warehouseRequest);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar la solicitud al almacén: {ex.Message}");
+        }
     }
 }

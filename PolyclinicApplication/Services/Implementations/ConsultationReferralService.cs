@@ -55,7 +55,15 @@ public class ConsultationReferralService : IConsultationReferralService
         var consultation = _mapper.Map<ConsultationReferral>(request);
         
         // Guardar en la base de datos
-        consultation = await _consultationReferralRepository.AddAsync(consultation);
+        try
+        {
+            consultation = await _consultationReferralRepository.AddAsync(consultation);
+        }
+        catch (Exception ex)
+        {
+            return Result<ConsultationReferralResponse>.Failure($"Error al guardar la consulta: {ex.Message}");
+        }
+        
         Console.WriteLine($"{consultation.Doctor!.Department == null} : department null"); 
         Console.WriteLine($"{consultation.Referral!.Patient == null} : Patient null");        
 
@@ -71,8 +79,15 @@ public class ConsultationReferralService : IConsultationReferralService
         if (consultation == null)
             return Result<bool>.Failure("Consulta no encontrada");
         
-        await _consultationReferralRepository.DeleteByIdAsync(id);
-        return Result<bool>.Success(true);
+        try
+        {
+            await _consultationReferralRepository.DeleteByIdAsync(id);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar la consulta: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<ConsultationReferralResponse>>> GetAllAsync()
@@ -165,7 +180,14 @@ public class ConsultationReferralService : IConsultationReferralService
     consultation.DateTimeCRem = dateTimeCRem;
 
     // 5. Guardar cambios
-    await _consultationReferralRepository.UpdateAsync(consultation);
+    try
+    {
+        await _consultationReferralRepository.UpdateAsync(consultation);
+    }
+    catch (Exception ex)
+    {
+        return Result<ConsultationReferralResponse>.Failure($"Error al actualizar la consulta: {ex.Message}");
+    }
 
     // 6. Recargar para enviar respuesta completa
     var updated = await _consultationReferralRepository.GetByIdAsync(id);
