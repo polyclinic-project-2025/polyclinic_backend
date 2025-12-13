@@ -56,6 +56,16 @@ public class ConsultationDerivationService : IConsultationDerivationService
             if (deptHead is null)
                 return Result<ConsultationDerivationDto>.Failure("DepartmentHead not found.");
 
+            // Validar que el DepartmentHead pertenezca al departamento destino de la derivación
+            if (deptHead.DepartmentId != derivation.DepartmentToId)
+                return Result<ConsultationDerivationDto>.Failure(
+                    "El jefe de departamento debe pertenecer al mismo departamento destino de la derivación.");
+
+            // Validar que el Doctor pertenezca al departamento destino de la derivación
+            if (doctor.DepartmentId != derivation.DepartmentToId)
+                return Result<ConsultationDerivationDto>.Failure(
+                    "El doctor tratante debe pertenecer al mismo departamento destino de la derivación.");
+
             var entity = new ConsultationDerivation(
                 Guid.NewGuid(),
                 dto.Diagnosis,
@@ -87,6 +97,11 @@ public class ConsultationDerivationService : IConsultationDerivationService
             if (consultation is null)
                 return Result<bool>.Failure("Record not found.");
 
+            // Obtener la derivación para validaciones
+            var derivation = await _derivationRepository.GetByIdAsync(consultation.DerivationId);
+            if (derivation is null)
+                return Result<bool>.Failure("Derivation not found.");
+
             // Validación de claves foráneas
             var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
             if (doctor is null)
@@ -95,6 +110,16 @@ public class ConsultationDerivationService : IConsultationDerivationService
             var deptHead = await _departmentHeadRepository.GetByIdAsync(dto.DepartmentHeadId);
             if (deptHead is null)
                 return Result<bool>.Failure("DepartmentHead not found.");
+
+            // Validar que el DepartmentHead pertenezca al departamento destino de la derivación
+            if (deptHead.DepartmentId != derivation.DepartmentToId)
+                return Result<bool>.Failure(
+                    "El jefe de departamento debe pertenecer al mismo departamento destino de la derivación.");
+
+            // Validar que el Doctor pertenezca al departamento destino de la derivación
+            if (doctor.DepartmentId != derivation.DepartmentToId)
+                return Result<bool>.Failure(
+                    "El doctor tratante debe pertenecer al mismo departamento destino de la derivación.");
 
             if (!string.IsNullOrWhiteSpace(dto.Diagnosis))
                 consultation.UpdateDiagnosis(dto.Diagnosis);

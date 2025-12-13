@@ -44,14 +44,23 @@ public class ConsultationReferralService : IConsultationReferralService
             if (patientReferral == null)
                 return Result<ConsultationReferralResponse>.Failure("El paciente especificado no existe en remisión");
             
-            // 3. Validar que la fecha no sea futura
+            // 3. Validar que el jefe de departamento pertenezca al departamento destino de la remisión
+            if (head.DepartmentId != patientReferral.DepartmentToId)
+                return Result<ConsultationReferralResponse>.Failure(
+                    "El jefe de departamento debe pertenecer al mismo departamento destino de la remisión.");
+            
+            // 4. Validar que la fecha no sea futura
             if (DateTime.Now < request.DateTimeCRem)
                 return Result<ConsultationReferralResponse>.Failure("La fecha de consulta no es válida");
         
-            // 4. Validar que el doctor tratante exista y pertenezca al mismo departamento que el jefe
+            // 5. Validar que el doctor tratante exista y pertenezca al departamento destino
             var doctor = await _doctorRepository.GetByIdAsync(request.DoctorId);
-            if (doctor == null || doctor.DepartmentId != head.DepartmentId)
-                return Result<ConsultationReferralResponse>.Failure("El doctor tratante especificado no existe en el departamento consultante");
+            if (doctor == null)
+                return Result<ConsultationReferralResponse>.Failure("El doctor tratante especificado no existe.");
+            
+            if (doctor.DepartmentId != patientReferral.DepartmentToId)
+                return Result<ConsultationReferralResponse>.Failure(
+                    "El doctor tratante debe pertenecer al mismo departamento destino de la remisión.");
             
             // Crear la entidad usando AutoMapper
             var consultation = _mapper.Map<ConsultationReferral>(request);
@@ -194,13 +203,23 @@ public class ConsultationReferralService : IConsultationReferralService
         if (head == null)
             return Result<ConsultationReferralResponse>.Failure("El Jefe de Departamento especificado no existe");
 
-        var doctor = await _doctorRepository.GetByIdAsync(doctorId);
-        if (doctor == null || doctor.DepartmentId != head.DepartmentId)
-            return Result<ConsultationReferralResponse>.Failure("El doctor tratante especificado no existe en el departamento consultante");
-
-        var patient = await _referralRepository.GetByIdAsync(referralId);
-        if (patient == null)
+        var referral = await _referralRepository.GetByIdAsync(referralId);
+        if (referral == null)
             return Result<ConsultationReferralResponse>.Failure("El paciente especificado no existe en remisión");
+
+        // Validar que el jefe de departamento pertenezca al departamento destino de la remisión
+        if (head.DepartmentId != referral.DepartmentToId)
+            return Result<ConsultationReferralResponse>.Failure(
+                "El jefe de departamento debe pertenecer al mismo departamento destino de la remisión.");
+
+        var doctor = await _doctorRepository.GetByIdAsync(doctorId);
+        if (doctor == null)
+            return Result<ConsultationReferralResponse>.Failure("El doctor tratante especificado no existe.");
+
+        // Validar que el doctor pertenezca al departamento destino de la remisión
+        if (doctor.DepartmentId != referral.DepartmentToId)
+            return Result<ConsultationReferralResponse>.Failure(
+                "El doctor tratante debe pertenecer al mismo departamento destino de la remisión.");
 
         // 4. ACTUALIZAR LA MISMA ENTIDAD TRACKADA
         consultation.Diagnosis = diagnosis;
