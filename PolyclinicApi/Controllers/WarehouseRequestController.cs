@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Services.Interfaces;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApi.Controllers;
 
@@ -24,7 +25,10 @@ public class WarehouseRequestController : ControllerBase
     public async Task<ActionResult<IEnumerable<WarehouseRequestResponse>>> GetAll()
     {
         var result = await _warehouseRequestService.GetAllWarehouseRequestAsync();
-        return Ok(result.Value);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<WarehouseRequestResponse>>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<WarehouseRequestResponse>>.Ok(result.Value!, "Solicitudes de almacén obtenidas"));
     }
 
     [HttpGet("{id:guid}")]
@@ -32,10 +36,9 @@ public class WarehouseRequestController : ControllerBase
     {
         var result = await _warehouseRequestService.GetWarehouseRequestByIdAsync(id);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return NotFound(ApiResult<WarehouseRequestResponse>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<WarehouseRequestResponse>.Ok(result.Value!, "Solicitud obtenida"));
     }
 
     [HttpGet("status")]
@@ -43,10 +46,9 @@ public class WarehouseRequestController : ControllerBase
     {
         var result = await _warehouseRequestService.GetWarehouseRequestByStatusAsync(status);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return NotFound(ApiResult<IEnumerable<WarehouseRequestResponse>>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<WarehouseRequestResponse>>.Ok(result.Value!, "Solicitudes obtenidas"));
     }
 
     [HttpGet("department")]
@@ -54,10 +56,9 @@ public class WarehouseRequestController : ControllerBase
     {
         var result = await _warehouseRequestService.GetWarehouseRequestByDepartmentIdAsync(id);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return NotFound(ApiResult<IEnumerable<WarehouseRequestResponse>>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<WarehouseRequestResponse>>.Ok(result.Value!, "Solicitudes obtenidas"));
     }
 
     [HttpGet("status-and-department")]
@@ -65,10 +66,9 @@ public class WarehouseRequestController : ControllerBase
     {
         var result = await _warehouseRequestService.GetWarehouseRequestByStatusAndDepartmentIdAsync(status, departmentId);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return NotFound(ApiResult<IEnumerable<WarehouseRequestResponse>>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<WarehouseRequestResponse>>.Ok(result.Value!, "Solicitudes obtenidas"));
     }
 
     [HttpPost]
@@ -76,10 +76,9 @@ public class WarehouseRequestController : ControllerBase
     {
         var result = await _warehouseRequestService.CreateWarehouseRequestAsync(request);
         if(!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-        return CreatedAtAction(nameof(GetById), new { id = result.Value.WarehouseRequestId }, result.Value);
+            return BadRequest(ApiResult<WarehouseRequestResponse>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<WarehouseRequestResponse>.Ok(result.Value!, "Solicitud creada exitosamente"));
     }
 
     [HttpPut("{id:guid}")]
@@ -87,10 +86,9 @@ public class WarehouseRequestController : ControllerBase
     {
         var result = await _warehouseRequestService.UpdateWarehouseRequestAsync(id, request);
         if(!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-        return NoContent();
+            return BadRequest(ApiResult<bool>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<bool>.Ok(true, "Solicitud actualizada"));
     }
 
     [HttpDelete("{id:guid}")]
@@ -98,9 +96,8 @@ public class WarehouseRequestController : ControllerBase
     {
         var result = await _warehouseRequestService.DeleteWarehouseRequestAsync(id);
         if(!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return NoContent();
+            return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<bool>.Ok(true, "Solicitud eliminada"));
     }
 }

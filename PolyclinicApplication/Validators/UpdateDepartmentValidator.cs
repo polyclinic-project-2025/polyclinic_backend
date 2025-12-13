@@ -10,8 +10,8 @@ namespace PolyclinicApplication.Validators.Departments
             When(x => x.Name != null, () =>
             {
                 RuleFor(x => x.Name)
-                    .NotEmpty().WithMessage("Name cannot be empty when provided.")
-                    .MaximumLength(100).WithMessage("Name must be at most 100 characters.");
+                    .NotEmpty().WithMessage("El nombre no puede estar vacío si se proporciona.")
+                    .MaximumLength(100).WithMessage("El nombre debe tener como máximo 100 caracteres.");
             });
         }
     }

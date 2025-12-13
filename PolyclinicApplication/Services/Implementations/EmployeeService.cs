@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
 using PolyclinicDomain.Entities;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request;
@@ -54,7 +53,15 @@ public class EmployeeService<TEntity, TResponse> :
         {
             return Result<bool>.Failure("Empleado no encontrado.");
         }
-        await _repository.DeleteAsync(employee);
-        return Result<bool>.Success(true);
+        
+        try
+        {
+            await _repository.DeleteAsync(employee);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar el empleado: {ex.Message}");
+        }
     }
 }

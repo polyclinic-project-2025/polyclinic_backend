@@ -11,20 +11,18 @@ public class ConsultationReferralProfile : Profile
     {
         // Entity -> Response
         CreateMap<ConsultationReferral, ConsultationReferralResponse>()
-            .ForMember(dest => dest.PatientId,
-                opt => opt.MapFrom(src => src.Referral!.PatientId))
-            
-            .ForMember(dest => dest.PatientFullName,
-                opt => opt.MapFrom(src => src.Referral!.Patient!.Name))
-                
-            .ForMember(dest => dest.DepartmentToId,
-                opt => opt.MapFrom(src => src.Referral!.DepartmentToId))
-            
-            .ForMember(dest => dest.DepartmentName,
-                opt => opt.MapFrom(src => src.Referral!.DepartmentTo!.Name))
-
-            .ForMember(dest => dest.DoctorFullName,
-                opt => opt.MapFrom(src => src.Doctor!.Name));
+            .ForMember(dest => dest.DepartmentName, 
+                opt => opt.MapFrom(src => src.Doctor != null && src.Doctor.Department != null 
+                    ? src.Doctor.Department.Name 
+                    : string.Empty))
+            .ForMember(dest => dest.DoctorFullName, 
+                opt => opt.MapFrom(src => src.Doctor != null 
+                    ? $"{src.Doctor.Name}" 
+                    : string.Empty))
+            .ForMember(dest => dest.PatientFullName, 
+                opt => opt.MapFrom(src => src.Referral != null && src.Referral.Patient != null 
+                    ? src.Referral.Patient.Name 
+                    : string.Empty));
 
         // CreateDto -> Entity
         CreateMap<CreateConsultationReferralDto, ConsultationReferral>()

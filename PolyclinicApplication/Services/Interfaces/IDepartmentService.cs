@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using PolyclinicApplication.DTOs.Departments;
 using PolyclinicDomain.Entities;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Interfaces
 {
     public interface IDepartmentService
     {
-        Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto);
-        Task<IEnumerable<DepartmentDto>> GetAllAsync();
-        Task<DepartmentDto?> GetByIdAsync(Guid id);
-        Task UpdateAsync(Guid id, UpdateDepartmentDto dto);
-        Task DeleteAsync(Guid id);
+        Task<Result<DepartmentDto>> CreateAsync(CreateDepartmentDto dto);
+        Task<Result<IEnumerable<DepartmentDto>>> GetAllAsync();
+        Task<Result<DepartmentDto?>> GetByIdAsync(Guid id);
+        Task<Result<bool>> UpdateAsync(Guid id, UpdateDepartmentDto dto);
+        Task<Result<bool>> DeleteAsync(Guid id);
 
-        Task<List<Doctor>> GetDoctorsByDepartmentIdAsync(Guid departmentId);
+        Task<Result<List<Doctor>>> GetDoctorsByDepartmentIdAsync(Guid departmentId);
     }
 }

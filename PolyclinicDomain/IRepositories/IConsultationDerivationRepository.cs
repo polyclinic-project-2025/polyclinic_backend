@@ -11,6 +11,4 @@ public interface IConsultationDerivationRepository : IRepository<ConsultationDer
     Task<IEnumerable<ConsultationDerivation>> GetByDateRangeAsync(Guid patientId,DateTime startDate,DateTime endDate);
 
     Task<IEnumerable<ConsultationDerivation>> GetLast10ByPatientIdAsync(Guid patientId);
-
-    Task<ConsultationDerivation?> GetWithDepartmentAsync(Guid consultationDerivationId);
 }

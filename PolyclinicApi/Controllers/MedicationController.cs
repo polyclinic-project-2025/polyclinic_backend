@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
+using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.Services.Interfaces;
 
 namespace PolyclinicApi.Controllers;
@@ -28,60 +31,81 @@ public class MedicationController : ControllerBase
     // ============================================================
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] CreateMedicationDto request)
+    [ProducesResponseType(typeof(ApiResult<MedicationDto>), 201)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<MedicationDto>>> Create([FromBody] CreateMedicationDto request)
     {
         var result = await _service.CreateAsync(request);
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<MedicationDto>.BadRequest(result.ErrorMessage!));
 
-        return CreatedAtAction(nameof(GetById),
-            new { id = result.Value!.MedicationId },
-            result.Value);
+        var apiResult = ApiResult<MedicationDto>.Ok(result.Value!, "Medicamento creado exitosamente");
+        return CreatedAtAction(nameof(GetById), new { id = result.Value!.MedicationId }, apiResult);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    [ProducesResponseType(typeof(ApiResult<MedicationDto>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 404)]
+    public async Task<ActionResult<ApiResult<MedicationDto>>> GetById(Guid id)
     {
         var result = await _service.GetByIdAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<MedicationDto>.NotFound(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<MedicationDto>.Ok(result.Value!, "Medicamento obtenido exitosamente"));
     }
 
     [HttpGet("all")]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<MedicationDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<MedicationDto>>>> GetAll()
     {
         var result = await _service.GetAllAsync();
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<MedicationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<MedicationDto>>.Ok(result.Value!, "Medicamentos obtenidos exitosamente"));
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateMedicationDto request)
+    [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    [ProducesResponseType(typeof(ApiResult<object>), 404)]
+    public async Task<ActionResult<ApiResult<bool>>> Update(Guid id, [FromBody] UpdateMedicationDto request)
     {
         var result = await _service.UpdateAsync(id, request);
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+        {
+            if (result.ErrorMessage!.Contains("no encontrado"))
+                return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+            
+            return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
+        }
 
-        return Ok(new { Success = true });
+        return Ok(ApiResult<bool>.Ok(true, "Medicamento actualizado exitosamente"));
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    [ProducesResponseType(typeof(ApiResult<object>), 404)]
+    public async Task<ActionResult<ApiResult<bool>>> Delete(Guid id)
     {
         var result = await _service.DeleteAsync(id);
 
         if (!result.IsSuccess)
-            return NotFound(result.ErrorMessage);
+        {
+            if (result.ErrorMessage!.Contains("no encontrado"))
+                return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+            
+            return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
+        }
 
-        return NoContent();
+        return Ok(ApiResult<bool>.Ok(true, "Medicamento eliminado exitosamente"));
     }
 
     // ============================================================
@@ -89,36 +113,42 @@ public class MedicationController : ControllerBase
     // ============================================================
 
     [HttpGet("batch/{batchNumber}")]
-    public async Task<IActionResult> GetByBatchNumber(string batchNumber)
+    [ProducesResponseType(typeof(ApiResult<MedicationDto>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 404)]
+    public async Task<ActionResult<ApiResult<MedicationDto>>> GetByBatchNumber(string batchNumber)
     {
         var result = await _service.GetByBatchNumberAsync(batchNumber);
 
         if (!result.IsSuccess)
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<MedicationDto>.NotFound(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<MedicationDto>.Ok(result.Value!, "Medicamento encontrado"));
     }
 
     [HttpGet("company/{company}")]
-    public async Task<IActionResult> GetByCompany(string company)
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<MedicationDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<MedicationDto>>>> GetByCompany(string company)
     {
         var result = await _service.GetByCommercialCompanyAsync(company);
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<MedicationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<MedicationDto>>.Ok(result.Value!, "Medicamentos encontrados"));
     }
 
     [HttpGet("search/{name}")]
-    public async Task<IActionResult> SearchByName(string name)
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<MedicationDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<MedicationDto>>>> SearchByName(string name)
     {
         var result = await _service.SearchByNameAsync(name);
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<MedicationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<MedicationDto>>.Ok(result.Value!, "Medicamentos encontrados"));
     }
 
     // ============================================================
@@ -126,47 +156,55 @@ public class MedicationController : ControllerBase
     // ============================================================
 
     [HttpGet("stock/low/warehouse")]
-    public async Task<IActionResult> GetLowWarehouseStock()
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<MedicationDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<MedicationDto>>>> GetLowWarehouseStock()
     {
         var result = await _service.GetLowStockWarehouseAsync();
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<MedicationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<MedicationDto>>.Ok(result.Value!, "Medicamentos con bajo stock obtenidos"));
     }
 
     [HttpGet("stock/low/nurse")]
-    public async Task<IActionResult> GetLowNurseStock()
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<MedicationDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<MedicationDto>>>> GetLowNurseStock()
     {
         var result = await _service.GetLowStockNurseAsync();
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<MedicationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<MedicationDto>>.Ok(result.Value!, "Medicamentos de enfermería con bajo stock obtenidos"));
     }
 
     [HttpGet("stock/over/warehouse")]
-    public async Task<IActionResult> GetOverWarehouseStock()
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<MedicationDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<MedicationDto>>>> GetOverWarehouseStock()
     {
         var result = await _service.GetOverStockWarehouseAsync();
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<MedicationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<MedicationDto>>.Ok(result.Value!, "Medicamentos con sobrestock obtenidos"));
     }
 
     [HttpGet("stock/over/nurse")]
-    public async Task<IActionResult> GetOverNurseStock()
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<MedicationDto>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<MedicationDto>>>> GetOverNurseStock()
     {
         var result = await _service.GetOverStockNurseAsync();
 
         if (!result.IsSuccess)
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<IEnumerable<MedicationDto>>.Error(result.ErrorMessage!));
 
-        return Ok(result.Value);
+        return Ok(ApiResult<IEnumerable<MedicationDto>>.Ok(result.Value!, "Medicamentos de enfermería con sobrestock obtenidos"));
     }
 
     // ============================
@@ -174,13 +212,15 @@ public class MedicationController : ControllerBase
     // Exportar todos los medicamentos a PDF
     // ============================
     [HttpGet("export")]
-    public async Task<ActionResult> ExportMedications()
+    [ProducesResponseType(typeof(ApiResult<ExportResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<ExportResponse>>> ExportMedications()
     {
         // Obtener todos los medicamentos
         var medicationsResult = await _service.GetAllAsync();
         if (!medicationsResult.IsSuccess)
         {
-            return BadRequest(medicationsResult.ErrorMessage);
+            return BadRequest(ApiResult<ExportResponse>.Error(medicationsResult.ErrorMessage!));
         }
 
         // Serializar a JSON
@@ -194,9 +234,9 @@ public class MedicationController : ControllerBase
         
         if (!exportResult.IsSuccess)
         {
-            return BadRequest(exportResult.ErrorMessage);
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
         }
 
-        return Ok(exportResult.Value);
+        return Ok(ApiResult<ExportResponse>.Ok(exportResult.Value!, "Medicamentos exportados exitosamente"));
     }
 }

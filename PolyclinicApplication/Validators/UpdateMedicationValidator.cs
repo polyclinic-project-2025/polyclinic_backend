@@ -12,34 +12,34 @@ public class UpdateMedicationValidator : AbstractValidator<UpdateMedicationDto>
     public UpdateMedicationValidator()
     {
         RuleFor(x => x.Format)
-            .NotEmpty().WithMessage("Format is required.")
+            .NotEmpty().WithMessage("El formato es requerido.")
             .MaximumLength(100);
 
         RuleFor(x => x.CommercialName)
-            .NotEmpty().WithMessage("Commercial name is required.")
+            .NotEmpty().WithMessage("El nombre comercial es requerido.")
             .MaximumLength(100);
 
         RuleFor(x => x.CommercialCompany)
-            .NotEmpty().WithMessage("Commercial company is required.")
+            .NotEmpty().WithMessage("La compañía comercial es requerida.")
             .MaximumLength(100);
 
         RuleFor(x => x.ScientificName)
-            .NotEmpty().WithMessage("Scientific name is required.")
+            .NotEmpty().WithMessage("El nombre científico es requerido.")
             .MaximumLength(100);
 
         RuleFor(x => x.ExpirationDate)
             .NotEmpty()
             .Must(date => DateOnly.TryParse(date, out _))
-            .WithMessage("ExpirationDate must be a valid date in format yyyy-MM-dd.");
+            .WithMessage("La fecha de expiración debe ser válida en formato yyyy-MM-dd.");
 
 
         // Cantidades actuales
         RuleFor(x => x.QuantityWarehouse)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("QuantityWarehouse cannot be negative.");
+            .WithMessage("La cantidad en almacén no puede ser negativa.");
 
         RuleFor(x => x.QuantityNurse)
             .GreaterThanOrEqualTo(0)
-            .WithMessage("QuantityNurse cannot be negative.");
+            .WithMessage("La cantidad en enfermería no puede ser negativa.");
     }
 }

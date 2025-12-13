@@ -20,35 +20,49 @@ public class UserProfileService : IUserProfileService
 
     public async Task<Result<UserProfileResponse>> GetUserProfileAsync(string userId)
     {
-        if (string.IsNullOrWhiteSpace(userId))
-            return Result<UserProfileResponse>.Failure("El ID de usuario es requerido.");
-
-        var profileData = await _userProfileRepository.GetUserProfileDataAsync(userId);
-
-        if (profileData == null)
-            return Result<UserProfileResponse>.Failure("No se encontró ningún perfil vinculado a este usuario.");
-
-        var response = new UserProfileResponse
+        try
         {
-            UserId = userId,
-            ProfileType = profileData.EntityType,
-            Profile = MapToSpecificProfile(profileData)
-        };
+            if (string.IsNullOrWhiteSpace(userId))
+                return Result<UserProfileResponse>.Failure("El ID de usuario es requerido.");
 
-        return Result<UserProfileResponse>.Success(response);
+            var profileData = await _userProfileRepository.GetUserProfileDataAsync(userId);
+
+            if (profileData == null)
+                return Result<UserProfileResponse>.Failure("No se encontró ningún perfil vinculado a este usuario.");
+
+            var response = new UserProfileResponse
+            {
+                UserId = userId,
+                ProfileType = profileData.EntityType,
+                Profile = MapToSpecificProfile(profileData)
+            };
+
+            return Result<UserProfileResponse>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<UserProfileResponse>.Failure($"Error al obtener perfil de usuario: {ex.Message}");
+        }
     }
 
     public async Task<Result<string>> GetLinkedEntityTypeAsync(string userId)
     {
-        if (string.IsNullOrWhiteSpace(userId))
-            return Result<string>.Failure("El ID de usuario es requerido.");
+        try
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+                return Result<string>.Failure("El ID de usuario es requerido.");
 
-        var entityType = await _userProfileRepository.GetLinkedEntityTypeAsync(userId);
+            var entityType = await _userProfileRepository.GetLinkedEntityTypeAsync(userId);
 
-        if (entityType == null)
-            return Result<string>.Failure("No se encontró ninguna entidad vinculada a este usuario.");
+            if (entityType == null)
+                return Result<string>.Failure("No se encontró ninguna entidad vinculada a este usuario.");
 
-        return Result<string>.Success(entityType);
+            return Result<string>.Success(entityType);
+        }
+        catch (Exception ex)
+        {
+            return Result<string>.Failure($"Error al obtener tipo de entidad: {ex.Message}");
+        }
     }
 
     /// <summary>
@@ -96,7 +110,7 @@ public class UserProfileService : IUserProfileService
                 Address = data.Address ?? string.Empty
             },
             
-            _ => throw new InvalidOperationException($"Tipo de entidad no soportado: {data.EntityType}")
+            _ => new { Error = $"Tipo de entidad no soportado: {data.EntityType}" }
         };
     }
 }
