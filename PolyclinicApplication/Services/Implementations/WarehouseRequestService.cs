@@ -130,7 +130,7 @@ public class WarehouseRequestService : IWarehouseRequestService
                 "1",
                 DateTime.UtcNow,
                 request.DepartmentId,
-                warehouseManager.GetEmployeeId()
+                warehouseManager.EmployeeId
             );
 
             await _repository.AddAsync(warehouseRequest);

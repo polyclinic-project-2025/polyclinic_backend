@@ -109,70 +109,20 @@ public class MedicationService : IMedicationService
             if (medication == null)
                 return Result<bool>.Failure("Medicamento no encontrado.");
 
-        var medication = await _repository.GetByIdAsync(id);
-        if (medication == null)
-            return Result<bool>.Failure("Medicamento no encontrado.");
-            // Actualizar sólo campos provistos en el request
-            if (!string.IsNullOrEmpty(request.Format))
-            {
-                medication.UpdateFormat(request.Format);
-            }
-
-        // Actualizar sólo campos provistos en el request
-        if (!string.IsNullOrEmpty(request.Format))
-        {
             medication.UpdateFormat(request.Format);
-        }
-            if(!string.IsNullOrEmpty(request.CommercialName))
-            {
-                medication.UpdateCommercialName(request.CommercialName);
-            }
-        
-            // Si tienes otros campos editables (por ejemplo CommercialCompany), actualízalos aquí:
-            if (!string.IsNullOrEmpty(request.CommercialCompany))
-            {
-                // Asume que existe un método de dominio UpdateCommercialCompany
-                medication.UpdateCommercialCompany(request.CommercialCompany);
-            }
-
-        if(!string.IsNullOrEmpty(request.CommercialName))
-        {
             medication.UpdateCommercialName(request.CommercialName);
-        }
-    
-        // Si tienes otros campos editables (por ejemplo CommercialCompany), actualízalos aquí:
-        if (!string.IsNullOrEmpty(request.CommercialCompany))
-        {
-            // Asume que existe un método de dominio UpdateCommercialCompany
             medication.UpdateCommercialCompany(request.CommercialCompany);
-        }
-            if(!string.IsNullOrWhiteSpace(request.ExpirationDate))
+            
+            // Convertir string a DateOnly
+            if (DateOnly.TryParse(request.ExpirationDate, out var expirationDate))
             {
-                var expiration = DateOnly.ParseExact(request.ExpirationDate, "yyyy-MM-dd");
-                medication.UpdateExpirationDate(expiration);
+                medication.UpdateExpirationDate(expirationDate);
             }
+            
+            medication.UpdateScientificName(request.ScientificName);
+            medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
+            medication.UpdateQuantityNurse(request.QuantityNurse);
 
-        if(!string.IsNullOrWhiteSpace(request.ExpirationDate))
-        {
-            var expiration = DateOnly.ParseExact(request.ExpirationDate, "yyyy-MM-dd");
-            medication.UpdateExpirationDate(expiration);
-        }
-            if(!string.IsNullOrEmpty(request.ScientificName))
-            {
-                medication.UpdateScientificName(request.ScientificName);
-            }
-
-            if(request.QuantityWarehouse != null)
-            {
-                medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
-            }
-
-            if(request.QuantityNurse != null)
-            {
-                medication.UpdateQuantityNurse(request.QuantityNurse);
-            }
-
-        if(!string.IsNullOrEmpty(request.ScientificName))
             await _repository.UpdateAsync(medication);
             return Result<bool>.Success(true);
         }
