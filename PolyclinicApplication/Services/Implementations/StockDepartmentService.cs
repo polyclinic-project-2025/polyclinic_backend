@@ -103,8 +103,6 @@ public class StockDepartmentService : IStockDepartmentService
     public async Task<Result<IEnumerable<StockDepartmentDto>>> GetStockByDepartmentIdAsync(Guid departmentId)
     {
         var stockDepartments = await _repository.GetStockByDepartmentAsync(departmentId);
-        if (stockDepartments == null || !stockDepartments.Any())
-            return Result<IEnumerable<StockDepartmentDto>>.Failure("No se encontró stock para el departamento especificado.");
         
         var response = _mapper.Map<IEnumerable<StockDepartmentDto>>(stockDepartments);
         

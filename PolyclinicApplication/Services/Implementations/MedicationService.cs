@@ -128,7 +128,7 @@ public class MedicationService : IMedicationService
 
         if(request.QuantityWarehouse != null)
         {
-            medication.UpdateQuantityNurse(request.QuantityNurse);
+            medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
         }
 
         if(request.QuantityNurse != null)
