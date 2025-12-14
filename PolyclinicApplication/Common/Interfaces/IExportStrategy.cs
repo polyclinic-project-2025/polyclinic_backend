@@ -3,6 +3,6 @@ namespace PolyclinicApplication.Common.Interfaces
 {
     public interface IExportStrategy
     {
-        void Export(string data, string filePath);
+        void Export(string data, string filePath, string name, List<string> columns);
     }
 }

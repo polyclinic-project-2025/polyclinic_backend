@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request.Consultations;
+using PolyclinicApplication.DTOs.Request.Export;
 using PolyclinicApplication.DTOs.Response.Consultations;
 using PolyclinicApplication.Services.Interfaces;
 using System.Text.Json;
@@ -87,7 +88,7 @@ public class ConsultationReferralController : ControllerBase
     {
         var result = await _consultationReferralService.DeleteAsync(id);
         if (!result.IsSuccess)
-            return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+            return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage ?? "Consulta no encontrada"));
         
         return Ok(ApiResult<bool>.Ok(true, "Consulta eliminada exitosamente"));
     }
@@ -97,13 +98,25 @@ public class ConsultationReferralController : ControllerBase
     // Exportar todas las consultas de referencia a PDF
     // ============================
     [HttpGet("export")]
-    public async Task<ActionResult> ExportConsultationReferrals()
+    public async Task<ActionResult> ExportConsultationReferrals(
+        [FromQuery] string format = "pdf", 
+        [FromQuery] List<string>? columns = null,
+        [FromQuery] string name = "Consultas por Remisión")
     {
         var consultationsResult = await _consultationReferralService.GetAllAsync();
         if (!consultationsResult.IsSuccess)
             return BadRequest(ApiResult<ExportResponse>.Error(consultationsResult.ErrorMessage!));
 
-        var exportResult = await _exportService.ExportDataAsync(consultationsResult.Value!, "pdf");
+        // Crear el DTO de exportación
+        var exportDto = new ExportDto
+        {
+            Format = format,
+            Fields = columns ?? new List<string>(),
+            Data = consultationsResult.Value!,
+            Name = name
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
         if (!exportResult.IsSuccess)
             return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
 

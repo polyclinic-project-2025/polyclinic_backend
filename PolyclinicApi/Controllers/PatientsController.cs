@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request.Patients;
+using PolyclinicApplication.DTOs.Request.Export;
 using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.DTOs.Response.Patients;
 using PolyclinicApplication.Services.Interfaces;
@@ -161,13 +162,13 @@ namespace PolyclinicApi.Controllers
         }
 
         // ============================
-        // GET: api/patients/export
-        // Exportar todos los pacientes a PDF
+        // POST: api/patients/export
+        // Exportar pacientes a PDF con columnas seleccionadas
         // ============================
-        [HttpGet("export")]
+        [HttpPost("export")]
         [ProducesResponseType(typeof(ApiResult<ExportResponse>), 200)]
         [ProducesResponseType(typeof(ApiResult<object>), 400)]
-        public async Task<ActionResult<ApiResult<ExportResponse>>> ExportPatients()
+        public async Task<ActionResult<ApiResult<ExportResponse>>> ExportPatients([FromBody] ExportDto exportDto)
         {
             // Obtener todos los pacientes
             var patientsResult = await _patientService.GetAllAsync();
@@ -176,8 +177,12 @@ namespace PolyclinicApi.Controllers
                 return BadRequest(ApiResult<ExportResponse>.Error(patientsResult.ErrorMessage!));
             }
 
+            // Configurar el DTO de exportación
+            exportDto.Data = patientsResult.Value;
+            exportDto.Name = exportDto.Name ?? "Pacientes";
+
             // Exportar usando el servicio
-            var exportResult = await _exportService.ExportDataAsync(patientsResult.Value, "pdf");
+            var exportResult = await _exportService.ExportDataAsync(exportDto);
             
             if (!exportResult.IsSuccess)
             {
