@@ -170,6 +170,26 @@ public class MedicationReferralService : IMedicationReferralService
         if (medicationReferral == null)
             return Result<bool>.Failure("La remisión de medicamento no fue encontrada.");
 
+        // 2. Devolver el stock al departamento
+        var consultationReferral= await _consultationReferralRepository
+            .GetWithDepartmentAsync(medicationReferral.ConsultationReferralId);
+
+        if (consultationReferral?.DepartmentHead?.Department != null)
+        {
+            var departmentId = consultationReferral.DepartmentHead.Department.DepartmentId;
+            
+            var stock = await _stockDepartmentRepository
+                .GetByDepartmentAndMedicationAsync(departmentId, medicationReferral.MedicationId);
+
+            if (stock != null)
+            {
+                // Devolver la cantidad al stock
+                stock.UpdateQuantity(stock.Quantity + medicationReferral.Quantity);
+                await _stockDepartmentRepository.UpdateAsync(stock);
+            }
+        }
+
+        // 3. Eliminar la MedicationReferral
         await _medicationReferralRepository.DeleteAsync(medicationReferral);
         return Result<bool>.Success(true);
     }
