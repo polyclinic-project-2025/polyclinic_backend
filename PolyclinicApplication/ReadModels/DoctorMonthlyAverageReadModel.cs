@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace PolyclinicApplication.ReadModels;
 
-public record DeniedWarehouseRequestReadModel(
+public record DoctorMonthlyAverageReadModel(
+    string DoctorName,
     string DepartmentName,
-    string DepartmentHeadName
+    double ConsultationAverage,
+    double EmergencyRoomAverage
 );
