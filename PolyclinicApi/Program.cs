@@ -44,6 +44,16 @@ builder.Services.AddControllers(options =>
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 
+// ==========================================
+// SEGURIDAD - HSTS
+// ==========================================
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+});
+
 // Homogeneizar manejo de errores de validación (evitar ProblemDetails por defecto)
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
 {
@@ -127,7 +137,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = true; // ✓ HTTPS obligatorio para seguridad
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -360,11 +370,19 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Polyclinic API V1");
     });
 }
+else
+{
+    // En producción, forzar HSTS (HTTP Strict Transport Security)
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 
 app.UseCors(policy => policy
-    .WithOrigins("http://localhost:3000")
+    .WithOrigins(
+        "http://localhost:3000",  // HTTP en desarrollo
+        "https://localhost:3000"   // HTTPS en desarrollo
+    )
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
