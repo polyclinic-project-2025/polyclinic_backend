@@ -19,6 +19,7 @@ namespace PolyclinicDomain.IRepositories
         // Obtener medicamentos cuyo stock está por encima del máximo
         Task<IEnumerable<StockDepartment>> GetAboveMaxQuantityAsync(Guid departmentId);
 
+        // Obtener stock específico por departamento y medicación
         Task<StockDepartment?> GetByDepartmentAndMedicationAsync(Guid departmentId, Guid medicationId);
     }
 }

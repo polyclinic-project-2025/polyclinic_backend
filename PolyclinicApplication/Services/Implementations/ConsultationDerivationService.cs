@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
 using PolyclinicDomain.Entities;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request;
@@ -21,25 +20,19 @@ public class ConsultationDerivationService : IConsultationDerivationService
     private readonly IDepartmentHeadRepository _departmentHeadRepository;
 
     private readonly IMapper _mapper;
-    private readonly IValidator<CreateConsultationDerivationDto> _createValidator;
-    private readonly IValidator<UpdateConsultationDerivationDto> _updateValidator;
 
     public ConsultationDerivationService(
         IConsultationDerivationRepository repository,
         IDerivationRepository derivationRepository,
         IDoctorRepository doctorRepository,
         IDepartmentHeadRepository departmentHeadRepository,
-        IMapper mapper,
-        IValidator<CreateConsultationDerivationDto> createValidator,
-        IValidator<UpdateConsultationDerivationDto> updateValidator)
+        IMapper mapper)
     {
         _repository = repository;
         _derivationRepository = derivationRepository;
         _doctorRepository = doctorRepository;
         _departmentHeadRepository = departmentHeadRepository;
         _mapper = mapper;
-        _createValidator = createValidator;
-        _updateValidator = updateValidator;
     }
 
     // **************************************
@@ -48,36 +41,49 @@ public class ConsultationDerivationService : IConsultationDerivationService
     public async Task<Result<ConsultationDerivationDto>> CreateAsync(
         CreateConsultationDerivationDto dto)
     {
-        var validation = await _createValidator.ValidateAsync(dto);
-        if (!validation.IsValid)
-            return Result<ConsultationDerivationDto>.Failure(validation.Errors.First().ErrorMessage);
+        try
+        {
+            // Validate foreign keys
+            var derivation = await _derivationRepository.GetByIdAsync(dto.DerivationId);
+            if (derivation is null)
+                return Result<ConsultationDerivationDto>.Failure("Derivation not found.");
 
-        // Validate foreign keys
-        var derivation = await _derivationRepository.GetByIdAsync(dto.DerivationId);
-        if (derivation is null)
-            return Result<ConsultationDerivationDto>.Failure("Derivation not found.");
+            var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
+            if (doctor is null)
+                return Result<ConsultationDerivationDto>.Failure("Doctor not found.");
 
-        var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
-        if (doctor is null)
-            return Result<ConsultationDerivationDto>.Failure("Doctor not found.");
+            var deptHead = await _departmentHeadRepository.GetByIdAsync(dto.DepartmentHeadId);
+            if (deptHead is null)
+                return Result<ConsultationDerivationDto>.Failure("DepartmentHead not found.");
 
-        var deptHead = await _departmentHeadRepository.GetByIdAsync(dto.DepartmentHeadId);
-        if (deptHead is null)
-            return Result<ConsultationDerivationDto>.Failure("DepartmentHead not found.");
+            // Validar que el DepartmentHead pertenezca al departamento destino de la derivación
+            if (deptHead.DepartmentId != derivation.DepartmentToId)
+                return Result<ConsultationDerivationDto>.Failure(
+                    "El jefe de departamento debe pertenecer al mismo departamento destino de la derivación.");
 
-        var entity = new ConsultationDerivation(
-            Guid.NewGuid(),
-            dto.Diagnosis,
-            dto.DerivationId,
-            dto.DateTimeCDer,
-            dto.DoctorId,
-            dto.DepartmentHeadId
-        );
+            // Validar que el Doctor pertenezca al departamento destino de la derivación
+            if (doctor.DepartmentId != derivation.DepartmentToId)
+                return Result<ConsultationDerivationDto>.Failure(
+                    "El doctor tratante debe pertenecer al mismo departamento destino de la derivación.");
 
-        await _repository.AddAsync(entity);
+            var entity = new ConsultationDerivation(
+                Guid.NewGuid(),
+                dto.Diagnosis,
+                dto.DerivationId,
+                dto.DateTimeCDer,
+                dto.DoctorId,
+                dto.DepartmentHeadId
+            );
 
-        var resultDto = _mapper.Map<ConsultationDerivationDto>(entity);
-        return Result<ConsultationDerivationDto>.Success(resultDto);
+            await _repository.AddAsync(entity);
+
+            var resultDto = _mapper.Map<ConsultationDerivationDto>(entity);
+            return Result<ConsultationDerivationDto>.Success(resultDto);
+        }
+        catch (Exception ex)
+        {
+            return Result<ConsultationDerivationDto>.Failure($"Error al guardar la consulta: {ex.Message}");
+        }
     }
 
     // **************************************
@@ -85,38 +91,55 @@ public class ConsultationDerivationService : IConsultationDerivationService
     // **************************************
     public async Task<Result<bool>> UpdateAsync(Guid id, UpdateConsultationDerivationDto dto)
     {
-        var validation = await _updateValidator.ValidateAsync(dto);
-        if (!validation.IsValid)
-            return Result<bool>.Failure(validation.Errors.First().ErrorMessage);
+        try
+        {
+            var consultation = await _repository.GetByIdAsync(id);
+            if (consultation is null)
+                return Result<bool>.Failure("Record not found.");
 
-        var entity = await _repository.GetByIdAsync(id);
-        if (entity is null)
-            return Result<bool>.Failure("Record not found.");
+            // Obtener la derivación para validaciones
+            var derivation = await _derivationRepository.GetByIdAsync(consultation.DerivationId);
+            if (derivation is null)
+                return Result<bool>.Failure("Derivation not found.");
 
-        // Validación de claves foráneas
-        var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
-        if (doctor is null)
-            return Result<bool>.Failure("Doctor not found.");
+            // Validación de claves foráneas
+            var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
+            if (doctor is null)
+                return Result<bool>.Failure("Doctor not found.");
 
-        var deptHead = await _departmentHeadRepository.GetByIdAsync(dto.DepartmentHeadId);
-        if (deptHead is null)
-            return Result<bool>.Failure("DepartmentHead not found.");
+            var deptHead = await _departmentHeadRepository.GetByIdAsync(dto.DepartmentHeadId);
+            if (deptHead is null)
+                return Result<bool>.Failure("DepartmentHead not found.");
 
-        if (!string.IsNullOrWhiteSpace(dto.Diagnosis))
-            entity.UpdateDiagnosis(dto.Diagnosis);
+            // Validar que el DepartmentHead pertenezca al departamento destino de la derivación
+            if (deptHead.DepartmentId != derivation.DepartmentToId)
+                return Result<bool>.Failure(
+                    "El jefe de departamento debe pertenecer al mismo departamento destino de la derivación.");
 
-        if (dto.DateTimeCDer != default)
-            entity.UpdateDateTimeCDer(dto.DateTimeCDer);
+            // Validar que el Doctor pertenezca al departamento destino de la derivación
+            if (doctor.DepartmentId != derivation.DepartmentToId)
+                return Result<bool>.Failure(
+                    "El doctor tratante debe pertenecer al mismo departamento destino de la derivación.");
 
-        if (dto.DoctorId != Guid.Empty)
-            entity.UpdateDoctorId(dto.DoctorId);
+            if (!string.IsNullOrWhiteSpace(dto.Diagnosis))
+                consultation.UpdateDiagnosis(dto.Diagnosis);
 
-        if (dto.DepartmentHeadId != Guid.Empty)
-            entity.UpdateDepartmentHeadId(dto.DepartmentHeadId);
+            if (dto.DateTimeCDer != default)
+                consultation.UpdateDateTimeCDer(dto.DateTimeCDer);
 
-        await _repository.UpdateAsync(entity);
+            if (dto.DoctorId != Guid.Empty)
+                consultation.UpdateDoctorId(dto.DoctorId);
 
-        return Result<bool>.Success(true);
+            if (dto.DepartmentHeadId != Guid.Empty)
+                consultation.UpdateDepartmentHeadId(dto.DepartmentHeadId);
+
+            await _repository.UpdateAsync(consultation);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar la consulta: {ex.Message}");
+        }
     }
 
     // **************************************
@@ -124,12 +147,19 @@ public class ConsultationDerivationService : IConsultationDerivationService
     // **************************************
     public async Task<Result<bool>> DeleteAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id);
-        if (entity is null)
-            return Result<bool>.Failure("Record not found.");
+        try
+        {
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity is null)
+                return Result<bool>.Failure("Record not found.");
 
-        await _repository.DeleteAsync(entity);
-        return Result<bool>.Success(true);
+            await _repository.DeleteAsync(entity);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar la consulta: {ex.Message}");
+        }
     }
 
     // **************************************
@@ -137,12 +167,19 @@ public class ConsultationDerivationService : IConsultationDerivationService
     // **************************************
     public async Task<Result<ConsultationDerivationDto>> GetByIdAsync(Guid id)
     {
-        var entity = await _repository.GetByIdAsync(id);
-        if (entity is null)
-            return Result<ConsultationDerivationDto>.Failure("Record not found.");
+        try
+        {
+            var entity = await _repository.GetByIdAsync(id);
+            if (entity is null)
+                return Result<ConsultationDerivationDto>.Failure("Record not found.");
 
-        var resultDto = _mapper.Map<ConsultationDerivationDto>(entity);
-        return Result<ConsultationDerivationDto>.Success(resultDto);
+            var resultDto = _mapper.Map<ConsultationDerivationDto>(entity);
+            return Result<ConsultationDerivationDto>.Success(resultDto);
+        }
+        catch (Exception ex)
+        {
+            return Result<ConsultationDerivationDto>.Failure($"Error al obtener consulta: {ex.Message}");
+        }
     }
 
     // **************************************
@@ -150,9 +187,16 @@ public class ConsultationDerivationService : IConsultationDerivationService
     // **************************************
     public async Task<Result<IEnumerable<ConsultationDerivationDto>>> GetAllAsync()
     {
-        var entities = await _repository.GetAllAsync();
-        var list = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(entities);
-        return Result<IEnumerable<ConsultationDerivationDto>>.Success(list);
+        try
+        {
+            var entities = await _repository.GetAllAsync();
+            var list = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(entities);
+            return Result<IEnumerable<ConsultationDerivationDto>>.Success(list);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+        }
     }
 
     // **************************************
@@ -161,9 +205,16 @@ public class ConsultationDerivationService : IConsultationDerivationService
     public async Task<Result<IEnumerable<ConsultationDerivationDto>>> GetByDateRangeAsync(
         Guid patientId, DateTime startDate, DateTime endDate)
     {
-        var records = await _repository.GetByDateRangeAsync(patientId, startDate, endDate);
-        var result = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(records);
-        return Result<IEnumerable<ConsultationDerivationDto>>.Success(result);
+        try
+        {
+            var records = await _repository.GetByDateRangeAsync(patientId, startDate, endDate);
+            var result = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(records);
+            return Result<IEnumerable<ConsultationDerivationDto>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+        }
     }
 
     // **************************************
@@ -171,8 +222,15 @@ public class ConsultationDerivationService : IConsultationDerivationService
     // **************************************
     public async Task<Result<IEnumerable<ConsultationDerivationDto>>> GetLast10ByPatientIdAsync(Guid patientId)
     {
-        var records = await _repository.GetLast10ByPatientIdAsync(patientId);
-        var result = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(records);
-        return Result<IEnumerable<ConsultationDerivationDto>>.Success(result);
+        try
+        {
+            var records = await _repository.GetLast10ByPatientIdAsync(patientId);
+            var result = _mapper.Map<IEnumerable<ConsultationDerivationDto>>(records);
+            return Result<IEnumerable<ConsultationDerivationDto>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+        }
     }
 }

@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.DTOs.Departments;
+using PolyclinicApplication.DTOs.Response;
 using PolyclinicDomain.Entities;
+using PolyclinicApplication.Common.Results;
 
 namespace PolyclinicApplication.Services.Implementations
 {
@@ -14,97 +16,132 @@ namespace PolyclinicApplication.Services.Implementations
     {
         private readonly IDepartmentRepository _repository;
         private readonly IMapper _mapper;
-        private readonly IValidator<CreateDepartmentDto> _createValidator;
-        private readonly IValidator<UpdateDepartmentDto> _updateValidator;
 
         public DepartmentService(
             IDepartmentRepository repository,
-            IMapper mapper,
-            IValidator<CreateDepartmentDto> createValidator,
-            IValidator<UpdateDepartmentDto> updateValidator)
+            IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
-            _createValidator = createValidator;
-            _updateValidator = updateValidator;
         }
 
-        // -------------------------------
-        // CREATE
-        // -------------------------------
-        public async Task<DepartmentDto> CreateAsync(CreateDepartmentDto dto)
+
+        public async Task<Result<DepartmentDto>> CreateAsync(CreateDepartmentDto dto)
         {
-            // Validación con FluentValidation
-            await _createValidator.ValidateAndThrowAsync(dto);
-
-            // Regla de negocio: evitar duplicados por nombre
-            var exists = await _repository.ExistsByNameAsync(dto.Name);
-            if (exists)
-                throw new InvalidOperationException($"A department with the name '{dto.Name}' already exists.");
-
-            // Crear entidad de dominio
-            var department = new Department(Guid.NewGuid(), dto.Name);
-
-            // Persistir
-            await _repository.AddAsync(department);
-
-            // Retornar mapeo a DTO
-            return _mapper.Map<DepartmentDto>(department);
-        }
-
-        // -------------------------------
-        // READ
-        // -------------------------------
-        public async Task<IEnumerable<DepartmentDto>> GetAllAsync()
-        {
-            var entities = await _repository.GetAllAsync();
-            return _mapper.Map<IEnumerable<DepartmentDto>>(entities);
-        }
-
-        public async Task<DepartmentDto?> GetByIdAsync(Guid id)
-        {
-            var department = await _repository.GetWithHeadAsync(id);
-            return _mapper.Map<DepartmentDto?>(department);
-        }
-
-        // -------------------------------
-        // UPDATE
-        // -------------------------------
-        public async Task UpdateAsync(Guid id, UpdateDepartmentDto dto)
-        {
-            await _updateValidator.ValidateAndThrowAsync(dto);
-
-            var department = await _repository.GetByIdAsync(id);
-            if (department == null)
-                throw new KeyNotFoundException("Department not found.");
-
-            // Evitar duplicado si cambia el nombre
-            if (!string.IsNullOrWhiteSpace(dto.Name) && dto.Name != department.Name)
+            try
             {
+                // Verificar si ya existe un departamento con ese nombre
                 var exists = await _repository.ExistsByNameAsync(dto.Name);
                 if (exists)
-                    throw new InvalidOperationException($"A department with the name '{dto.Name}' already exists.");
+                    return Result<DepartmentDto>.Failure($"Ya existe un departamento con el nombre '{dto.Name}'.");
 
-                department.ChangeName(dto.Name);
+                // Crear entidad
+                var department = new Department(Guid.NewGuid(), dto.Name);
+
+                // Guardar en BD
+                await _repository.AddAsync(department);
+
+                var departmentDto = _mapper.Map<DepartmentDto>(department);
+                return Result<DepartmentDto>.Success(departmentDto);
             }
-
-            await _repository.UpdateAsync(department);
+            catch (Exception ex)
+            {
+                return Result<DepartmentDto>.Failure($"Error al guardar el departamento: {ex.Message}");
+            }
         }
 
-        // -------------------------------
-        // DELETE
-        // -------------------------------
-        public async Task DeleteAsync(Guid id)
+        public async Task<Result<IEnumerable<DepartmentDto>>> GetAllAsync()
         {
-            var exists = await _repository.GetByIdAsync(id);
-            if (exists == null)
-                throw new KeyNotFoundException("Department not found.");
+            try
+            {
+                var entities = await _repository.GetAllAsync();
+                var entitiesDtos = _mapper.Map<IEnumerable<DepartmentDto>>(entities);
+                return Result<IEnumerable<DepartmentDto>>.Success(entitiesDtos);
+            }
+            catch (Exception ex)
+            {
+                return Result<IEnumerable<DepartmentDto>>.Failure($"Error al obtener departamentos: {ex.Message}");
+            }
+        }
 
-            await _repository.DeleteByIdAsync(id);
+        public async Task<Result<DepartmentDto?>> GetByIdAsync(Guid id)
+        {
+            try
+            {
+                var department = await _repository.GetWithHeadAsync(id);
+                if (department == null)
+                    return Result<DepartmentDto?>.Failure("Departamento no encontrado.");
+
+                var departmentDto = _mapper.Map<DepartmentDto>(department);
+                return Result<DepartmentDto?>.Success(departmentDto);
+            }
+            catch (Exception ex)
+            {
+                return Result<DepartmentDto?>.Failure($"Error al obtener departamento: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<bool>> UpdateAsync(Guid id, UpdateDepartmentDto dto)
+        {
+            try
+            {
+                // Obtener departamento
+                var department = await _repository.GetByIdAsync(id);
+                if (department == null)
+                    return Result<bool>.Failure("Departamento no encontrado.");
+
+                // Actualizar nombre si cambió
+                if (!string.IsNullOrWhiteSpace(dto.Name) && dto.Name != department.Name)
+                {
+                    var exists = await _repository.ExistsByNameAsync(dto.Name);
+                    if (exists)
+                        return Result<bool>.Failure($"Ya existe un departamento con el nombre '{dto.Name}'.");
+
+                    department.ChangeName(dto.Name);
+                }
+
+                // Guardar cambios
+                await _repository.UpdateAsync(department);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Error al actualizar el departamento: {ex.Message}");
+            }
+        }
+
+        public async Task<Result<bool>> DeleteAsync(Guid id)
+        {
+            try
+            {
+                // Verificar que existe
+                var department = await _repository.GetByIdAsync(id);
+                if (department == null)
+                    return Result<bool>.Failure("Departamento no encontrado.");
+
+                // Eliminar
+                await _repository.DeleteByIdAsync(id);
+                return Result<bool>.Success(true);
+            }
+            catch (Exception ex)
+            {
+                return Result<bool>.Failure($"Error al eliminar el departamento: {ex.Message}");
+            }
         }
 
 
-        public async Task<List<Doctor>> GetDoctorsByDepartmentIdAsync(Guid departmentId)
-            => await _repository.GetDoctorsByDepartmentIdAsync(departmentId);
+        public async Task<Result<List<DoctorResponse>>> GetDoctorsByDepartmentIdAsync(Guid departmentId)
+        {
+            try
+            {
+                var doctors = await _repository.GetDoctorsByDepartmentIdAsync(departmentId);
+                var doctorsDto = _mapper.Map<List<DoctorResponse>>(doctors);
+                return Result<List<DoctorResponse>>.Success(doctorsDto);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<DoctorResponse>>.Failure($"Error al obtener doctores del departamento: {ex.Message}");
+            }
+        }
     }
 }

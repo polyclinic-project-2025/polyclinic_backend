@@ -14,13 +14,13 @@ namespace PolyclinicApplication.Validators.StockDepartment
                 .GreaterThanOrEqualTo(0).WithMessage("El minimo debe ser mayor o igual a 0.");
 
             RuleFor(x => x.MaxQuantity)
-                .GreaterThanOrEqualTo(x => x.MinQuantity).WithMessage("El max");
+                .GreaterThanOrEqualTo(x => x.MinQuantity).WithMessage("El máximo debe ser mayor o igual al mínimo.");
 
             RuleFor(x => x.DepartmentId)
-                .NotEmpty().WithMessage("DepartmentId is required.");
+                .NotEmpty().WithMessage("El ID del departamento es requerido.");
 
             RuleFor(x => x.MedicationId)
-                .NotEmpty().WithMessage("MedicationId is required.");
+                .NotEmpty().WithMessage("El ID del medicamento es requerido.");
         }
     }
 }

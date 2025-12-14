@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Services.Interfaces;
@@ -21,53 +22,71 @@ public class DepartmentHeadController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<DepartmentHeadResponse>>> GetAll()
+    [ProducesResponseType(typeof(ApiResult<IEnumerable<DepartmentHeadResponse>>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<IEnumerable<DepartmentHeadResponse>>>> GetAll()
     {
         var result = await _departmentHeadService.GetAllDepartmentHeadAsync();
-        return Ok(result.Value);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<DepartmentHeadResponse>>.Error(result.ErrorMessage!));
+
+        return Ok(ApiResult<IEnumerable<DepartmentHeadResponse>>.Ok(result.Value!, "Jefes de departamento obtenidos exitosamente"));
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<DepartmentHeadResponse>> GetById(Guid id)
+    [ProducesResponseType(typeof(ApiResult<DepartmentHeadResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 404)]
+    public async Task<ActionResult<ApiResult<DepartmentHeadResponse>>> GetById(Guid id)
     {
         var result = await _departmentHeadService.GetDepartmentHeadByIdAsync(id);
         if(!result.IsSuccess)
         {
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<DepartmentHeadResponse>.NotFound(result.ErrorMessage!));
         }
-        return Ok(result.Value);
+        return Ok(ApiResult<DepartmentHeadResponse>.Ok(result.Value!, "Jefe de departamento obtenido exitosamente"));
     }
 
     [HttpGet("by-department-id/{departmentId:guid}")]
-    public async Task<ActionResult<DepartmentHeadResponse>> GetByDepartmentId(Guid departmentId)
+    [ProducesResponseType(typeof(ApiResult<DepartmentHeadResponse>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 404)]
+    public async Task<ActionResult<ApiResult<DepartmentHeadResponse>>> GetByDepartmentId(Guid departmentId)
     {
         var result = await _departmentHeadService.GetDepartmentHeadByDepartmentIdAsync(departmentId);
         if(!result.IsSuccess)
         {
-            return NotFound(result.ErrorMessage);
+            return NotFound(ApiResult<DepartmentHeadResponse>.NotFound(result.ErrorMessage!));
         }
-        return Ok(result.Value);
+        return Ok(ApiResult<DepartmentHeadResponse>.Ok(result.Value!, "Jefe de departamento encontrado"));
     }
 
     [HttpPost]
-    public async Task<ActionResult<DepartmentHeadResponse>> AssignDepartmentHead([FromBody] AssignDepartmentHeadRequest request)
+    [ProducesResponseType(typeof(ApiResult<DepartmentHeadResponse>), 201)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    public async Task<ActionResult<ApiResult<DepartmentHeadResponse>>> AssignDepartmentHead([FromBody] AssignDepartmentHeadRequest request)
     {
         var result = await _departmentHeadService.AssignDepartmentHeadAsync(request);
         if(!result.IsSuccess)
         {
-            return BadRequest(result.ErrorMessage);
+            return BadRequest(ApiResult<DepartmentHeadResponse>.BadRequest(result.ErrorMessage!));
         }
-        return CreatedAtAction(nameof(GetById), new { id = result.Value.DepartmentHeadId }, result.Value);
+        var apiResult = ApiResult<DepartmentHeadResponse>.Ok(result.Value!, "Jefe de departamento asignado exitosamente");
+        return CreatedAtAction(nameof(GetById), new { id = result.Value!.DepartmentHeadId }, apiResult);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> RemoveDepartmentHead(Guid id)
+    [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+    [ProducesResponseType(typeof(ApiResult<object>), 400)]
+    [ProducesResponseType(typeof(ApiResult<object>), 404)]
+    public async Task<ActionResult<ApiResult<bool>>> RemoveDepartmentHead(Guid id)
     {
         var result = await _departmentHeadService.RemoveDepartmentHeadAsync(id);
         if(!result.IsSuccess)
         {
-            return NotFound(result.ErrorMessage);
+            if (result.ErrorMessage!.Contains("no encontrado"))
+                return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+            
+            return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
         }
-        return NoContent();
+        return Ok(ApiResult<bool>.Ok(true, "Jefe de departamento removido exitosamente"));
     }
 }

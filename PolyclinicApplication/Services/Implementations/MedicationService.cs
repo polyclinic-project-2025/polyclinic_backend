@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using FluentValidation;
 using PolyclinicDomain.Entities;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request;
@@ -17,19 +16,13 @@ public class MedicationService : IMedicationService
 {
     private readonly IMedicationRepository _repository;
     private readonly IMapper _mapper;
-    private readonly IValidator<CreateMedicationDto> _createValidator;
-    private readonly IValidator<UpdateMedicationDto> _updateValidator;
 
     public MedicationService(
         IMedicationRepository repository,
-        IMapper mapper,
-        IValidator<CreateMedicationDto> createValidator,
-        IValidator<UpdateMedicationDto> updateValidator)
+        IMapper mapper)
     {
         _repository = repository;
         _mapper = mapper;
-        _createValidator = createValidator;
-        _updateValidator = updateValidator;
     }
 
     // ============================================================
@@ -38,117 +31,141 @@ public class MedicationService : IMedicationService
 
     public async Task<Result<MedicationDto>> CreateAsync(CreateMedicationDto request)
     {
-        var validation = await _createValidator.ValidateAsync(request);
-        if (!validation.IsValid)
-            return Result<MedicationDto>.Failure(validation.Errors.First().ErrorMessage);
+        try
+        {
+            // BatchNumber debe ser único
+            if (await _repository.ExistsBatchAsync(request.BatchNumber) && await _repository.ExistsMedicationAsync(request.CommercialName) && await _repository.ExistsMedicationAsync(request.ScientificName))
+                return Result<MedicationDto>.Failure("Ya existe un medicamento con este número de lote.");
 
-        // BatchNumber debe ser único
-        if (await _repository.ExistsBatchAsync(request.BatchNumber) && await _repository.ExistsMedicationAsync(request.CommercialName) && await _repository.ExistsMedicationAsync(request.ScientificName))
-            return Result<MedicationDto>.Failure("Ya existe un medicamento con este número de lote.");
+            var expirationDate = DateOnly.ParseExact(request.ExpirationDate,"yyyy-MM-dd");    
 
-        var expirationDate = DateOnly.ParseExact(request.ExpirationDate,"yyyy-MM-dd");    
+            var medication = new Medication(
+                Guid.NewGuid(),                    
+                request.Format,                    
+                request.CommercialName,            
+                request.CommercialCompany,         
+                request.BatchNumber,               
+                request.ScientificName,            
+                expirationDate,                    
+                request.QuantityWarehouse,         
+                request.QuantityNurse,             
+                request.MinQuantityWarehouse,      
+                request.MinQuantityNurse,          
+                request.MaxQuantityWarehouse,      
+                request.MaxQuantityNurse           
+            );
 
-        var medication = new Medication(
-            Guid.NewGuid(),                    
-            request.Format,                    
-            request.CommercialName,            
-            request.CommercialCompany,         
-            request.BatchNumber,               
-            request.ScientificName,            
-            expirationDate,                    
-            request.QuantityWarehouse,         
-            request.QuantityNurse,             
-            request.MinQuantityWarehouse,      
-            request.MinQuantityNurse,          
-            request.MaxQuantityWarehouse,      
-            request.MaxQuantityNurse           
-        );
-        medication = await _repository.AddAsync(medication);
+            medication = await _repository.AddAsync(medication);
 
-        var response = _mapper.Map<MedicationDto>(medication);
-        return Result<MedicationDto>.Success(response);
+            var response = _mapper.Map<MedicationDto>(medication);
+            return Result<MedicationDto>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<MedicationDto>.Failure($"Error al guardar el medicamento: {ex.Message}");
+        }
     }
 
     public async Task<Result<MedicationDto>> GetByIdAsync(Guid id)
     {
-        var medication = await _repository.GetByIdAsync(id);
-        if (medication == null)
-            return Result<MedicationDto>.Failure("Medicamento no encontrado.");
+        try
+        {
+            var medication = await _repository.GetByIdAsync(id);
+            if (medication == null)
+                return Result<MedicationDto>.Failure("Medicamento no encontrado.");
 
-        var response = _mapper.Map<MedicationDto>(medication);
-        
-        return Result<MedicationDto>.Success(response);
+            var response = _mapper.Map<MedicationDto>(medication);
+            
+            return Result<MedicationDto>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<MedicationDto>.Failure($"Error al obtener el medicamento: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<MedicationDto>>> GetAllAsync()
     {
-        var medications = await _repository.GetAllAsync();
-        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
-        return Result<IEnumerable<MedicationDto>>.Success(response);
+        try
+        {
+            var medications = await _repository.GetAllAsync();
+            var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+            return Result<IEnumerable<MedicationDto>>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos: {ex.Message}");
+        }
     }
 
     public async Task<Result<bool>> UpdateAsync(Guid id, UpdateMedicationDto request)
     {
-        var validation = await _updateValidator.ValidateAsync(request);
-        if (!validation.IsValid)
-            return Result<bool>.Failure(validation.Errors.First().ErrorMessage);
-
-        var medication = await _repository.GetByIdAsync(id);
-        if (medication == null)
-            return Result<bool>.Failure("Medicamento no encontrado.");
-
-        // Actualizar sólo campos provistos en el request
-        if (!string.IsNullOrEmpty(request.Format))
+        try
         {
-            medication.UpdateFormat(request.Format);
+            var medication = await _repository.GetByIdAsync(id);
+            if (medication == null)
+                return Result<bool>.Failure("Medicamento no encontrado.");
+
+            if(request.Format != null)
+            {
+                medication.UpdateFormat(request.Format);
+            }
+
+            if(request.CommercialName != null)
+            {
+                medication.UpdateCommercialName(request.CommercialName);
+            }
+
+            if(request.CommercialCompany != null)
+            {
+                medication.UpdateCommercialCompany(request.CommercialCompany);
+            }
+            
+            // Convertir string a DateOnly
+            if (DateOnly.TryParse(request.ExpirationDate, out var expirationDate))
+            {
+                medication.UpdateExpirationDate(expirationDate);
+            }
+            
+            if(request.ScientificName != null)
+            {
+                medication.UpdateScientificName(request.ScientificName);
+            }
+            if(request.QuantityWarehouse != null)
+            {
+                medication.UpdateQuantityWarehouse(request.QuantityWarehouse);
+            }
+            if(request.ScientificName != null)
+            {
+                medication.UpdateScientificName(request.ScientificName);
+            }
+
+            await _repository.UpdateAsync(medication);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al actualizar el medicamento: {ex.Message}");
         }
 
-        if(!string.IsNullOrEmpty(request.CommercialName))
-        {
-            medication.UpdateCommercialName(request.CommercialName);
-        }
-    
-        // Si tienes otros campos editables (por ejemplo CommercialCompany), actualízalos aquí:
-        if (!string.IsNullOrEmpty(request.CommercialCompany))
-        {
-            // Asume que existe un método de dominio UpdateCommercialCompany
-            medication.UpdateCommercialCompany(request.CommercialCompany);
-        }
-
-        if(!string.IsNullOrWhiteSpace(request.ExpirationDate))
-        {
-            var expiration = DateOnly.ParseExact(request.ExpirationDate, "yyyy-MM-dd");
-            medication.UpdateExpirationDate(expiration);
-        }
-
-        if(!string.IsNullOrEmpty(request.ScientificName))
-        {
-            medication.UpdateScientificName(request.ScientificName);
-        }
-
-        if(request.QuantityWarehouse != null)
-        {
-            medication.UpdateQuantityNurse(request.QuantityNurse);
-        }
-
-        if(request.QuantityNurse != null)
-        {
-            medication.UpdateQuantityNurse(request.QuantityNurse);
-        }
-
-        await _repository.UpdateAsync(medication);
-        return Result<bool>.Success(true);
     }
 
 
     public async Task<Result<bool>> DeleteAsync(Guid id)
     {
-        var medication = await _repository.GetByIdAsync(id);
-        if (medication == null)
-            return Result<bool>.Failure("Medicamento no encontrado.");
+        try
+        {
+            var medication = await _repository.GetByIdAsync(id);
+            if (medication == null)
+                return Result<bool>.Failure("Medicamento no encontrado.");
 
-        await _repository.DeleteAsync(medication);
-        return Result<bool>.Success(true);
+            await _repository.DeleteAsync(medication);
+            return Result<bool>.Success(true);
+        }
+        catch (Exception ex)
+        {
+            return Result<bool>.Failure($"Error al eliminar el medicamento: {ex.Message}");
+        }
     }
 
     // ============================================================
@@ -157,27 +174,48 @@ public class MedicationService : IMedicationService
 
     public async Task<Result<MedicationDto>> GetByBatchNumberAsync(string batchNumber)
     {
-        var medication = await _repository.GetByBatchNumberAsync(batchNumber);
-        if (medication == null)
-            return Result<MedicationDto>.Failure("No existe un medicamento con ese número de lote.");
-        
-        var response = _mapper.Map<MedicationDto>(medication);
-        
-        return Result<MedicationDto>.Success(response);
+        try
+        {
+            var medication = await _repository.GetByBatchNumberAsync(batchNumber);
+            if (medication == null)
+                return Result<MedicationDto>.Failure("No existe un medicamento con ese número de lote.");
+            
+            var response = _mapper.Map<MedicationDto>(medication);
+            
+            return Result<MedicationDto>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<MedicationDto>.Failure($"Error al buscar medicamento por lote: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<MedicationDto>>> GetByCommercialCompanyAsync(string company)
     {
-        var medications = await _repository.GetByCommercialCompanyAsync(company);
-        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
-        return Result<IEnumerable<MedicationDto>>.Success(response);
+        try
+        {
+            var medications = await _repository.GetByCommercialCompanyAsync(company);
+            var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+            return Result<IEnumerable<MedicationDto>>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al buscar medicamentos por compañía: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<MedicationDto>>> SearchByNameAsync(string name)
     {
-        var medications = await _repository.SearchByNameAsync(name);
-        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
-        return Result<IEnumerable<MedicationDto>>.Success(response);
+        try
+        {
+            var medications = await _repository.SearchByNameAsync(name);
+            var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+            return Result<IEnumerable<MedicationDto>>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al buscar medicamentos por nombre: {ex.Message}");
+        }
     }
 
     // ============================================================
@@ -186,29 +224,57 @@ public class MedicationService : IMedicationService
 
     public async Task<Result<IEnumerable<MedicationDto>>> GetLowStockWarehouseAsync()
     {
-        var medications = await _repository.GetLowStockWarehouseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
-        return Result<IEnumerable<MedicationDto>>.Success(response);
+        try
+        {
+            var medications = await _repository.GetLowStockWarehouseAsync();
+            var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+            return Result<IEnumerable<MedicationDto>>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con stock bajo en almacén: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<MedicationDto>>> GetLowStockNurseAsync()
     {
-        var medications = await _repository.GetLowStockNurseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
-        return Result<IEnumerable<MedicationDto>>.Success(response);
+        try
+        {
+            var medications = await _repository.GetLowStockNurseAsync();
+            var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+            return Result<IEnumerable<MedicationDto>>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con stock bajo en enfermería: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<MedicationDto>>> GetOverStockWarehouseAsync()
     {
-        var medications = await _repository.GetOverstockWarehouseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
-        return Result<IEnumerable<MedicationDto>>.Success(response);
+        try
+        {
+            var medications = await _repository.GetOverstockWarehouseAsync();
+            var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+            return Result<IEnumerable<MedicationDto>>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con sobrestock en almacén: {ex.Message}");
+        }
     }
 
     public async Task<Result<IEnumerable<MedicationDto>>> GetOverStockNurseAsync()
     {
-        var medications = await _repository.GetOverstockNurseAsync();
-        var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
-        return Result<IEnumerable<MedicationDto>>.Success(response);
+        try
+        {
+            var medications = await _repository.GetOverstockNurseAsync();
+            var response = _mapper.Map<IEnumerable<MedicationDto>>(medications);
+            return Result<IEnumerable<MedicationDto>>.Success(response);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con sobrestock en enfermería: {ex.Message}");
+        }
     }
 }

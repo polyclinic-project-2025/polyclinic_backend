@@ -38,7 +38,6 @@ namespace PolyclinicInfrastructure.Repositories
                 .ToListAsync();
         }
 
-        // ✨ NUEVO MÉTODO
         public async Task<StockDepartment?> GetByDepartmentAndMedicationAsync(Guid departmentId, Guid medicationId)
         {
             return await _context.StockDepartments

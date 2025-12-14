@@ -13,20 +13,33 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
         _dbSet = _context.Set<ConsultationReferral>();
     }
 
+    public new async Task<IEnumerable<ConsultationReferral>> GetAllAsync()
+    {
+        return await _dbSet
+            .Include(c => c.Doctor)
+            .Include(c => c.DepartmentHead)
+                .ThenInclude(dh => dh!.Department)
+            .Include(c => c.Referral)
+                .ThenInclude(r => r!.Patient)
+            .ToListAsync();
+    }
+
     public async Task<ConsultationReferral?> GetByIdWithDeepIncludesAsync(Guid id)
     {
         return await _dbSet
             // 1. Incluir el Doctor
             .Include(c => c.Doctor)
-                // 1a. Luego incluir el Departamento del Doctor
-                .ThenInclude(d => d!.Department) 
             
-            // 2. Incluir el Referral (Remisión)
+            // 2. Incluir el DepartmentHead y su Department
+            .Include(c => c.DepartmentHead)
+                .ThenInclude(dh => dh!.Department)
+            
+            // 3. Incluir el Referral (Remisión)
             .Include(c => c.Referral)
-                // 2a. Luego incluir el Paciente del Referral
+                // 3a. Luego incluir el Paciente del Referral
                 .ThenInclude(r => r!.Patient)
             
-            // 3. Obtener el registro por ID
+            // 4. Obtener el registro por ID
             .FirstOrDefaultAsync(c => c.ConsultationReferralId == id);
     }
 
@@ -38,8 +51,8 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
         return await _dbSet
             .Include(cr => cr.Referral)
                 .ThenInclude(r => r.Patient)
-            .Include(cr => cr.Referral)
-                .ThenInclude(r => r.DepartmentTo)
+            .Include(cr => cr.DepartmentHead)
+                .ThenInclude(dh => dh.Department)
             .Include(cr => cr.Doctor)
             .Where(cr =>
                 cr.Referral!.PatientId == patientId &&
@@ -54,14 +67,14 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
         return await _dbSet
             .Include(cr => cr.Referral)
                 .ThenInclude(r => r.Patient)
-            .Include(cr => cr.Referral)
-                .ThenInclude(r => r.DepartmentTo)
+            .Include(cr => cr.DepartmentHead)
+                .ThenInclude(dh => dh.Department)
             .Include(cr => cr.Doctor)
             .Where(cr => cr.Referral!.PatientId == patientId)
             .OrderByDescending(cr => cr.DateTimeCRem)
             .Take(10)
             .ToListAsync();
-    } 
+    }
 
     public async Task<ConsultationReferral?> GetWithDepartmentAsync(Guid consultationReferralId)
     {
@@ -69,5 +82,5 @@ public class ConsultationReferralRepository: Repository<ConsultationReferral>, I
             .Include(cr => cr.DepartmentHead)
                 .ThenInclude(dh => dh.Department)
             .FirstOrDefaultAsync(cr => cr.ConsultationReferralId == consultationReferralId);
-    }          
+    }
 }
