@@ -15,10 +15,16 @@ public class ExportService : IExportService
         _exportStrategyFactory = exportStrategyFactory;
     }
 
-    public async Task<Result<ExportResponse>> ExportDataAsync(string data, string format, string filePath)
+    public async Task<Result<ExportResponse>> ExportDataAsync(object dataObject, string format)
     {
         try
         {
+            // Serializar a JSON
+            string data = JsonSerializer.Serialize(dataObject);
+
+            // Generar archivo temporal
+            string filePath = Path.Combine(Path.GetTempPath(), $"export_{Guid.NewGuid()}.pdf");
+
             // Crear estrategia según el formato
             var strategy = _exportStrategyFactory.CreateExportStrategy(format);
 

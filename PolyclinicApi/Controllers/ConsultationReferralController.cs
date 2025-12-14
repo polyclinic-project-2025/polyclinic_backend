@@ -103,10 +103,7 @@ public class ConsultationReferralController : ControllerBase
         if (!consultationsResult.IsSuccess)
             return BadRequest(ApiResult<ExportResponse>.Error(consultationsResult.ErrorMessage!));
 
-        string jsonData = JsonSerializer.Serialize(consultationsResult.Value);
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"consultation_referrals_{Guid.NewGuid()}.pdf");
-
-        var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+        var exportResult = await _exportService.ExportDataAsync(consultationsResult.Value!, "pdf");
         if (!exportResult.IsSuccess)
             return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
 

@@ -223,14 +223,8 @@ public class MedicationController : ControllerBase
             return BadRequest(ApiResult<ExportResponse>.Error(medicationsResult.ErrorMessage!));
         }
 
-        // Serializar a JSON
-        string jsonData = JsonSerializer.Serialize(medicationsResult.Value);
-
-        // Generar archivo temporal
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"medications_{Guid.NewGuid()}.pdf");
-
         // Exportar usando el servicio
-        var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+        var exportResult = await _exportService.ExportDataAsync(medicationsResult.Value!, "pdf");
         
         if (!exportResult.IsSuccess)
         {

@@ -149,14 +149,9 @@ namespace PolyclinicAPI.Controllers
             if (!departmentsResult.IsSuccess)
                 return BadRequest(ApiResult<ExportResponse>.Error(departmentsResult.ErrorMessage!));
 
-            // Serializar a JSON
-            string jsonData = JsonSerializer.Serialize(departmentsResult.Value);
-
-            // Generar archivo temporal
-            string tempFilePath = Path.Combine(Path.GetTempPath(), $"departments_{Guid.NewGuid()}.pdf");
 
             // Exportar usando el servicio
-            var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+            var exportResult = await _exportService.ExportDataAsync(departmentsResult, "pdf");
             
             if (!exportResult.IsSuccess)
             {

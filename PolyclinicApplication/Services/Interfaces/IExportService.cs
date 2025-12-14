@@ -5,6 +5,6 @@ namespace PolyclinicApplication.Services.Interfaces
 {
     public interface IExportService
     {
-        Task<Result<ExportResponse>> ExportDataAsync(string data, string format, string filePath); 
+        Task<Result<ExportResponse>> ExportDataAsync(object data, string format); 
     }
 }

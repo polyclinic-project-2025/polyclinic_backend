@@ -216,14 +216,8 @@ public class UserController : ControllerBase
         if (!usersResult.IsSuccess)
             return BadRequest(ApiResult<string>.Error(usersResult.ErrorMessage!));
 
-        // Serializar a JSON
-        string jsonData = JsonSerializer.Serialize(usersResult.Value);
-
-        // Generar archivo temporal
-        string tempFilePath = Path.Combine(Path.GetTempPath(), $"users_{Guid.NewGuid()}.pdf");
-
         // Exportar usando el servicio
-        var exportResult = await _exportService.ExportDataAsync(jsonData, "pdf", tempFilePath);
+        var exportResult = await _exportService.ExportDataAsync(usersResult.Value!, "pdf");
         if (!exportResult.IsSuccess)
             return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
 
