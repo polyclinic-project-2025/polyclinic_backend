@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Departments;
+using PolyclinicApplication.DTOs.Request.Export;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.Services.Interfaces;
@@ -136,12 +137,12 @@ namespace PolyclinicAPI.Controllers
         }
 
         /// <summary>
-        /// Exporta todos los departamentos a PDF
+        /// Exporta todos los departamentos a PDF con columnas seleccionadas
         /// </summary>
-        [HttpGet("export")]
+        [HttpPost("export")]
         [ProducesResponseType(typeof(ApiResult<ExportResponse>), 200)]
         [ProducesResponseType(typeof(ApiResult<object>), 400)]
-        public async Task<ActionResult<ApiResult<ExportResponse>>> ExportDepartments()
+        public async Task<ActionResult<ApiResult<ExportResponse>>> ExportDepartments([FromBody] ExportDto exportDto)
         {
             // Obtener todos los departamentos
             var departmentsResult = await _departmentService.GetAllAsync();
@@ -149,9 +150,13 @@ namespace PolyclinicAPI.Controllers
             if (!departmentsResult.IsSuccess)
                 return BadRequest(ApiResult<ExportResponse>.Error(departmentsResult.ErrorMessage!));
 
+            // Configurar el DTO de exportación
+            exportDto.Data = departmentsResult;
+            exportDto.Name = exportDto.Name ?? "Departamentos";
+            exportDto.Fields = exportDto.Fields ?? new List<string> { "Name"};
 
             // Exportar usando el servicio
-            var exportResult = await _exportService.ExportDataAsync(departmentsResult, "pdf");
+            var exportResult = await _exportService.ExportDataAsync(exportDto);
             
             if (!exportResult.IsSuccess)
             {

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using PolyclinicApplication.Common.Interfaces;
+using PolyclinicCore.Constants;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -19,7 +20,7 @@ namespace PolyclinicInfrastructure.Export
         /// </summary>
         /// <param name="data">Datos en formato JSON string o cualquier string</param>
         /// <param name="filePath">Ruta donde se guardará el PDF</param>
-        public void Export(string data, string filePath)
+        public void Export(string data, string filePath, string name, List<string> columns)
         {
             // Intentar parsear los datos como JSON para obtener una estructura
             var dataObjects = ParseDataToObjects(data);
@@ -29,17 +30,27 @@ namespace PolyclinicInfrastructure.Export
             {
                 container.Page(page =>
                 {
-                    // Configuración de la página
-                    page.Size(PageSizes.A4);
-                    page.Margin(2, Unit.Centimetre);
+                    // Configuración de la página - usar orientación horizontal si hay muchas columnas
+                    if (columns != null && columns.Count > 5)
+                    {
+                        page.Size(PageSizes.A4.Landscape());
+                    }
+                    else
+                    {
+                        page.Size(PageSizes.A4);
+                    }
+                    page.Margin(1.5f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(10).FontFamily("Arial"));
+                    
+                    // Ajustar tamaño de fuente según cantidad de columnas
+                    var fontSize = columns != null && columns.Count > 6 ? 8 : (columns != null && columns.Count > 4 ? 9 : 10);
+                    page.DefaultTextStyle(x => x.FontSize(fontSize).FontFamily("Arial"));
 
                     // Encabezado
-                    page.Header().Element(ComposeHeader);
+                    page.Header().Element(c => ComposeHeader(c, name));
 
                     // Contenido principal
-                    page.Content().Element(container => ComposeContent(container, dataObjects));
+                    page.Content().Element(c => ComposeContent(c, dataObjects, columns));
 
                     // Pie de página
                     page.Footer().Element(ComposeFooter);
@@ -51,14 +62,14 @@ namespace PolyclinicInfrastructure.Export
         /// <summary>
         /// Compone el encabezado del PDF
         /// </summary>
-        private void ComposeHeader(IContainer container)
+        private void ComposeHeader(IContainer container, string name)
         {
-            container.Row(row =>
+            container.PaddingBottom(10).Row(row =>
             {
                 row.RelativeItem().Column(column =>
                 {
-                    column.Item().Text("Reporte de Datos - Policlínico")
-                        .FontSize(20)
+                    column.Item().Text($"Reporte de Datos: {name} - Policlínico")
+                        .FontSize(18)
                         .Bold()
                         .FontColor(Colors.Blue.Darken2);
 
@@ -72,7 +83,7 @@ namespace PolyclinicInfrastructure.Export
         /// <summary>
         /// Compone el contenido principal del PDF con los datos
         /// </summary>
-        private void ComposeContent(IContainer container, List<Dictionary<string, object>> dataObjects)
+        private void ComposeContent(IContainer container, List<Dictionary<string, object>> dataObjects, List<string> selectedColumns = null)
         {
             container.PaddingVertical(10).Column(column =>
             {
@@ -87,13 +98,21 @@ namespace PolyclinicInfrastructure.Export
                     return;
                 }
 
-                // Obtener los nombres de las propiedades/columnas del primer objeto
-                var properties = dataObjects.First().Keys.ToList();
+                // Usar las columnas seleccionadas si se proporcionan, de lo contrario usar todas las propiedades
+                var properties = selectedColumns != null && selectedColumns.Count > 0
+                    ? selectedColumns
+                    : dataObjects.First().Keys.ToList();
+
+                // Calcular el tamaño de fuente basado en la cantidad de columnas
+                var columnCount = properties.Count;
+                var cellFontSize = columnCount > 8 ? 7 : (columnCount > 6 ? 8 : (columnCount > 4 ? 9 : 10));
+                var headerFontSize = cellFontSize;
+                var cellPadding = columnCount > 6 ? 3 : 5;
 
                 // Crear tabla con los datos
                 column.Item().Table(table =>
                 {
-                    // Definir columnas según las propiedades
+                    // Definir columnas según las propiedades con tamaño proporcional
                     table.ColumnsDefinition(columns =>
                     {
                         foreach (var _ in properties)
@@ -107,18 +126,19 @@ namespace PolyclinicInfrastructure.Export
                     {
                         foreach (var property in properties)
                         {
-                            header.Cell().Element(CellStyle).Text(property)
-                                .Bold()
-                                .FontColor(Colors.White);
-                        }
+                            // Obtener el nombre traducido del diccionario de PropertiesNameExport
+                            var displayName = PropertiesNameExport.Properties.ContainsKey(property)
+                                ? PropertiesNameExport.Properties[property]
+                                : property;
 
-                        static IContainer CellStyle(IContainer container)
-                        {
-                            return container
-                                .Background(Colors.Blue.Darken2)
-                                .Padding(5)
-                                .BorderBottom(1)
-                                .BorderColor(Colors.Grey.Lighten1);
+                            header.Cell().Element(c => HeaderCellStyle(c, cellPadding))
+                                .AlignCenter()
+                                .AlignMiddle()
+                                .Text(displayName)
+                                .FontSize(headerFontSize)
+                                .Bold()
+                                .FontColor(Colors.White)
+                                .WrapAnywhere();
                         }
                     });
 
@@ -131,16 +151,11 @@ namespace PolyclinicInfrastructure.Export
                                 ? dataObject[property]?.ToString() ?? "N/A" 
                                 : "N/A";
 
-                            table.Cell().Element(CellStyle).Text(value);
-                        }
-
-                        static IContainer CellStyle(IContainer container)
-                        {
-                            return container
-                                .Background(Colors.Grey.Lighten3)
-                                .Padding(5)
-                                .BorderBottom(1)
-                                .BorderColor(Colors.Grey.Lighten1);
+                            table.Cell().Element(c => DataCellStyle(c, cellPadding))
+                                .AlignMiddle()
+                                .Text(value)
+                                .FontSize(cellFontSize)
+                                .WrapAnywhere();
                         }
                     }
                 });
@@ -151,6 +166,30 @@ namespace PolyclinicInfrastructure.Export
                     .Bold()
                     .FontColor(Colors.Blue.Darken1);
             });
+        }
+
+        /// <summary>
+        /// Estilo para las celdas del encabezado
+        /// </summary>
+        private IContainer HeaderCellStyle(IContainer container, int padding)
+        {
+            return container
+                .Background(Colors.Blue.Darken2)
+                .Padding(padding)
+                .BorderBottom(1)
+                .BorderColor(Colors.Grey.Lighten1);
+        }
+
+        /// <summary>
+        /// Estilo para las celdas de datos
+        /// </summary>
+        private IContainer DataCellStyle(IContainer container, int padding)
+        {
+            return container
+                .Background(Colors.Grey.Lighten3)
+                .Padding(padding)
+                .BorderBottom(1)
+                .BorderColor(Colors.Grey.Lighten1);
         }
 
         /// <summary>

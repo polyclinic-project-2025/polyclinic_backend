@@ -1,6 +1,7 @@
 using System.Text.Json;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Common.Results;
+using PolyclinicApplication.DTOs.Request.Export;
 using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.Services.Interfaces;
 
@@ -15,10 +16,15 @@ public class ExportService : IExportService
         _exportStrategyFactory = exportStrategyFactory;
     }
 
-    public async Task<Result<ExportResponse>> ExportDataAsync(object dataObject, string format)
+    public async Task<Result<ExportResponse>> ExportDataAsync(ExportDto exportDto)
     {
         try
         {
+            string format = exportDto.Format.ToLower();
+            var dataObject = exportDto.Data;
+            string name = exportDto.Name;
+            List<string> columns = exportDto.Fields;
+
             // Serializar a JSON
             string data = JsonSerializer.Serialize(dataObject);
 
@@ -29,7 +35,7 @@ public class ExportService : IExportService
             var strategy = _exportStrategyFactory.CreateExportStrategy(format);
 
             // Exportar datos
-            strategy.Export(data, filePath);
+            strategy.Export(data, filePath, name, columns);
 
             // Leer archivo generado y convertir a Base64
             byte[] fileBytes = await File.ReadAllBytesAsync(filePath);

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
+using PolyclinicApplication.DTOs.Request.Export;
 using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.Services.Interfaces;
 
@@ -209,12 +210,15 @@ public class MedicationController : ControllerBase
 
     // ============================
     // GET: api/medication/export
-    // Exportar todos los medicamentos a PDF
+    // Exportar medicamentos a PDF con columnas seleccionadas
     // ============================
     [HttpGet("export")]
     [ProducesResponseType(typeof(ApiResult<ExportResponse>), 200)]
     [ProducesResponseType(typeof(ApiResult<object>), 400)]
-    public async Task<ActionResult<ApiResult<ExportResponse>>> ExportMedications()
+    public async Task<ActionResult<ApiResult<ExportResponse>>> ExportMedications(
+        [FromQuery] string format = "pdf", 
+        [FromQuery] List<string>? columns = null,
+        [FromQuery] string name = "Medicamentos")
     {
         // Obtener todos los medicamentos
         var medicationsResult = await _service.GetAllAsync();
@@ -223,8 +227,17 @@ public class MedicationController : ControllerBase
             return BadRequest(ApiResult<ExportResponse>.Error(medicationsResult.ErrorMessage!));
         }
 
+        // Crear el DTO de exportación
+        var exportDto = new ExportDto
+        {
+            Format = format,
+            Fields = columns ?? new List<string> {"CommercialName", "BatchNumber", "Format", "ExpirationDate", "QuantityWarehouse", "QuantityNurse"},
+            Data = medicationsResult.Value!,
+            Name = name
+        };
+
         // Exportar usando el servicio
-        var exportResult = await _exportService.ExportDataAsync(medicationsResult.Value!, "pdf");
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
         
         if (!exportResult.IsSuccess)
         {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request;
+using PolyclinicApplication.DTOs.Request.Export;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.Services.Interfaces;
 using System.Security.Claims;
@@ -205,19 +206,23 @@ public class UserController : ControllerBase
     }
 
     // ============================
-    // GET: api/user/export
-    // Exportar todos los usuarios a PDF
+    // POST: api/user/export
+    // Exportar usuarios a PDF con columnas seleccionadas
     // ============================
-    [HttpGet("export")]
-    public async Task<ActionResult> ExportUsers()
+    [HttpPost("export")]
+    public async Task<ActionResult> ExportUsers([FromBody] ExportDto exportDto)
     {
         // Obtener todos los usuarios
         var usersResult = await _userService.GetAllAsync();
         if (!usersResult.IsSuccess)
             return BadRequest(ApiResult<string>.Error(usersResult.ErrorMessage!));
 
+        // Configurar el DTO de exportación
+        exportDto.Data = usersResult.Value!;
+        exportDto.Name = exportDto.Name ?? "Usuarios";
+
         // Exportar usando el servicio
-        var exportResult = await _exportService.ExportDataAsync(usersResult.Value!, "pdf");
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
         if (!exportResult.IsSuccess)
             return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
 
