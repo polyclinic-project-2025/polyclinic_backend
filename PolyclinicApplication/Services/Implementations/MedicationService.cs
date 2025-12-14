@@ -62,7 +62,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<MedicationDto>.Failure($"Error al guardar el medicamento: {ex.Message}");
+            return Result<MedicationDto>.Failure($"Error al guardar el medicamento");
         }
     }
 
@@ -80,7 +80,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<MedicationDto>.Failure($"Error al obtener el medicamento: {ex.Message}");
+            return Result<MedicationDto>.Failure($"Error al obtener el medicamento");
         }
     }
 
@@ -94,7 +94,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos: {ex.Message}");
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos");
         }
     }
 
@@ -145,7 +145,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar el medicamento: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar el medicamento");
         }
 
     }
@@ -164,7 +164,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar el medicamento: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar el medicamento");
         }
     }
 
@@ -186,7 +186,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<MedicationDto>.Failure($"Error al buscar medicamento por lote: {ex.Message}");
+            return Result<MedicationDto>.Failure($"Error al buscar medicamento por lote");
         }
     }
 
@@ -200,7 +200,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDto>>.Failure($"Error al buscar medicamentos por compañía: {ex.Message}");
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al buscar medicamentos por compañía");
         }
     }
 
@@ -214,7 +214,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDto>>.Failure($"Error al buscar medicamentos por nombre: {ex.Message}");
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al buscar medicamentos por nombre");
         }
     }
 
@@ -232,7 +232,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con stock bajo en almacén: {ex.Message}");
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con stock bajo en almacén");
         }
     }
 
@@ -246,7 +246,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con stock bajo en enfermería: {ex.Message}");
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con stock bajo en enfermería");
         }
     }
 
@@ -260,7 +260,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con sobrestock en almacén: {ex.Message}");
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con sobrestock en almacén");
         }
     }
 
@@ -274,7 +274,7 @@ public class MedicationService : IMedicationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con sobrestock en enfermería: {ex.Message}");
+            return Result<IEnumerable<MedicationDto>>.Failure($"Error al obtener medicamentos con sobrestock en enfermería");
         }
     }
 }

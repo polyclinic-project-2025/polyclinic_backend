@@ -39,6 +39,8 @@ namespace PolyclinicApplication.Services.Implementations
             var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
             if (doctor == null)
                 return Result<EmergencyRoomDto>.Failure("El doctor especificado no existe");
+            if(doctor.EmploymentStatus != "Activo")
+                return Result<EmergencyRoomDto>.Failure("El doctor especificado no esta activo");
 
             var entity = new EmergencyRoom(
                 Guid.NewGuid(),
@@ -56,7 +58,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<EmergencyRoomDto>.Failure($"Error al guardar la guardia: {ex.Message}");
+                return Result<EmergencyRoomDto>.Failure($"Error al guardar la guardia");
             }
         }
 
@@ -81,6 +83,8 @@ namespace PolyclinicApplication.Services.Implementations
                 var doctor = await _doctorRepository.GetByIdAsync(doctorId);
                 if (doctor == null)
                     return Result<bool>.Failure("El doctor especificado no existe");
+                if(doctor.EmploymentStatus != "Activo")
+                    return Result<bool>.Failure("El doctor especificado no esta activo");
             }
 
             // ACTUALIZAR LA MISMA ENTIDAD TRACKADA
@@ -94,7 +98,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al actualizar la guardia: {ex.Message}");
+                return Result<bool>.Failure($"Error al actualizar la guardia");
             }
         }
 
@@ -117,7 +121,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al eliminar la guardia: {ex.Message}");
+                return Result<bool>.Failure($"Error al eliminar la guardia");
             }
         }
 
@@ -140,7 +144,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<EmergencyRoomDto>.Failure($"Error al obtener guardia: {ex.Message}");
+                return Result<EmergencyRoomDto>.Failure($"Error al obtener guardia");
             }
         }
 
@@ -156,7 +160,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias");
             }
         }
 
@@ -178,7 +182,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias");
             }
         }
 
@@ -200,7 +204,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias");
             }
         }
 
@@ -222,7 +226,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomDto>>.Failure($"Error al obtener guardias");
             }
         }
     }

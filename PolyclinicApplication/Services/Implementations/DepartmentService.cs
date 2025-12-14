@@ -46,7 +46,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<DepartmentDto>.Failure($"Error al guardar el departamento: {ex.Message}");
+                return Result<DepartmentDto>.Failure($"Error al guardar el departamento");
             }
         }
 
@@ -60,7 +60,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<DepartmentDto>>.Failure($"Error al obtener departamentos: {ex.Message}");
+                return Result<IEnumerable<DepartmentDto>>.Failure($"Error al obtener departamentos");
             }
         }
 
@@ -77,7 +77,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<DepartmentDto?>.Failure($"Error al obtener departamento: {ex.Message}");
+                return Result<DepartmentDto?>.Failure($"Error al obtener departamento");
             }
         }
 
@@ -106,7 +106,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al actualizar el departamento: {ex.Message}");
+                return Result<bool>.Failure($"Error al actualizar el departamento");
             }
         }
 
@@ -125,7 +125,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al eliminar el departamento: {ex.Message}");
+                return Result<bool>.Failure($"Error al eliminar el departamento");
             }
         }
 
@@ -140,7 +140,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<List<DoctorResponse>>.Failure($"Error al obtener doctores del departamento: {ex.Message}");
+                return Result<List<DoctorResponse>>.Failure($"Error al obtener doctores del departamento");
             }
         }
     }

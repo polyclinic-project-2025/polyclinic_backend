@@ -58,7 +58,7 @@ public class UnifiedConsultationService : IUnifiedConsultationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<UnifiedConsultationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<UnifiedConsultationDto>>.Failure($"Error al obtener consultas");
         }
     }
 
@@ -96,7 +96,7 @@ public class UnifiedConsultationService : IUnifiedConsultationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<UnifiedConsultationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<UnifiedConsultationDto>>.Failure($"Error al obtener consultas");
         }
     }
 

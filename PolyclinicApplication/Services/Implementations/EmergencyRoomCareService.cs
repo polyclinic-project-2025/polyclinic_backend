@@ -42,6 +42,8 @@ namespace PolyclinicApplication.Services.Implementations
             var emergencyRoom = await _emergencyRoomRepository.GetByIdAsync(dto.EmergencyRoomId);
             if (emergencyRoom == null)
                 return Result<EmergencyRoomCareDto>.Failure("La guardia especificada no existe");
+            if(emergencyRoom.Doctor.EmploymentStatus != "Activo")
+                return Result<EmergencyRoomCareDto>.Failure("No puedes crear atenciones sin estar activo");
 
             var patient = await _patientRepository.GetByIdAsync(dto.PatientId);
             if (patient == null)
@@ -75,7 +77,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<EmergencyRoomCareDto>.Failure($"Error al guardar la atencion: {ex.Message}");
+                return Result<EmergencyRoomCareDto>.Failure($"Error al guardar la atencion");
             }
         }
 
@@ -102,6 +104,8 @@ namespace PolyclinicApplication.Services.Implementations
                 var emergencyRoom = await _emergencyRoomRepository.GetByIdAsync(emergencyRoomId);
                 if (emergencyRoom == null)
                     return Result<bool>.Failure("La guardia especificada no existe");
+                if(emergencyRoom.Doctor.EmploymentStatus != "Activo")
+                    return Result<bool>.Failure("No puedes editar atenciones sin estar activo");
             }
 
             if (dto.PatientId.HasValue)
@@ -137,7 +141,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al actualizar la atencion: {ex.Message}");
+                return Result<bool>.Failure($"Error al actualizar la atencion");
             }
         }
 
@@ -160,7 +164,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al eliminar la atencion: {ex.Message}");
+                return Result<bool>.Failure($"Error al eliminar la atencion");
             }
         }
 
@@ -183,7 +187,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<EmergencyRoomCareDto>.Failure($"Error al obtener atencion: {ex.Message}");
+                return Result<EmergencyRoomCareDto>.Failure($"Error al obtener atencion");
             }
         }
 
@@ -199,7 +203,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones");
             }
         }
 
@@ -221,7 +225,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones");
             }
         }
 
@@ -243,7 +247,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones");
             }
         }
 
@@ -265,7 +269,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones");
             }
         }
 
@@ -287,7 +291,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones");
             }
         }
 
@@ -309,7 +313,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones: {ex.Message}");
+                return Result<IEnumerable<EmergencyRoomCareDto>>.Failure($"Error al obtener atenciones");
             }
         }
     }

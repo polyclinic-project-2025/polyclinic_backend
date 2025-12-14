@@ -58,7 +58,7 @@ public class ExportService : IExportService
         }
         catch (Exception ex)
         {
-            return Result<ExportResponse>.Failure($"Error al exportar datos: {ex.Message}");
+            return Result<ExportResponse>.Failure($"Error al exportar datos");
         }
     }
 }

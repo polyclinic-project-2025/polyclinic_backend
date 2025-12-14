@@ -40,7 +40,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes: {ex.Message}");
+            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes");
         }
     }
 
@@ -58,7 +58,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<WarehouseRequestResponse>.Failure($"Error al obtener solicitud: {ex.Message}");
+            return Result<WarehouseRequestResponse>.Failure($"Error al obtener solicitud");
         }
     }
 
@@ -76,7 +76,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes: {ex.Message}");
+            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes");
         }
     }
 
@@ -94,7 +94,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes: {ex.Message}");
+            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes");
         }
     }
 
@@ -112,7 +112,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes: {ex.Message}");
+            return Result<IEnumerable<WarehouseRequestResponse>>.Failure($"Error al obtener solicitudes");
         }
     }
 
@@ -140,7 +140,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<WarehouseRequestResponse>.Failure($"Error al guardar la solicitud al almacén: {ex.Message}");
+            return Result<WarehouseRequestResponse>.Failure($"Error al guardar la solicitud al almacén");
         }
     }
 
@@ -163,7 +163,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar la solicitud al almacén: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar la solicitud al almacén");
         }
     }
 
@@ -182,7 +182,7 @@ public class WarehouseRequestService : IWarehouseRequestService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar la solicitud al almacén: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar la solicitud al almacén");
         }
     }
 }

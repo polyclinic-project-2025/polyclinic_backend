@@ -74,7 +74,7 @@ public class EntityLinkingService : IEntityLinkingService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al vincular entidad: {ex.Message}");
+            return Result<bool>.Failure($"Error al vincular entidad");
         }
     }
 }

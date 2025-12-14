@@ -56,7 +56,7 @@ public class DoctorService :
         }
         catch (Exception ex)
         {
-            return Result<DoctorResponse>.Failure($"Error al guardar el doctor: {ex.Message}");
+            return Result<DoctorResponse>.Failure($"Error al guardar el doctor");
         }
     }
 
@@ -96,7 +96,7 @@ public class DoctorService :
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar el doctor: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar el doctor");
         }
     }
 }

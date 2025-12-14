@@ -61,7 +61,7 @@ public class EmployeeService<TEntity, TResponse> :
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar el empleado: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar el empleado");
         }
     }
 }

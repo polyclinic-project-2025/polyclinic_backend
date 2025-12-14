@@ -43,7 +43,7 @@ public class DepartmentHeadService : IDepartmentHeadService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<DepartmentHeadResponse>>.Failure($"Error al obtener jefes de departamento: {ex.Message}");
+            return Result<IEnumerable<DepartmentHeadResponse>>.Failure($"Error al obtener jefes de departamento");
         }
     }
 
@@ -61,7 +61,7 @@ public class DepartmentHeadService : IDepartmentHeadService
         }
         catch (Exception ex)
         {
-            return Result<DepartmentHeadResponse>.Failure($"Error al obtener jefe de departamento: {ex.Message}");
+            return Result<DepartmentHeadResponse>.Failure($"Error al obtener jefe de departamento");
         }
     }
 
@@ -83,7 +83,7 @@ public class DepartmentHeadService : IDepartmentHeadService
         }
         catch (Exception ex)
         {
-            return Result<DepartmentHeadResponse>.Failure($"Error al obtener jefe de departamento: {ex.Message}");
+            return Result<DepartmentHeadResponse>.Failure($"Error al obtener jefe de departamento");
         }
     }
 
@@ -109,7 +109,7 @@ public class DepartmentHeadService : IDepartmentHeadService
         }
         catch (Exception ex)
         {
-            return Result<DepartmentHeadResponse>.Failure($"Error al guardar el jefe de departamento: {ex.Message}");
+            return Result<DepartmentHeadResponse>.Failure($"Error al guardar el jefe de departamento");
         }
     }
 
@@ -128,7 +128,7 @@ public class DepartmentHeadService : IDepartmentHeadService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar el jefe de departamento: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar el jefe de departamento");
         }
     }
 }

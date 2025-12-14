@@ -35,7 +35,7 @@ public class MedicationRequestService : IMedicationRequestService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationRequestResponse>>.Failure($"Error al obtener solicitudes: {ex.Message}");
+            return Result<IEnumerable<MedicationRequestResponse>>.Failure($"Error al obtener solicitudes");
         }
     }
 
@@ -53,7 +53,7 @@ public class MedicationRequestService : IMedicationRequestService
         }
         catch (Exception ex)
         {
-            return Result<MedicationRequestResponse>.Failure($"Error al obtener solicitud: {ex.Message}");
+            return Result<MedicationRequestResponse>.Failure($"Error al obtener solicitud");
         }
     }
 
@@ -71,7 +71,7 @@ public class MedicationRequestService : IMedicationRequestService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationRequestResponse>>.Failure($"Error al obtener solicitud: {ex.Message}");
+            return Result<IEnumerable<MedicationRequestResponse>>.Failure($"Error al obtener solicitud");
         }
     }
     
@@ -93,7 +93,7 @@ public class MedicationRequestService : IMedicationRequestService
         }
         catch (Exception ex)
         {
-            return Result<MedicationRequestResponse>.Failure($"Error al guardar la solicitud: {ex.Message}");
+            return Result<MedicationRequestResponse>.Failure($"Error al guardar la solicitud");
         }
     }
     
@@ -112,7 +112,7 @@ public class MedicationRequestService : IMedicationRequestService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar la solicitud: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar la solicitud");
         }
     }
     
@@ -131,7 +131,7 @@ public class MedicationRequestService : IMedicationRequestService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar la solicitud: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar la solicitud");
         }
     }
 }

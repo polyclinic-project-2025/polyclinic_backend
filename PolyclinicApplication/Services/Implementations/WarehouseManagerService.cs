@@ -40,7 +40,7 @@ public class WarehouseManagerService :
         }
         catch (Exception ex)
         {
-            return Result<WarehouseManagerResponse>.Failure($"Error al obtener el jefe de almacén: {ex.Message}");
+            return Result<WarehouseManagerResponse>.Failure($"Error al obtener el jefe de almacén");
         }
     }
 
@@ -67,7 +67,7 @@ public class WarehouseManagerService :
         }
         catch (Exception ex)
         {
-            return Result<WarehouseManagerResponse>.Failure($"Error al guardar el jefe de almacén: {ex.Message}");
+            return Result<WarehouseManagerResponse>.Failure($"Error al guardar el jefe de almacén");
         }
     }
 
@@ -103,7 +103,7 @@ public class WarehouseManagerService :
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar el jefe de almacén: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar el jefe de almacén");
         }
     }
 }

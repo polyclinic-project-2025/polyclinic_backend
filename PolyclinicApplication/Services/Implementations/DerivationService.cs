@@ -65,7 +65,7 @@ public class DerivationService : IDerivationService
             }
             catch (Exception ex)
             {
-                return Result<DerivationDto>.Failure($"Error al guardar la derivación: {ex.Message}");
+                return Result<DerivationDto>.Failure($"Error al guardar la derivación");
             }
         }
 
@@ -85,7 +85,7 @@ public class DerivationService : IDerivationService
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al eliminar la derivación: {ex.Message}");
+                return Result<bool>.Failure($"Error al eliminar la derivación");
             }
         }
 
@@ -103,7 +103,7 @@ public class DerivationService : IDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<DerivationDto>>.Failure($"Error al obtener las derivaciones: {ex.Message}");
+            return Result<IEnumerable<DerivationDto>>.Failure($"Error al obtener las derivaciones");
         }
     }
 
@@ -124,7 +124,7 @@ public class DerivationService : IDerivationService
         }
         catch (Exception ex)
         {
-            return Result<DerivationDto>.Failure($"Error al obtener la derivación: {ex.Message}");
+            return Result<DerivationDto>.Failure($"Error al obtener la derivación");
         }
     }
 
@@ -145,7 +145,7 @@ public class DerivationService : IDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones: {ex.Message}");
+            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones");
         }
     }
 
@@ -163,7 +163,7 @@ public class DerivationService : IDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones: {ex.Message}");
+            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones");
         }
     }
 
@@ -181,7 +181,7 @@ public class DerivationService : IDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones: {ex.Message}");
+            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones");
         }
     }
 
@@ -199,7 +199,7 @@ public class DerivationService : IDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones: {ex.Message}");
+            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones");
         }
     }
     public async Task<Result<IEnumerable<DerivationDto>>> SearchByPatientIdentificationAsync(string patientIdentification)
@@ -216,7 +216,7 @@ public class DerivationService : IDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones: {ex.Message}");
+            return Result<IEnumerable<DerivationDto>>.Failure($"Error al buscar derivaciones");
         }
     }
 }

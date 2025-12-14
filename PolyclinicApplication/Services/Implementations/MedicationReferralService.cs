@@ -75,7 +75,7 @@ public class MedicationReferralService : IMedicationReferralService
         }
         catch (Exception ex)
         {
-            return Result<MedicationReferralDto>.Failure($"Error al guardar la remisión: {ex.Message}");
+            return Result<MedicationReferralDto>.Failure($"Error al guardar la remisión");
         }
     }
 
@@ -92,7 +92,7 @@ public class MedicationReferralService : IMedicationReferralService
         }
         catch (Exception ex)
         {
-            return Result<MedicationReferralDto>.Failure($"Error al obtener la remisión: {ex.Message}");
+            return Result<MedicationReferralDto>.Failure($"Error al obtener la remisión");
         }
     }
 
@@ -106,7 +106,7 @@ public class MedicationReferralService : IMedicationReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationReferralDto>>.Failure($"Error al obtener las remisiones: {ex.Message}");
+            return Result<IEnumerable<MedicationReferralDto>>.Failure($"Error al obtener las remisiones");
         }
     }
 
@@ -180,7 +180,7 @@ public class MedicationReferralService : IMedicationReferralService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar la remisión: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar la remisión");
         }
     }
 
@@ -218,7 +218,7 @@ public class MedicationReferralService : IMedicationReferralService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar la remisión: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar la remisión");
         }
     }
 }

@@ -53,7 +53,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<PatientDto>.Failure($"Error al guardar el paciente: {ex.Message}");
+                return Result<PatientDto>.Failure($"Error al guardar el paciente");
             }
         }
 
@@ -70,7 +70,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<PatientDto>>.Failure($"Error al obtener pacientes: {ex.Message}");
+                return Result<IEnumerable<PatientDto>>.Failure($"Error al obtener pacientes");
             }
         }
 
@@ -88,7 +88,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<PatientDto>.Failure($"Error al obtener paciente: {ex.Message}");
+                return Result<PatientDto>.Failure($"Error al obtener paciente");
             }
         }
 
@@ -106,7 +106,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<PatientDto>>.Failure($"Error al buscar paciente por nombre: {ex.Message}");
+                return Result<IEnumerable<PatientDto>>.Failure($"Error al buscar paciente por nombre");
             }
         }
 
@@ -124,7 +124,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<PatientDto>.Failure($"Error al buscar paciente por identificación: {ex.Message}");
+                return Result<PatientDto>.Failure($"Error al buscar paciente por identificación");
             }
         }
 
@@ -142,7 +142,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<PatientDto>>.Failure($"Error al buscar paciente por edad: {ex.Message}");
+                return Result<IEnumerable<PatientDto>>.Failure($"Error al buscar paciente por edad");
             }
         }
 
@@ -182,7 +182,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al actualizar el paciente: {ex.Message}");
+                return Result<bool>.Failure($"Error al actualizar el paciente");
             }
         }
 
@@ -202,7 +202,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al eliminar el paciente: {ex.Message}");
+                return Result<bool>.Failure($"Error al eliminar el paciente");
             }
         }
     }
