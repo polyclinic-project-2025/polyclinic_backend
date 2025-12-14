@@ -7,5 +7,6 @@ namespace PolyclinicApplication.ReadModels;
 
 public record DeniedWarehouseRequestReadModel(
     string DepartmentName,
-    string DepartmentHeadName
+    string DepartmentHeadName,
+    string Medications
 );

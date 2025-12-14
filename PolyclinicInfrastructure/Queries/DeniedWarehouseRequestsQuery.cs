@@ -26,7 +26,12 @@ public class DeniedWarehouseRequestsQuery : IDeniedWarehouseRequestsQuery
                             wr.Department.DepartmentHeads
                                 .OrderByDescending(dh => dh.AssignedAt)
                                 .Select(dh => dh.Doctor.Name)
-                                .FirstOrDefault()
+                                .FirstOrDefault(),
+                            string.Join(
+                                ", ", 
+                                wr.MedicationRequests
+                                    .Select(mr => $"{mr.Medication.CommercialName} ({mr.Quantity} u)")
+                            ) + "."
                         ))
                         .ToListAsync();
 }
