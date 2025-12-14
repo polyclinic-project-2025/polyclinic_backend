@@ -22,7 +22,6 @@ public class DeniedWarehouseRequestsQuery : IDeniedWarehouseRequestsQuery
     public async Task<IEnumerable<DeniedWarehouseRequestReadModel>> GetDeniedAsync(string status)
         => await _dbSet.Where(wr => wr.Status == status)
                         .Select(wr => new DeniedWarehouseRequestReadModel(
-                            wr.Status,
                             wr.Department.Name,
                             wr.Department.DepartmentHeads
                                 .OrderByDescending(dh => dh.AssignedAt)

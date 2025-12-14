@@ -287,6 +287,7 @@ builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 // INFRASTRUCTURE - QUERIES
 // ==========================================
 builder.Services.AddScoped<IDeniedWarehouseRequestsQuery, DeniedWarehouseRequestsQuery>();
+builder.Services.AddScoped<IDoctorMonthlyAverageQuery, DoctorMonthlyAverageQuery>();
 builder.Services.AddScoped<IMedicationConsumptionQuery, MedicationConsumptionQuery>();
 
 
@@ -329,6 +330,8 @@ builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddSingleton<IExportStrategyFactory, ExportStrategyFactory>();
 // Analytics
 builder.Services.AddScoped<IDeniedWarehouseRequestsService, DeniedWarehouseRequestsService>();
+builder.Services.AddScoped<IDoctorMonthlyAverageService, DoctorMonthlyAverageService>();
+
 builder.Services.AddScoped<IMedicationConsumptionService, MedicationConsumptionService>();
 
 
