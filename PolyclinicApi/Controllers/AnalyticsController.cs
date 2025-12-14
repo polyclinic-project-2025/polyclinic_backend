@@ -18,13 +18,22 @@ public class AnalyticsController : ControllerBase
 {
     private readonly IUnifiedConsultationService _service;
     private readonly IMedicationConsumptionService _medicationConsumptionService;
+    private readonly IDeniedWarehouseRequestsService _deniedWarehouseRequestsService;
+    private readonly IDoctorMonthlyAverageService _doctorMonthlyAverageService;
+    private readonly IDoctorSuccessRateService _doctorSuccessRateService;
 
     public AnalyticsController(
         IUnifiedConsultationService service,
-        IMedicationConsumptionService medicationConsumptionService)
+        IMedicationConsumptionService medicationConsumptionService,
+        IDeniedWarehouseRequestsService deniedWarehouseRequestsService,
+        IDoctorMonthlyAverageService doctorMonthlyAverageService,
+        IDoctorSuccessRateService doctorSuccessRateService)
     {
         _service = service;
         _medicationConsumptionService = medicationConsumptionService;
+        _deniedWarehouseRequestsService = deniedWarehouseRequestsService;
+        _doctorMonthlyAverageService = doctorMonthlyAverageService;
+        _doctorSuccessRateService = doctorSuccessRateService;
     }
 
     // GET: api/Analytics/last10/{patientId}
@@ -65,5 +74,45 @@ public class AnalyticsController : ControllerBase
             return BadRequest(ApiResult<MedicationConsumptionReadModel>.Error(result.ErrorMessage!));
 
         return Ok(ApiResult<MedicationConsumptionReadModel>.Ok(result.Value!, "Consumo de medicamento obtenido"));
+    }
+
+    // GET: api/Analytics/denied-warehouse-requests?status=...
+    [HttpGet("denied-warehouse-requests")]
+    public async Task<IActionResult> GetDeniedWarehouseRequests(
+        [FromQuery] string status)
+    {
+        var data = await _deniedWarehouseRequestsService
+            .GetDeniedWarehouseRequestsAsync(status);
+
+        return Ok(ApiResult<IEnumerable<DeniedWarehouseRequestReadModel>>
+            .Ok(data.Value, "Solicitudes de almacén denegadas obtenidas"));
+    }
+
+    // GET: api/Analytics/doctor-monthly-average?from=...&to=...
+    [HttpGet("doctor-monthly-average")]
+    public async Task<IActionResult> GetDoctorMonthlyAverage(
+        [FromQuery] DateTime from,
+        [FromQuery] DateTime to)
+    {
+        var fromUtc = DateTime.SpecifyKind(from, DateTimeKind.Utc);
+        var toUtc = DateTime.SpecifyKind(to, DateTimeKind.Utc);
+
+        var data = await _doctorMonthlyAverageService
+            .GetDoctorAverageAsync(fromUtc, toUtc);
+
+        return Ok(ApiResult<IEnumerable<DoctorMonthlyAverageReadModel>>
+            .Ok(data.Value, "Promedio mensual por doctor obtenido"));
+    }
+
+    // GET: api/Analytics/doctor-success-rate?frequency=...
+    [HttpGet("doctor-success-rate")]
+    public async Task<IActionResult> GetDoctorSuccessRate(
+        [FromQuery] int frequency = 1)
+    {
+        var data = await _doctorSuccessRateService
+            .GetTop5DoctorsSuccessRateAsync(frequency);
+
+        return Ok(ApiResult<IEnumerable<DoctorSuccessRateReadModel>>
+            .Ok(data.Value, "Tasa de éxito de doctores obtenida"));
     }
 }
