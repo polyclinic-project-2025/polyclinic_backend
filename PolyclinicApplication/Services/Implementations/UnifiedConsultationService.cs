@@ -50,7 +50,7 @@ public class UnifiedConsultationService : IUnifiedConsultationService
 
             // Ordenar y tomar las últimas 10
             var result = unifiedList
-                .OrderByDescending(c => c.ConsultationDate)
+                .OrderByDescending(c => c.Date)
                 .Take(10)
                 .ToList();
 
@@ -89,7 +89,7 @@ public class UnifiedConsultationService : IUnifiedConsultationService
 
             // Ordenar por fecha descendente
             var result = unifiedList
-                .OrderByDescending(c => c.ConsultationDate)
+                .OrderByDescending(c => c.Date)
                 .ToList();
 
             return Result<IEnumerable<UnifiedConsultationDto>>.Success(result);
@@ -114,7 +114,7 @@ public class UnifiedConsultationService : IUnifiedConsultationService
                     consultation.Medications = medications.Select(m => new MedicationInfoDto
                     {
                         MedicationId = m.MedicationId,
-                        MedicationName = m.Medication?.CommercialName ?? "Desconocido",
+                        Name = m.Medication?.CommercialName ?? "Desconocido",
                         Quantity = m.Quantity
                     }).ToList();
                 }
@@ -126,7 +126,7 @@ public class UnifiedConsultationService : IUnifiedConsultationService
                     consultation.Medications = medications.Select(m => new MedicationInfoDto
                     {
                         MedicationId = m.MedicationId,
-                        MedicationName = m.Medication?.CommercialName ?? "Desconocido",
+                        Name = m.Medication?.CommercialName ?? "Desconocido",
                         Quantity = m.Quantity
                     }).ToList();
                 }
