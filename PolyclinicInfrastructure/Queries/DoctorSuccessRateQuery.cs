@@ -259,7 +259,8 @@ public class DoctorSuccessRateQuery : IDoctorSuccessRateQuery
             var medsNamesForDoctor = (medsIds ?? new List<Guid>())
                                         .Where(id => medicationNames.ContainsKey(id))
                                         .Select(id => medicationNames[id]);
-            var medsConcatenated = string.Join(" ", medsNamesForDoctor);
+            var medsConcatenated = string.Join(", ", medsNamesForDoctor) + ".";
+
 
             string doctorName = doctors[docId].Name;
             string departmentName = doctors[docId].DepartmentName;
