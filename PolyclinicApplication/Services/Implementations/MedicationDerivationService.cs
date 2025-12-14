@@ -75,7 +75,7 @@ public class MedicationDerivationService : IMedicationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<MedicationDerivationDto>.Failure($"Error al guardar la derivación: {ex.Message}");
+            return Result<MedicationDerivationDto>.Failure($"Error al guardar la derivación");
         }
     }
 
@@ -92,7 +92,7 @@ public class MedicationDerivationService : IMedicationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<MedicationDerivationDto>.Failure($"Error al obtener la derivación: {ex.Message}");
+            return Result<MedicationDerivationDto>.Failure($"Error al obtener la derivación");
         }
     }
 
@@ -106,7 +106,7 @@ public class MedicationDerivationService : IMedicationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<MedicationDerivationDto>>.Failure($"Error al obtener las derivaciones: {ex.Message}");
+            return Result<IEnumerable<MedicationDerivationDto>>.Failure($"Error al obtener las derivaciones");
         }
     }
 
@@ -173,7 +173,7 @@ public class MedicationDerivationService : IMedicationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar la derivación: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar la derivación");
         }
     }
 
@@ -211,7 +211,7 @@ public class MedicationDerivationService : IMedicationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar la derivación: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar la derivación");
         }
     }
 }

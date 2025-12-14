@@ -58,7 +58,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            return Result<UserResponse>.Failure($"Error al actualizar usuario: {ex.Message}");
+            return Result<UserResponse>.Failure($"Error al actualizar usuario");
         }
     }
 
@@ -96,7 +96,7 @@ public class UserService : IUserService
         }
         catch (Exception ex)
         {
-            return Result<UserResponse>.Failure($"Error al manejar operación de roles: {ex.Message}");
+            return Result<UserResponse>.Failure($"Error al manejar operación de roles");
         }
     }
 

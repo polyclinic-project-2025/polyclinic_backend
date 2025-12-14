@@ -71,7 +71,7 @@ public class ReferralService : IReferralService
             }
             catch (Exception ex)
             {
-                return Result<ReferralDto>.Failure($"Error al guardar la remisión: {ex.Message}");
+                return Result<ReferralDto>.Failure($"Error al guardar la remisión");
             }
         }
 
@@ -91,7 +91,7 @@ public class ReferralService : IReferralService
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al eliminar la remisión: {ex.Message}");
+                return Result<bool>.Failure($"Error al eliminar la remisión");
             }
         }
 
@@ -109,7 +109,7 @@ public class ReferralService : IReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ReferralDto>>.Failure($"Error al obtener las remisiones: {ex.Message}");
+            return Result<IEnumerable<ReferralDto>>.Failure($"Error al obtener las remisiones");
         }
     }
 
@@ -130,7 +130,7 @@ public class ReferralService : IReferralService
         }
         catch (Exception ex)
         {
-            return Result<ReferralDto>.Failure($"Error al obtener la remisión: {ex.Message}");
+            return Result<ReferralDto>.Failure($"Error al obtener la remisión");
         }
     }
 
@@ -151,7 +151,7 @@ public class ReferralService : IReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones: {ex.Message}");
+            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones");
         }
     }
 
@@ -169,7 +169,7 @@ public class ReferralService : IReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones: {ex.Message}");
+            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones");
         }
     }
 
@@ -187,7 +187,7 @@ public class ReferralService : IReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones: {ex.Message}");
+            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones");
         }
     }
 
@@ -205,7 +205,7 @@ public class ReferralService : IReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones: {ex.Message}");
+            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones");
         }
     }
     public async Task<Result<IEnumerable<ReferralDto>>> SearchByPatientIdentificationAsync(string patientIdentification)
@@ -222,7 +222,7 @@ public class ReferralService : IReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones: {ex.Message}");
+            return Result<IEnumerable<ReferralDto>>.Failure($"Error al buscar remisiones");
         }
     }
 }

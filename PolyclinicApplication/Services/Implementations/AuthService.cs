@@ -133,7 +133,7 @@ public class AuthService: IAuthService
         }
         catch (Exception ex)
         {
-            return Result<AuthResponse>.Failure($"Error al registrar usuario: {ex.Message}");
+            return Result<AuthResponse>.Failure($"Error al registrar usuario");
         }
     }
 
@@ -179,7 +179,7 @@ public class AuthService: IAuthService
         }
         catch (Exception ex)
         {
-            return Result<AuthResponse>.Failure($"Error al iniciar sesión: {ex.Message}");
+            return Result<AuthResponse>.Failure($"Error al iniciar sesión");
         }
     }
 }
