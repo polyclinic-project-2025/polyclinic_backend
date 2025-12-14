@@ -82,7 +82,7 @@ public class ConsultationDerivationService : IConsultationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<ConsultationDerivationDto>.Failure($"Error al guardar la consulta: {ex.Message}");
+            return Result<ConsultationDerivationDto>.Failure($"Error al guardar la consulta");
         }
     }
 
@@ -138,7 +138,7 @@ public class ConsultationDerivationService : IConsultationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar la consulta: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar la consulta");
         }
     }
 
@@ -158,7 +158,7 @@ public class ConsultationDerivationService : IConsultationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar la consulta: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar la consulta");
         }
     }
 
@@ -178,7 +178,7 @@ public class ConsultationDerivationService : IConsultationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<ConsultationDerivationDto>.Failure($"Error al obtener consulta: {ex.Message}");
+            return Result<ConsultationDerivationDto>.Failure($"Error al obtener consulta");
         }
     }
 
@@ -195,7 +195,7 @@ public class ConsultationDerivationService : IConsultationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas");
         }
     }
 
@@ -213,7 +213,7 @@ public class ConsultationDerivationService : IConsultationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas");
         }
     }
 
@@ -230,7 +230,7 @@ public class ConsultationDerivationService : IConsultationDerivationService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationDerivationDto>>.Failure($"Error al obtener consultas");
         }
     }
 }

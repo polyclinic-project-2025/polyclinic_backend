@@ -41,7 +41,7 @@ public class UserProfileService : IUserProfileService
         }
         catch (Exception ex)
         {
-            return Result<UserProfileResponse>.Failure($"Error al obtener perfil de usuario: {ex.Message}");
+            return Result<UserProfileResponse>.Failure($"Error al obtener perfil de usuario");
         }
     }
 
@@ -61,7 +61,7 @@ public class UserProfileService : IUserProfileService
         }
         catch (Exception ex)
         {
-            return Result<string>.Failure($"Error al obtener tipo de entidad: {ex.Message}");
+            return Result<string>.Failure($"Error al obtener tipo de entidad");
         }
     }
 

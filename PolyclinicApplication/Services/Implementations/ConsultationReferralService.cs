@@ -78,7 +78,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<ConsultationReferralResponse>.Failure($"Error al guardar la consulta: {ex.Message}");
+            return Result<ConsultationReferralResponse>.Failure($"Error al guardar la consulta");
         }
     }
 
@@ -95,7 +95,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar la consulta: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar la consulta");
         }
     }
 
@@ -112,7 +112,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas");
         }
     }
 
@@ -131,7 +131,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<ConsultationReferralResponse>.Failure($"Error al obtener consulta: {ex.Message}");
+            return Result<ConsultationReferralResponse>.Failure($"Error al obtener consulta");
         }
     }
 
@@ -146,7 +146,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas");
         }
     }
 
@@ -175,7 +175,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas");
         }
     }
 
@@ -239,7 +239,7 @@ public class ConsultationReferralService : IConsultationReferralService
     }
     catch (Exception ex)
     {
-        return Result<ConsultationReferralResponse>.Failure($"Error al actualizar la consulta: {ex.Message}");
+        return Result<ConsultationReferralResponse>.Failure($"Error al actualizar la consulta");
     }
 }
 
@@ -254,7 +254,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas");
         }
     }
 
@@ -268,7 +268,7 @@ public class ConsultationReferralService : IConsultationReferralService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas: {ex.Message}");
+            return Result<IEnumerable<ConsultationReferralResponse>>.Failure($"Error al obtener consultas");
         }
     }
 }

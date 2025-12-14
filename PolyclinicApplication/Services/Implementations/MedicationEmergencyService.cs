@@ -42,6 +42,8 @@ namespace PolyclinicApplication.Services.Implementations
             var emergencyRoomCare = await _emergencyRoomCareRepository.GetByIdAsync(dto.EmergencyRoomCareId);
             if (emergencyRoomCare == null)
                 return Result<MedicationEmergencyDto>.Failure("La atención de emergencia especificada no existe");
+            if(emergencyRoomCare.EmergencyRoom.Doctor.EmploymentStatus != "Activo")
+                return Result<MedicationEmergencyDto>.Failure("No puedes recetar medicamentos sin estar activo");
 
             var medication = await _medicationRepository.GetByIdAsync(dto.MedicationId);
             if (medication == null)
@@ -64,7 +66,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<MedicationEmergencyDto>.Failure($"Error al guardar medicacion: {ex.Message}");
+                return Result<MedicationEmergencyDto>.Failure($"Error al guardar medicacion");
             }
         }
 
@@ -90,6 +92,8 @@ namespace PolyclinicApplication.Services.Implementations
                 var emergencyRoomCare = await _emergencyRoomCareRepository.GetByIdAsync(emergencyRoomCareId);
                 if (emergencyRoomCare == null)
                     return Result<bool>.Failure("La atención de emergencia especificada no existe");
+                if(emergencyRoomCare.EmergencyRoom.Doctor.EmploymentStatus != "Activo")
+                    return Result<bool>.Failure("No puedes recetar medicamentos sin estar activo");
             }
 
             if (dto.MedicationId.HasValue)
@@ -111,7 +115,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al actualizar medicacion: {ex.Message}");
+                return Result<bool>.Failure($"Error al actualizar medicacion");
             }
         }
 
@@ -134,7 +138,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<bool>.Failure($"Error al eliminar la medicacion: {ex.Message}");
+                return Result<bool>.Failure($"Error al eliminar la medicacion");
             }
         }
 
@@ -157,7 +161,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<MedicationEmergencyDto>.Failure($"Error al obtener medicamento: {ex.Message}");
+                return Result<MedicationEmergencyDto>.Failure($"Error al obtener medicamento");
             }
         }
 
@@ -173,7 +177,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos: {ex.Message}");
+                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos");
             }
         }
 
@@ -200,7 +204,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos: {ex.Message}");
+                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos");
             }
         }
 
@@ -227,7 +231,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos: {ex.Message}");
+                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos");
             }
         }
 
@@ -249,7 +253,7 @@ namespace PolyclinicApplication.Services.Implementations
             }
             catch (Exception ex)
             {
-                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos: {ex.Message}");
+                return Result<IEnumerable<MedicationEmergencyDto>>.Failure($"Error al obtener medicamentos");
             }
         }
     }

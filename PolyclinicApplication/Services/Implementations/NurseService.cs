@@ -48,7 +48,7 @@ public class NurseService :
         }
         catch (Exception ex)
         {
-            return Result<NurseResponse>.Failure($"Error al guardar el enfermero: {ex.Message}");
+            return Result<NurseResponse>.Failure($"Error al guardar el enfermero");
         }
     }
 
@@ -84,7 +84,7 @@ public class NurseService :
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar el enfermero: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar el enfermero");
         }
     }
 }

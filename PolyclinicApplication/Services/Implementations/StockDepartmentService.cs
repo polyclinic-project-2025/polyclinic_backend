@@ -41,7 +41,7 @@ public class StockDepartmentService : IStockDepartmentService
         }
         catch (Exception ex)
         {
-            return Result<StockDepartmentDto>.Failure($"Error al guardar el stock: {ex.Message}");
+            return Result<StockDepartmentDto>.Failure($"Error al guardar el stock");
         }
     }
 
@@ -58,7 +58,7 @@ public class StockDepartmentService : IStockDepartmentService
         }
         catch (Exception ex)
         {
-            return Result<StockDepartmentDto>.Failure($"Error al obtener el stock: {ex.Message}");
+            return Result<StockDepartmentDto>.Failure($"Error al obtener el stock");
         }
     }
 
@@ -72,7 +72,7 @@ public class StockDepartmentService : IStockDepartmentService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<StockDepartmentDto>>.Failure($"Error al obtener el stock: {ex.Message}");
+            return Result<IEnumerable<StockDepartmentDto>>.Failure($"Error al obtener el stock");
         }
     }
 
@@ -98,7 +98,7 @@ public class StockDepartmentService : IStockDepartmentService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al actualizar el stock: {ex.Message}");
+            return Result<bool>.Failure($"Error al actualizar el stock");
         }
     }
 
@@ -115,7 +115,7 @@ public class StockDepartmentService : IStockDepartmentService
         }
         catch (Exception ex)
         {
-            return Result<bool>.Failure($"Error al eliminar el stock: {ex.Message}");
+            return Result<bool>.Failure($"Error al eliminar el stock");
         }
     }
 
@@ -140,7 +140,7 @@ public class StockDepartmentService : IStockDepartmentService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<StockDepartmentDto>>.Failure($"Error al obtener stock bajo del departamento: {ex.Message}");
+            return Result<IEnumerable<StockDepartmentDto>>.Failure($"Error al obtener stock bajo del departamento");
         }
     }
 
@@ -156,7 +156,7 @@ public class StockDepartmentService : IStockDepartmentService
         }
         catch (Exception ex)
         {
-            return Result<IEnumerable<StockDepartmentDto>>.Failure($"Error al obtener sobrestock del departamento: {ex.Message}");
+            return Result<IEnumerable<StockDepartmentDto>>.Failure($"Error al obtener sobrestock del departamento");
         }
     }
 }
