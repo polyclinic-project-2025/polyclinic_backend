@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.QueryInterfaces;
 using PolyclinicApplication.ReadModels;
 using PolyclinicApplication.Services.Interfaces.Analytics;
@@ -17,6 +18,17 @@ public class DeniedWarehouseRequestsService : IDeniedWarehouseRequestsService
         _query = query;
     }
 
-    public async Task<IEnumerable<DeniedWarehouseRequestReadModel>> GetDeniedWarehouseRequestsAsync(string status)
-        => await _query.GetDeniedAsync(status);
+    public async Task<Result<IEnumerable<DeniedWarehouseRequestReadModel>>> GetDeniedWarehouseRequestsAsync(string status)
+    {
+        try
+        {
+            var result = await _query.GetDeniedAsync(status);
+            return Result<IEnumerable<DeniedWarehouseRequestReadModel>>.Success(result);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<DeniedWarehouseRequestReadModel>>
+                    .Failure($"Error al obtener solicitud: {ex.Message}");
+        }
+    } 
 }
