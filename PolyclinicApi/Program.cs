@@ -9,10 +9,15 @@ using PolyclinicInfrastructure.Persistence;
 using PolyclinicInfrastructure.Repositories;
 using PolyclinicInfrastructure.Identity;
 using PolyclinicInfrastructure.Export;
+using PolyclinicInfrastructure.Queries;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Services.Interfaces;
+using PolyclinicApplication.Services.Interfaces.Analytics;
 using PolyclinicApplication.Services.Implementations;
+using PolyclinicApplication.Services.Implementations.Analytics;
+using PolyclinicApplication.QueryInterfaces;
+using PolyclinicApplication.ReadModels;
 using PolyclinicCore.Constants;
 using PolyclinicApplication.Mapping;
 using FluentValidation;
@@ -255,6 +260,13 @@ builder.Services.AddScoped<IEmployeeRepository<WarehouseManager>, WarehouseManag
 // Repositorio de perfil de usuario (optimizado para obtener empleado o paciente vinculado)
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
+// ==========================================
+// INFRASTRUCTURE - QUERIES
+// ==========================================
+builder.Services.AddScoped<IDeniedWarehouseRequestsQuery, DeniedWarehouseRequestsQuery>();
+
+
+
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -289,6 +301,8 @@ builder.Services.AddScoped<IEmployeeService<WarehouseManagerResponse>, EmployeeS
 // Export services
 builder.Services.AddScoped<IExportService, ExportService>();
 builder.Services.AddSingleton<IExportStrategyFactory, ExportStrategyFactory>();
+// Analytics
+builder.Services.AddScoped<IDeniedWarehouseRequestsService, DeniedWarehouseRequestsService>();
 
 
 
