@@ -196,6 +196,9 @@ builder.Services.AddAutoMapper(typeof(ConsultationDerivationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(MedicationDerivationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(UnifiedConsultationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(StockDepartmentProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmergencyRoomProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmergencyRoomCareProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationEmergencyProfile).Assembly);
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -226,6 +229,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.UpdateStockDepartmentValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateEmergencyRoomValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateEmergencyRoomCareValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationEmergencyValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateEmergencyRoomValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateEmergencyRoomCareValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationEmergencyValidator>();
 
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
@@ -248,6 +257,10 @@ builder.Services.AddScoped<IMedicationReferralRepository, MedicationReferralRepo
 builder.Services.AddScoped<IMedicationDerivationRepository, MedicationDerivationRepository>();
 builder.Services.AddScoped<IConsultationDerivationRepository, ConsultationDerivationRepository>();
 builder.Services.AddScoped<IStockDepartmentRepository, StockDepartmentRepository>();
+builder.Services.AddScoped<IEmergencyRoomRepository, EmergencyRoomRepository>();
+builder.Services.AddScoped<IEmergencyRoomCareRepository, EmergencyRoomCareRepository>();
+builder.Services.AddScoped<IMedicationEmergencyRepository, MedicationEmergencyRepository>();
+
 // Repositorio generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
@@ -283,6 +296,9 @@ builder.Services.AddScoped<IWarehouseRequestService, WarehouseRequestService>();
 builder.Services.AddScoped<IMedicationRequestService, MedicationRequestService>();
 builder.Services.AddScoped<IStockDepartmentService, StockDepartmentService>();
 builder.Services.AddScoped<IUnifiedConsultationService, UnifiedConsultationService>();
+builder.Services.AddScoped<IEmergencyRoomService, EmergencyRoomService>();
+builder.Services.AddScoped<IEmergencyRoomCareService, EmergencyRoomCareService>();
+builder.Services.AddScoped<IMedicationEmergencyService, MedicationEmergencyService>();
 // Servico generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
 builder.Services.AddScoped<IEmployeeService<WarehouseManagerResponse>, EmployeeService<WarehouseManager, WarehouseManagerResponse>>();

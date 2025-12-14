@@ -8,15 +8,15 @@ public class EmergencyRoomCare
 
     [Required]
     [MaxLength(1000)]
-    public string Diagnosis { get; private set; }
+    public string Diagnosis { get; set; }
     
-    public Guid EmergencyRoomId { get; private set; }
+    public Guid EmergencyRoomId { get; set; }
     public virtual EmergencyRoom? EmergencyRoom { get; private set; }
 
     [Required]
-    public DateTime CareDate { get; private set; }
+    public DateTime CareDate { get; set; }
 
-    public Guid PatientId { get; private set; }
+    public Guid PatientId { get; set; }
     public virtual Patient? Patient { get; private set; }
     
     public virtual ICollection<MedicationEmergency> MedicationEmergencies { get; private set; } = new List<MedicationEmergency>();

@@ -6,11 +6,11 @@ public class EmergencyRoom
 {
     public Guid EmergencyRoomId { get; private set; }
 
-    public Guid DoctorId { get; private set; }
+    public Guid DoctorId { get; set; }
     public virtual Doctor? Doctor { get; private set; }
 
     [Required]
-    public DateOnly GuardDate { get; private set; }
+    public DateOnly GuardDate { get; set; }
     
     public virtual ICollection<EmergencyRoomCare> EmergencyRoomCares { get; private set; } = new List<EmergencyRoomCare>();
     
