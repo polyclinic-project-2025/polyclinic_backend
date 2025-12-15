@@ -12,7 +12,7 @@ using PolyclinicInfrastructure.Persistence;
 namespace PolyclinicInfrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251207175553_InitialMigration")]
+    [Migration("20251215061925_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
