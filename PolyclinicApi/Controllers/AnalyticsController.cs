@@ -260,4 +260,42 @@ public class AnalyticsController : ControllerBase
         return Ok(ApiResult<IEnumerable<PatientListReadModel>>
             .Ok(data.Value, "Lista de pacientes obtenida exitosamente"));
     }
+
+    // GET: api/Analytics/patients-list/pdf
+    [HttpGet("patients-list/pdf")]
+    public async Task<ActionResult<ApiResult<ExportResponse>>> GetPatientsListPdf()
+    {
+        var dataResult = await _patientListService.GetPatientsListAsync();
+
+        if (!dataResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(dataResult.ErrorMessage!));
+        }
+
+        var exportDto = new ExportDto
+        {
+            Format = "pdf",
+            Fields = new List<string>
+            {
+                "PatientFullName",  
+                "Identification", 
+                "Age",
+                "Contact",
+                "Address"
+            },
+            Data = dataResult.Value,
+            Name = "Listado de pacientes registrados"
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+        }
+
+        return Ok(ApiResult<ExportResponse>
+                .Ok(exportResult.Value!,
+                    "Listado de pacientes exportado exitosamente"));
+    }
 }
