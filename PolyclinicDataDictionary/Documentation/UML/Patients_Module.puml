@@ -1,0 +1,41 @@
+@startuml Patients_Module
+
+skinparam classAttributeIconSize 0
+
+class Derivation <<Entity>> {
+    {field} DerivationId: Guid <<PK>>
+    - DateTimeDer: DateTime
+    - DepartmentFromId: Guid <<FK>>
+    - DepartmentToId: Guid <<FK>>
+    - PatientId: Guid <<FK>>
+}
+
+class ExternalMedicalPost <<Entity>> {
+    {field} ExternalMedicalPostId: Guid <<PK>>
+    - Name: string
+}
+
+class Patient <<Entity>> {
+    {field} PatientId: Guid <<PK>>
+    - Address: string
+    - Age: int
+    - Contact: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+class Referral <<Entity>> {
+    {field} ReferralId: Guid <<PK>>
+    - DateTimeRem: DateTime
+    - DepartmentToId: Guid <<FK>>
+    - ExternalMedicalPostId: Guid <<FK>>
+    - PatientId: Guid <<FK>>
+}
+
+
+' Relaciones
+Patient "1" --> "*" Derivation : Derivations
+Patient "1" --> "*" Referral : Referrals
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml Emergency_Module
+
+skinparam classAttributeIconSize 0
+
+class Doctor <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - DepartmentId: Guid <<FK>>
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+class EmergencyRoom <<Entity>> {
+    {field} EmergencyRoomId: Guid <<PK>>
+    - DoctorId: Guid <<FK>>
+    - GuardDate: DateOnly
+}
+
+class EmergencyRoomCare <<Entity>> {
+    {field} EmergencyRoomCareId: Guid <<PK>>
+    - CareDate: DateTime
+    - Diagnosis: string
+    - EmergencyRoomId: Guid <<FK>>
+    - PatientId: Guid <<FK>>
+}
+
+class Patient <<Entity>> {
+    {field} PatientId: Guid <<PK>>
+    - Address: string
+    - Age: int
+    - Contact: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+
+' Relaciones
+Doctor "1" --> "*" EmergencyRoom : EmergencyRooms
+EmergencyRoom "1" --> "*" EmergencyRoomCare : EmergencyRoomCares
+Patient "1" --> "*" EmergencyRoomCare : EmergencyRoomCares
+
+@enduml

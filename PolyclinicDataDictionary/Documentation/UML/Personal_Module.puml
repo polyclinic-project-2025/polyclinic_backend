@@ -1,0 +1,50 @@
+@startuml Personal_Module
+
+skinparam classAttributeIconSize 0
+
+class DepartmentHead <<Entity>> {
+    {field} DepartmentHeadId: Guid <<PK>>
+    - AssignedAt: DateTime
+    - DepartmentId: Guid <<FK>>
+    - DoctorId: Guid <<FK>>
+}
+
+class Doctor <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - DepartmentId: Guid <<FK>>
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+class Employee <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+class Nurse <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+class WarehouseManager <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - AssignedAt: DateTime
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+
+' Relaciones
+Doctor "1" --> "*" DepartmentHead : DepartmentHeads
+
+@enduml

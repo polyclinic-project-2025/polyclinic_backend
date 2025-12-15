@@ -1,0 +1,71 @@
+@startuml Polyclinic_Relationships
+
+' Diagrama simplificado mostrando solo relaciones
+skinparam classAttributeIconSize 0
+hide members
+
+class ConsultationDerivation
+class ConsultationReferral
+class Department
+class DepartmentHead
+class Derivation
+class Doctor
+class EmergencyRoom
+class EmergencyRoomCare
+class Employee
+class ExternalMedicalPost
+class Medication
+class MedicationDerivation
+class MedicationEmergency
+class MedicationReferral
+class MedicationRequest
+class Nurse
+class Patient
+class Referral
+class StockDepartment
+class WarehouseManager
+class WarehouseRequest
+
+ConsultationDerivation --> DepartmentHead
+ConsultationDerivation --> Derivation
+ConsultationDerivation --> Doctor
+ConsultationDerivation --> Patient
+ConsultationReferral --> DepartmentHead
+ConsultationReferral --> Doctor
+ConsultationReferral --> Patient
+ConsultationReferral --> Referral
+DepartmentHead --> Department
+DepartmentHead --> Doctor
+Derivation --> Department
+Derivation --> Department
+Derivation --> Patient
+Doctor --> IdentityUser
+Doctor --> Department
+Doctor --> Employee
+EmergencyRoom --> Doctor
+EmergencyRoomCare --> EmergencyRoom
+EmergencyRoomCare --> Patient
+Employee --> IdentityUser
+MedicationDerivation --> ConsultationDerivation
+MedicationDerivation --> Medication
+MedicationEmergency --> EmergencyRoomCare
+MedicationEmergency --> Medication
+MedicationReferral --> ConsultationReferral
+MedicationReferral --> Medication
+MedicationRequest --> Medication
+MedicationRequest --> WarehouseRequest
+Nurse --> IdentityUser
+Nurse --> Employee
+Patient --> IdentityUser
+Referral --> Department
+Referral --> ExternalMedicalPost
+Referral --> Patient
+StockDepartment --> Department
+StockDepartment --> Medication
+WarehouseManager --> IdentityUser
+WarehouseManager --> Employee
+WarehouseRequest --> DepartmentHead
+WarehouseRequest --> Department
+WarehouseRequest --> WarehouseManager
+
+@enduml

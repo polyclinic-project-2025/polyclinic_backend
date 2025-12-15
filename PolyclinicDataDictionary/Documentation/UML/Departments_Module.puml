@@ -1,0 +1,32 @@
+@startuml Departments_Module
+
+skinparam classAttributeIconSize 0
+
+class Department <<Entity>> {
+    {field} DepartmentId: Guid <<PK>>
+    - Name: string
+}
+
+class DepartmentHead <<Entity>> {
+    {field} DepartmentHeadId: Guid <<PK>>
+    - AssignedAt: DateTime
+    - DepartmentId: Guid <<FK>>
+    - DoctorId: Guid <<FK>>
+}
+
+class Doctor <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - DepartmentId: Guid <<FK>>
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+
+' Relaciones
+Department "1" --> "*" DepartmentHead : DepartmentHeads
+Department "1" --> "*" Doctor : Doctors
+Doctor "1" --> "*" DepartmentHead : DepartmentHeads
+
+@enduml

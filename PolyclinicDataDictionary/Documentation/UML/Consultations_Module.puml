@@ -1,0 +1,59 @@
+@startuml Consultations_Module
+
+skinparam classAttributeIconSize 0
+
+class ConsultationDerivation <<Entity>> {
+    {field} ConsultationDerivationId: Guid <<PK>>
+    - DateTimeCDer: DateTime
+    - DepartmentHeadId: Guid <<FK>>
+    - DerivationId: Guid <<FK>>
+    - Diagnosis: string
+    - DoctorId: Guid <<FK>>
+}
+
+class ConsultationReferral <<Entity>> {
+    {field} ConsultationReferralId: Guid <<PK>>
+    - DateTimeCRem: DateTime
+    - DepartmentHeadId: Guid <<FK>>
+    - Diagnosis: string
+    - DoctorId: Guid <<FK>>
+    - ReferralId: Guid <<FK>>
+}
+
+class DepartmentHead <<Entity>> {
+    {field} DepartmentHeadId: Guid <<PK>>
+    - AssignedAt: DateTime
+    - DepartmentId: Guid <<FK>>
+    - DoctorId: Guid <<FK>>
+}
+
+class Doctor <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - DepartmentId: Guid <<FK>>
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+class Patient <<Entity>> {
+    {field} PatientId: Guid <<PK>>
+    - Address: string
+    - Age: int
+    - Contact: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+
+' Relaciones
+DepartmentHead "1" --> "*" ConsultationDerivation : ConsultationDerivations
+DepartmentHead "1" --> "*" ConsultationReferral : ConsultationReferrals
+Doctor "1" --> "*" ConsultationDerivation : ConsultationDerivations
+Doctor "1" --> "*" ConsultationReferral : ConsultationReferrals
+Doctor "1" --> "*" DepartmentHead : DepartmentHeads
+Patient "1" --> "*" ConsultationDerivation : ConsultationDerivations
+Patient "1" --> "*" ConsultationReferral : ConsultationReferrals
+
+@enduml

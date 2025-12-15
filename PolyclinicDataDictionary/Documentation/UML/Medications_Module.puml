@@ -1,0 +1,66 @@
+@startuml Medications_Module
+
+skinparam classAttributeIconSize 0
+
+class Medication <<Entity>> {
+    {field} MedicationId: Guid <<PK>>
+    - BatchNumber: string
+    - CommercialCompany: string
+    - CommercialName: string
+    - ExpirationDate: DateOnly
+    - Format: string
+    - MaxQuantityNurse: int
+    - MaxQuantityWarehouse: int
+    - MinQuantityNurse: int
+    - MinQuantityWarehouse: int
+    - QuantityNurse: int
+    - QuantityWarehouse: int
+    - ScientificName: string
+}
+
+class MedicationDerivation <<Entity>> {
+    {field} MedicationDerivationId: Guid <<PK>>
+    - ConsultationDerivationId: Guid <<FK>>
+    - MedicationId: Guid <<FK>>
+    - Quantity: int
+}
+
+class MedicationEmergency <<Entity>> {
+    {field} MedicationEmergencyId: Guid <<PK>>
+    - EmergencyRoomCareId: Guid <<FK>>
+    - MedicationId: Guid <<FK>>
+    - Quantity: int
+}
+
+class MedicationReferral <<Entity>> {
+    {field} MedicationReferralId: Guid <<PK>>
+    - ConsultationReferralId: Guid <<FK>>
+    - MedicationId: Guid <<FK>>
+    - Quantity: int
+}
+
+class MedicationRequest <<Entity>> {
+    {field} MedicationRequestId: Guid <<PK>>
+    - MedicationId: Guid <<FK>>
+    - Quantity: int
+    - WarehouseRequestId: Guid <<FK>>
+}
+
+class StockDepartment <<Entity>> {
+    {field} StockDepartmentId: Guid <<PK>>
+    - DepartmentId: Guid <<FK>>
+    - MaxQuantity: int
+    - MedicationId: Guid <<FK>>
+    - MinQuantity: int
+    - Quantity: int
+}
+
+
+' Relaciones
+Medication "1" --> "*" MedicationDerivation : MedicationDerivations
+Medication "1" --> "*" MedicationEmergency : MedicationEmergencies
+Medication "1" --> "*" MedicationReferral : MedicationReferrals
+Medication "1" --> "*" MedicationRequest : MedicationRequests
+Medication "1" --> "*" StockDepartment : StockDepartments
+
+@enduml

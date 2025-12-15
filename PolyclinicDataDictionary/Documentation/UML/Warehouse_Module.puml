@@ -1,0 +1,40 @@
+@startuml Warehouse_Module
+
+skinparam classAttributeIconSize 0
+
+class Department <<Entity>> {
+    {field} DepartmentId: Guid <<PK>>
+    - Name: string
+}
+
+class MedicationRequest <<Entity>> {
+    {field} MedicationRequestId: Guid <<PK>>
+    - MedicationId: Guid <<FK>>
+    - Quantity: int
+    - WarehouseRequestId: Guid <<FK>>
+}
+
+class WarehouseManager <<Entity>> {
+    {field} EmployeeId: Guid <<PK>> <<FK>>
+    - AssignedAt: DateTime
+    - EmploymentStatus: string
+    - Identification: string
+    - Name: string
+    - UserId: string? <<FK>>
+}
+
+class WarehouseRequest <<Entity>> {
+    {field} WarehouseRequestId: Guid <<PK>>
+    - DepartmentId: Guid <<FK>>
+    - RequestDate: DateTime
+    - Status: string
+    - WarehouseManagerId: Guid <<FK>>
+}
+
+
+' Relaciones
+Department "1" --> "*" WarehouseRequest : WarehouseRequests
+WarehouseManager "1" --> "*" WarehouseRequest : WarehouseRequests
+WarehouseRequest "1" --> "*" MedicationRequest : MedicationRequests
+
+@enduml
