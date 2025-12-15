@@ -1,7 +1,7 @@
 namespace PolyclinicApplication.ReadModels;
 
 public record PatientListReadModel(
-    string PatientName,
+    string PatientFullName,
     string Identification,
     int Age,
     string Contact,
