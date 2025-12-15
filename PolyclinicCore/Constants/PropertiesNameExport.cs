@@ -15,6 +15,7 @@ public static class PropertiesNameExport
         { "DepartmentName", "Departamento" },
         { "DepartmentHeadName", "Jefe de Departamento" },
         { "Diagnosis", "Diagnóstico" },
+        { "Date", "Fecha"},
         { "Doctor", "Doctor" },
         { "DoctorFullName", "Doctor"},
         { "DoctorName", "Doctor"},
