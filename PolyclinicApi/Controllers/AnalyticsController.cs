@@ -11,6 +11,7 @@ using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Interfaces.Analytics;
 using PolyclinicApplication.ReadModels;
 using PolyclinicApplication.Common.Results;
+using System.Data;
 
 namespace PolyclinicApi.Controllers;
 
@@ -55,7 +56,45 @@ public class AnalyticsController : ControllerBase
 
         return Ok(ApiResult<IEnumerable<UnifiedConsultationDto>>.Ok(result.Value!, "Últimas consultas obtenidas"));
     }
+    // GET: api/Analytics/last10/pdf
+    [HttpGet("last10/pdf")]
+    public async Task<ActionResult<ExportResponse>> GetLast10Pdf(Guid patientId)
+    {
+        var dataResult = await _service
+            .GetLast10ByPatientIdAsync(patientId);
 
+        if(!dataResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(dataResult.ErrorMessage!));
+        }    
+
+        var exportDto = new ExportDto
+        {
+            Format = "pdf",
+            Fields = new List<string>
+            {
+                "PatientFullName",
+                "DoctorFullName",
+                "DepartmentName",
+                "Type",
+                "Medications"
+                
+            },
+            Data = dataResult.Value!,
+            Name = "Últimas 10 Consultas del paciente"
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+        }
+
+        return Ok(ApiResult<ExportResponse>
+                .Ok(exportResult.Value!, 
+                    "Consultas exportadas exitosamente"));
+    }
     // GET: api/Analytics/range?patientId=...&startDate=...&endDate=...
     [HttpGet("range")]
     public async Task<IActionResult> GetByRange(
@@ -68,6 +107,47 @@ public class AnalyticsController : ControllerBase
             return BadRequest(ApiResult<IEnumerable<UnifiedConsultationDto>>.Error(result.ErrorMessage!));
 
         return Ok(ApiResult<IEnumerable<UnifiedConsultationDto>>.Ok(result.Value!, "Consultas en rango obtenidas"));
+    }
+
+    // GET: api/Analytics/range/pdf?patientId=...&startDate=...&endDate=...
+    [HttpGet("range/pdf")]
+    public async Task<ActionResult<ApiResult<ExportResponse>>> GetByRangePdf(
+        [FromQuery] Guid patientId,
+        [FromQuery] DateTime startDate,
+        [FromQuery] DateTime endDate)
+    {
+        var dataResult = await _service.GetByDateRangeAsync(patientId, startDate, endDate);
+
+        if (!dataResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(dataResult.ErrorMessage!));
+        }
+
+        var exportDto = new ExportDto
+        {
+            Format = "pdf",
+            Fields = new List<string>
+            {
+                "Date",
+                "PatientFullName",
+                "DoctorFullName",
+                "DepartmentName",
+                "Type",
+                "Diagnosis"
+            },
+            Data = dataResult.Value!,
+            Name = "Consultas del paciente por rango de fechas"
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+        }
+
+        return Ok(ApiResult<ExportResponse>
+            .Ok(exportResult.Value!, "Consultas por rango exportadas exitosamente"));
     }
 
     // GET: api/Analytics/medication-consumption?medicationId=...&month=...&year=...
@@ -84,6 +164,52 @@ public class AnalyticsController : ControllerBase
 
         return Ok(ApiResult<MedicationConsumptionReadModel>.Ok(result.Value!, "Consumo de medicamento obtenido"));
     }
+
+    // GET: api/Analytics/medication-consumption/pdf?medicationId=...&month=...&year=...
+    [HttpGet("medication-consumption/pdf")]
+    public async Task<ActionResult<ApiResult<ExportResponse>>> GetMedicationConsumptionPdf(
+        [FromQuery] Guid medicationId,
+        [FromQuery] int month,
+        [FromQuery] int year)
+    {
+        var dataResult = await _medicationConsumptionService
+            .GetMonthlyConsumptionAsync(medicationId, month, year);
+
+        if (!dataResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(dataResult.ErrorMessage!));
+        }
+
+        var exportDto = new ExportDto
+        {
+            Format = "pdf",
+            Fields = new List<string>
+            {
+                "Month",
+                "Year",
+                "ScientificName",
+                "CommercialName",
+                "TotalConsumption",
+                "QuantityWarehouse",
+                "MinQuantityWarehouse",
+                "MaxQuantityWarehouse"
+                
+            },
+            Data = dataResult.Value!,
+            Name = "Consumo mensual de medicamento"
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+        }
+
+        return Ok(ApiResult<ExportResponse>
+            .Ok(exportResult.Value!, "Consumo de medicamento exportado exitosamente"));
+    }
+
 
     // GET: api/Analytics/denied-warehouse-requests?status=...
     [HttpGet("denied-warehouse-requests")]
