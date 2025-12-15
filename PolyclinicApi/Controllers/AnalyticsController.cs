@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request;
 using PolyclinicApplication.DTOs.Response;
+using PolyclinicApplication.DTOs.Request.Export;
+using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.Services.Interfaces;
 using PolyclinicApplication.Services.Interfaces.Analytics;
 using PolyclinicApplication.ReadModels;
@@ -22,18 +24,22 @@ public class AnalyticsController : ControllerBase
     private readonly IDoctorMonthlyAverageService _doctorMonthlyAverageService;
     private readonly IDoctorSuccessRateService _doctorSuccessRateService;
 
+    private readonly IExportService _exportService;
+
     public AnalyticsController(
         IUnifiedConsultationService service,
         IMedicationConsumptionService medicationConsumptionService,
         IDeniedWarehouseRequestsService deniedWarehouseRequestsService,
         IDoctorMonthlyAverageService doctorMonthlyAverageService,
-        IDoctorSuccessRateService doctorSuccessRateService)
+        IDoctorSuccessRateService doctorSuccessRateService,
+        IExportService exportService)
     {
         _service = service;
         _medicationConsumptionService = medicationConsumptionService;
         _deniedWarehouseRequestsService = deniedWarehouseRequestsService;
         _doctorMonthlyAverageService = doctorMonthlyAverageService;
         _doctorSuccessRateService = doctorSuccessRateService;
+        _exportService = exportService;
     }
 
     // GET: api/Analytics/last10/{patientId}
@@ -88,6 +94,45 @@ public class AnalyticsController : ControllerBase
             .Ok(data.Value, "Solicitudes de almacén denegadas obtenidas"));
     }
 
+    // GET: api/Analytics/denied-warehouse-requests/pdf?status=...
+    [HttpGet("denied-warehouse-requests/pdf")]
+    public async Task<ActionResult<ApiResult<ExportResponse>>> GetDeniedWarehouseRequestsPdf(
+        [FromQuery] string status)
+    {
+        var dataResult = await _deniedWarehouseRequestsService
+            .GetDeniedWarehouseRequestsAsync(status);
+
+        if (!dataResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(dataResult.ErrorMessage!));
+        }
+
+        var exportDto = new ExportDto
+        {
+            Format = "pdf",
+            Fields = new List<string>
+            {
+                "DepartmentName",
+                "DepartmentHeadName",
+                "Medications"
+            },
+            Data = dataResult.Value ,
+            Name = "Solicitudes denegadas por jefe de almacén"
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+        }
+
+        return Ok(ApiResult<ExportResponse>
+                .Ok(exportResult.Value!, 
+                    "Solicitudes denegadas exportadas exitosamente"));
+    }
+
+
     // GET: api/Analytics/doctor-monthly-average?from=...&to=...
     [HttpGet("doctor-monthly-average")]
     public async Task<IActionResult> GetDoctorMonthlyAverage(
@@ -104,6 +149,50 @@ public class AnalyticsController : ControllerBase
             .Ok(data.Value, "Promedio mensual por doctor obtenido"));
     }
 
+    // GET: api/Analytics/doctor-monthly-average/pdf?from=...&to=...
+    [HttpGet("doctor-monthly-average/pdf")]
+    public async Task<ActionResult<ApiResult<ExportResponse>>> GetDoctorMonthlyAveragePdf(
+        [FromQuery] DateTime from,
+        [FromQuery] DateTime to)
+    {
+        var fromUtc = DateTime.SpecifyKind(from, DateTimeKind.Utc);
+        var toUtc = DateTime.SpecifyKind(to, DateTimeKind.Utc);
+
+        var dataResult = await _doctorMonthlyAverageService
+            .GetDoctorAverageAsync(fromUtc, toUtc);
+
+        if (!dataResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(dataResult.ErrorMessage!));
+        }
+
+        var exportDto = new ExportDto
+        {
+            Format = "pdf",
+            Fields = new List<string>
+            {
+                "DoctorName",
+                "DepartmentName",
+                "ConsultationAverage",
+                "EmergencyRoomAverage"
+            },
+            Data = dataResult.Value,
+            Name = "Promedio mensual de atenciones por doctor"
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+        }
+
+        return Ok(ApiResult<ExportResponse>
+                .Ok(exportResult.Value!,
+                    "Promedio mensual por doctor exportado exitosamente"));
+    }
+
+
     // GET: api/Analytics/doctor-success-rate?frequency=...
     [HttpGet("doctor-success-rate")]
     public async Task<IActionResult> GetDoctorSuccessRate(
@@ -114,5 +203,45 @@ public class AnalyticsController : ControllerBase
 
         return Ok(ApiResult<IEnumerable<DoctorSuccessRateReadModel>>
             .Ok(data.Value, "Tasa de éxito de doctores obtenida"));
+    }
+
+    // GET: api/Analytics/doctor-success-rate/pdf?frequency=...
+    [HttpGet("doctor-success-rate/pdf")]
+    public async Task<ActionResult<ApiResult<ExportResponse>>> GetDoctorSuccessRatePdf(
+        [FromQuery] int frequency = 1)
+    {
+        var dataResult = await _doctorSuccessRateService
+            .GetTop5DoctorsSuccessRateAsync(frequency);
+
+        if (!dataResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(dataResult.ErrorMessage!));
+        }
+
+        var exportDto = new ExportDto
+        {
+            Format = "pdf",
+            Fields = new List<string>
+            {
+                "DoctorName",
+                "DepartmentName",
+                "SuccessRate",
+                "TotalPrescriptions",
+                "FrequentMedications"
+            },
+            Data = dataResult.Value,
+            Name = "Tasa de éxito de prescripciones por doctor"
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+
+        if (!exportResult.IsSuccess)
+        {
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+        }
+
+        return Ok(ApiResult<ExportResponse>
+                .Ok(exportResult.Value!,
+                    "Tasa de éxito de doctores exportada exitosamente"));
     }
 }
