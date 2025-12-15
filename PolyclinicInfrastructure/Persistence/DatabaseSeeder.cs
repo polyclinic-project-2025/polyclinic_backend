@@ -736,8 +736,13 @@ public class DatabaseSeeder
                     var derivation = derivationsInDept[i];
                     var doctor = deptDoctors[i % deptDoctors.Count]; // Distribución round-robin
                     
-                    // La consulta ocurre 1-3 días después de la derivación
-                    var consultationDate = derivation.DateTimeDer.AddDays(random.Next(1, 4)).AddHours(random.Next(-2, 3));
+                    // La consulta ocurre 1-3 días después de la derivación (asegurar que sea pasado)
+                    var consultationDate = derivation.DateTimeDer.AddDays(random.Next(1, 4)).AddHours(random.Next(1, 5));
+                    // Asegurar que la fecha no sea futura
+                    if (consultationDate > DateTime.UtcNow)
+                    {
+                        consultationDate = DateTime.UtcNow.AddHours(-random.Next(1, 48));
+                    }
 
                     consultations.Add(new ConsultationDerivation(
                         Guid.NewGuid(),
@@ -813,8 +818,13 @@ public class DatabaseSeeder
                     var referral = referralsInDept[i];
                     var doctor = deptDoctors[i % deptDoctors.Count]; // Distribución round-robin
                     
-                    // La consulta ocurre el mismo día o 1-2 días después de la remisión
+                    // La consulta ocurre el mismo día o 1-2 días después de la remisión (asegurar que sea pasado)
                     var consultationDate = referral.DateTimeRem.AddDays(random.Next(0, 3)).AddHours(random.Next(1, 5));
+                    // Asegurar que la fecha no sea futura (validator requiere LessThan(DateTime.Now))
+                    if (consultationDate > DateTime.UtcNow)
+                    {
+                        consultationDate = DateTime.UtcNow.AddHours(-random.Next(1, 48));
+                    }
 
                     consultations.Add(new ConsultationReferral(
                         Guid.NewGuid(),
@@ -965,13 +975,13 @@ public class DatabaseSeeder
 
             var emergencyRooms = new List<EmergencyRoom>();
 
-            // Crear guardias para los próximos días
+            // Crear guardias para los últimos días (fechas pasadas, no futuras)
             for (int i = 0; i < Math.Min(5, doctors.Count); i++)
             {
                 emergencyRooms.Add(new EmergencyRoom(
                     Guid.NewGuid(),
                     doctors[i].EmployeeId,
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(i))
+                    DateOnly.FromDateTime(DateTime.Now.AddDays(-(i + 1)))
                 ));
             }
 
@@ -990,15 +1000,17 @@ public class DatabaseSeeder
 
             if (emergencyRooms.Count == 0 || patients.Count == 0) return;
 
+            var random = new Random(555);
             var cares = new List<EmergencyRoomCare>();
 
             for (int i = 0; i < Math.Min(emergencyRooms.Count, patients.Count); i++)
             {
+                // Fecha de atención debe coincidir con la guardia y ser pasada
                 cares.Add(new EmergencyRoomCare(
                     Guid.NewGuid(),
-                    $"Atención de emergencia {i + 1}: Evaluación y estabilización del paciente",
+                    $"Atención de emergencia {i + 1}: Evaluación completa y estabilización del paciente en servicio",
                     emergencyRooms[i].EmergencyRoomId,
-                    DateTime.UtcNow.AddHours(-i * 2),
+                    DateTime.UtcNow.AddDays(-(i + 1)).AddHours(random.Next(8, 18)),
                     patients[i].PatientId
                 ));
             }
@@ -1261,6 +1273,12 @@ public class DatabaseSeeder
                 secondConsultDate = firstConsultDate.AddDays(daysUntilSecond);
                 // Puede ser otro doctor del mismo departamento
                 secondDoctor = deptDoctors[random.Next(deptDoctors.Count)];
+            }
+
+            // Asegurar que la segunda consulta NO sea futura (validator requiere LessThan(DateTime.Now))
+            if (secondConsultDate >= DateTime.UtcNow)
+            {
+                secondConsultDate = DateTime.UtcNow.AddDays(-random.Next(1, 30));
             }
 
             // Crear remisión para segunda consulta
