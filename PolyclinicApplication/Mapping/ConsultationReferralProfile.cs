@@ -15,6 +15,8 @@ public class ConsultationReferralProfile : Profile
                 opt => opt.MapFrom(src => src.DepartmentHead != null && src.DepartmentHead.Department != null 
                     ? src.DepartmentHead.Department.Name 
                     : string.Empty))
+            .ForMember(dest => dest.DepartmentToId,
+                opt => opt.MapFrom(src => src.Referral!.DepartmentToId))        
             .ForMember(dest => dest.DoctorFullName, 
                 opt => opt.MapFrom(src => src.Doctor != null 
                     ? $"{src.Doctor.Name}" 

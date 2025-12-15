@@ -23,6 +23,7 @@ public class AnalyticsController : ControllerBase
     private readonly IDeniedWarehouseRequestsService _deniedWarehouseRequestsService;
     private readonly IDoctorMonthlyAverageService _doctorMonthlyAverageService;
     private readonly IDoctorSuccessRateService _doctorSuccessRateService;
+    private readonly IPatientListService _patientListService;
 
     private readonly IExportService _exportService;
 
@@ -32,7 +33,8 @@ public class AnalyticsController : ControllerBase
         IDeniedWarehouseRequestsService deniedWarehouseRequestsService,
         IDoctorMonthlyAverageService doctorMonthlyAverageService,
         IDoctorSuccessRateService doctorSuccessRateService,
-        IExportService exportService)
+        IExportService exportService,
+        IPatientListService patientListService)
     {
         _service = service;
         _medicationConsumptionService = medicationConsumptionService;
@@ -40,6 +42,7 @@ public class AnalyticsController : ControllerBase
         _doctorMonthlyAverageService = doctorMonthlyAverageService;
         _doctorSuccessRateService = doctorSuccessRateService;
         _exportService = exportService;
+        _patientListService = patientListService;
     }
 
     // GET: api/Analytics/last10/{patientId}
@@ -243,5 +246,18 @@ public class AnalyticsController : ControllerBase
         return Ok(ApiResult<ExportResponse>
                 .Ok(exportResult.Value!,
                     "Tasa de éxito de doctores exportada exitosamente"));
+    }
+    
+    // GET: api/Analytics/patients-list
+    [HttpGet("patients-list")]
+    public async Task<IActionResult> GetPatientsList()
+    {
+        var data = await _patientListService.GetPatientsListAsync();
+    
+        if (!data.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<PatientListReadModel>>.Error(data.ErrorMessage!));
+
+        return Ok(ApiResult<IEnumerable<PatientListReadModel>>
+            .Ok(data.Value, "Lista de pacientes obtenida exitosamente"));
     }
 }

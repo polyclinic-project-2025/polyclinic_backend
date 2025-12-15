@@ -290,6 +290,7 @@ builder.Services.AddScoped<IDeniedWarehouseRequestsQuery, DeniedWarehouseRequest
 builder.Services.AddScoped<IDoctorMonthlyAverageQuery, DoctorMonthlyAverageQuery>();
 builder.Services.AddScoped<IDoctorSuccessRateQuery, DoctorSuccessRateQuery>();
 builder.Services.AddScoped<IMedicationConsumptionQuery, MedicationConsumptionQuery>();
+builder.Services.AddScoped<IPatientListQuery, PatientListQuery>();
 
 
 
@@ -334,6 +335,7 @@ builder.Services.AddScoped<IDeniedWarehouseRequestsService, DeniedWarehouseReque
 builder.Services.AddScoped<IDoctorMonthlyAverageService, DoctorMonthlyAverageService>();
 builder.Services.AddScoped<IDoctorSuccessRateService, DoctorSuccessRateService>();
 builder.Services.AddScoped<IMedicationConsumptionService, MedicationConsumptionService>();
+builder.Services.AddScoped<IPatientListService, PatientListService>();
 
 
 var app = builder.Build();
