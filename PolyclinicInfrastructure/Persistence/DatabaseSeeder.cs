@@ -64,6 +64,9 @@ public class DatabaseSeeder
             await SeedMedicationEmergenciesAsync();
             await SeedWarehouseRequestsAsync();
             await SeedMedicationRequestsAsync();
+            
+            // ========== CONSULTAS DE SEGUIMIENTO PARA PACIENTES MAYORES ==========
+            await SeedElderlyPatientFollowUpConsultationsAsync();
 
             Console.WriteLine("✓ Database seeding completado exitosamente");
         }
@@ -180,12 +183,24 @@ public class DatabaseSeeder
         {
             var departments = new List<Department>
             {
+                // 6 departamentos originales
                 new Department(Guid.NewGuid(), "Cardiología"),
                 new Department(Guid.NewGuid(), "Pediatría"),
                 new Department(Guid.NewGuid(), "Medicina General"),
                 new Department(Guid.NewGuid(), "Traumatología"),
                 new Department(Guid.NewGuid(), "Ginecología"),
-                new Department(Guid.NewGuid(), "Dermatología")
+                new Department(Guid.NewGuid(), "Dermatología"),
+                // 10 departamentos adicionales para pacientes mayores
+                new Department(Guid.NewGuid(), "Geriatría"),
+                new Department(Guid.NewGuid(), "Neurología"),
+                new Department(Guid.NewGuid(), "Neumología"),
+                new Department(Guid.NewGuid(), "Nefrología"),
+                new Department(Guid.NewGuid(), "Reumatología"),
+                new Department(Guid.NewGuid(), "Endocrinología"),
+                new Department(Guid.NewGuid(), "Gastroenterología"),
+                new Department(Guid.NewGuid(), "Urología"),
+                new Department(Guid.NewGuid(), "Oftalmología"),
+                new Department(Guid.NewGuid(), "Oncología")
             };
 
             await _context.Departments.AddRangeAsync(departments);
@@ -217,21 +232,70 @@ public class DatabaseSeeder
     {
         if (!await _context.Patients.AnyAsync())
         {
-            var patients = new List<Patient>
+            // Crear 200 pacientes para cubrir las consultas de 5 meses (15 doctores * ~5-10 consultas/mes)
+            var firstNames = new[] { "Juan", "María", "Carlos", "Ana", "Luis", "Carmen", "Pedro", "Laura", 
+                "Miguel", "Sofía", "Andrés", "Elena", "Fernando", "Patricia", "Roberto", "Diana",
+                "José", "Gabriela", "Ricardo", "Valeria", "Daniel", "Camila", "Santiago", "Isabella",
+                "Diego", "Natalia", "Alejandro", "Lucía", "Sebastián", "Paula", "Mateo", "Daniela",
+                "Nicolás", "Mariana", "David", "Carolina", "Eduardo", "Andrea", "Gabriel", "Fernanda" };
+            
+            var lastNames = new[] { "Pérez", "García", "Rodríguez", "Martínez", "López", "González", 
+                "Sánchez", "Torres", "Ramírez", "Flores", "Vargas", "Castro", "Morales", "Herrera",
+                "Ortiz", "Silva", "Núñez", "Mendoza", "Ruiz", "Jiménez", "Álvarez", "Romero",
+                "Díaz", "Medina", "Guzmán", "Campos", "Rojas", "Cruz", "Reyes", "Vega" };
+            
+            var cities = new[] { "Quito", "Guayaquil", "Cuenca", "Ambato", "Riobamba", "Machala", "Loja", "Manta", "Portoviejo", "Esmeraldas" };
+            var streets = new[] { "Av. Principal", "Calle Secundaria", "Barrio La Paz", "Urbanización Los Álamos", 
+                "Conjunto Habitacional", "Sector Norte", "Ciudadela Sur", "Villa Florida", "Centro Histórico", "Zona Comercial" };
+
+            var patients = new List<Patient>();
+            var random = new Random(42); // Seed fijo para reproducibilidad
+
+            for (int i = 0; i < 200; i++)
             {
-                new Patient(Guid.NewGuid(), "Juan Pérez", "0123456789", 35, "0991234567", "Av. Principal 123, Quito"),
-                new Patient(Guid.NewGuid(), "María García", "0234567890", 28, "0992345678", "Calle Secundaria 456, Guayaquil"),
-                new Patient(Guid.NewGuid(), "Carlos Rodríguez", "0345678901", 42, "0993456789", "Barrio La Paz 789, Cuenca"),
-                new Patient(Guid.NewGuid(), "Ana Martínez", "0456789012", 55, "0994567890", "Urbanización Los Álamos 321, Quito"),
-                new Patient(Guid.NewGuid(), "Luis Fernández", "0567890123", 19, "0995678901", "Conjunto Habitacional 654, Ambato"),
-                new Patient(Guid.NewGuid(), "Carmen López", "0678901234", 67, "0996789012", "Sector Norte 987, Riobamba"),
-                new Patient(Guid.NewGuid(), "Pedro Sánchez", "0789012345", 31, "0997890123", "Ciudadela Sur 147, Machala"),
-                new Patient(Guid.NewGuid(), "Laura Torres", "0890123456", 45, "0998901234", "Villa Florida 258, Loja")
-            };
+                var firstName = firstNames[random.Next(firstNames.Length)];
+                var lastName1 = lastNames[random.Next(lastNames.Length)];
+                var lastName2 = lastNames[random.Next(lastNames.Length)];
+                var fullName = $"{firstName} {lastName1} {lastName2}";
+                
+                // Generar cédula única de 10 dígitos
+                var identification = $"{random.Next(10):D1}{random.Next(100000000, 999999999)}";
+                
+                var age = random.Next(1, 90);
+                var contact = $"09{random.Next(90000000, 99999999)}";
+                var address = $"{streets[random.Next(streets.Length)]} {random.Next(100, 999)}, {cities[random.Next(cities.Length)]}";
+
+                patients.Add(new Patient(Guid.NewGuid(), fullName, identification, age, contact, address));
+            }
+
+            // ========== 50 PACIENTES MAYORES (60-90 años) ==========
+            var elderlyFirstNames = new[] { "Alberto", "Ramiro", "Germán", "Oswaldo", "Humberto", 
+                "Gloria", "Esperanza", "Dolores", "Blanca", "Mercedes", "Augusto", "Reinaldo",
+                "Ernestina", "Zoila", "Clotilde", "Segundo", "Heriberto", "Celso", "Rosario", "Amelia" };
+            
+            var elderlyRandom = new Random(999); // Seed diferente para pacientes mayores
+            
+            for (int i = 0; i < 50; i++)
+            {
+                var firstName = elderlyFirstNames[elderlyRandom.Next(elderlyFirstNames.Length)];
+                var lastName1 = lastNames[elderlyRandom.Next(lastNames.Length)];
+                var lastName2 = lastNames[elderlyRandom.Next(lastNames.Length)];
+                var fullName = $"{firstName} {lastName1} {lastName2}";
+                
+                // Cédulas con prefijo especial para identificarlos fácilmente
+                var identification = $"50{i:D2}{elderlyRandom.Next(100000, 999999)}";
+                
+                // Edad entre 60 y 90 años
+                var age = elderlyRandom.Next(60, 91);
+                var contact = $"02{elderlyRandom.Next(2000000, 2999999)}"; // Teléfonos fijos
+                var address = $"{streets[elderlyRandom.Next(streets.Length)]} {elderlyRandom.Next(100, 999)}, {cities[elderlyRandom.Next(cities.Length)]}";
+
+                patients.Add(new Patient(Guid.NewGuid(), fullName, identification, age, contact, address));
+            }
 
             await _context.Patients.AddRangeAsync(patients);
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {patients.Count} pacientes creados");
+            Console.WriteLine($"✓ {patients.Count} pacientes creados (incluye 50 pacientes mayores 60-90 años)");
         }
     }
 
@@ -242,15 +306,86 @@ public class DatabaseSeeder
             var departments = await _context.Departments.ToListAsync();
             if (departments.Count == 0) return;
 
-            var doctors = new List<Doctor>
+            // Lista de doctores con datos coherentes distribuidos en los 16 departamentos
+            var doctorData = new List<(string Identification, string Name, int DeptIndex)>
             {
-                new Doctor(Guid.NewGuid(), "1234567890", "Dr. Roberto Gómez", EmploymentStatus.Active, departments[0].DepartmentId),
-                new Doctor(Guid.NewGuid(), "2345678901", "Dra. Elena Vásquez", EmploymentStatus.Active, departments[1].DepartmentId),
-                new Doctor(Guid.NewGuid(), "3456789012", "Dr. Fernando Castro", EmploymentStatus.Active, departments[2].DepartmentId),
-                new Doctor(Guid.NewGuid(), "4567890123", "Dra. Patricia Morales", EmploymentStatus.Active, departments[3].DepartmentId),
-                new Doctor(Guid.NewGuid(), "5678901234", "Dr. Miguel Herrera", EmploymentStatus.Inactive, departments[4].DepartmentId),
-                new Doctor(Guid.NewGuid(), "6789012345", "Dra. Sofía Ramírez", EmploymentStatus.Active, departments[5].DepartmentId)
+                // Cardiología (índice 0) - 3 doctores
+                ("1234567890", "Dr. Roberto Gómez Mendoza", 0),
+                ("1234567891", "Dra. Carmen Lucia Ortega", 0),
+                ("1234567892", "Dr. Andrés Felipe Mora", 0),
+                
+                // Pediatría (índice 1) - 3 doctores
+                ("2345678901", "Dra. Elena Vásquez Ruiz", 1),
+                ("2345678902", "Dr. José Manuel Paredes", 1),
+                ("2345678903", "Dra. Gabriela Mendez Torres", 1),
+                
+                // Medicina General (índice 2) - 3 doctores
+                ("3456789012", "Dr. Fernando Castro Ríos", 2),
+                ("3456789013", "Dra. Lucía Salazar Vega", 2),
+                ("3456789014", "Dr. Ricardo Núñez Peña", 2),
+                
+                // Traumatología (índice 3) - 2 doctores
+                ("4567890123", "Dra. Patricia Morales Luna", 3),
+                ("4567890124", "Dr. Sebastián Rojas Cárdenas", 3),
+                
+                // Ginecología (índice 4) - 2 doctores
+                ("5678901234", "Dr. Miguel Herrera Solano", 4),
+                ("5678901235", "Dra. Valeria Campos Mejía", 4),
+                
+                // Dermatología (índice 5) - 2 doctores
+                ("6789012345", "Dra. Sofía Ramírez Guerrero", 5),
+                ("6789012346", "Dr. Daniel Espinoza Cruz", 5),
+                
+                // ========== NUEVOS DEPARTAMENTOS (para pacientes mayores) ==========
+                
+                // Geriatría (índice 6) - 2 doctores
+                ("9001000001", "Dr. Hernán Villacís Mora", 6),
+                ("9001000002", "Dra. Beatriz Córdova Luna", 6),
+                
+                // Neurología (índice 7) - 2 doctores
+                ("9001000003", "Dr. Mauricio Estrella Paz", 7),
+                ("9001000004", "Dra. Cristina Burbano Vega", 7),
+                
+                // Neumología (índice 8) - 2 doctores
+                ("9001000005", "Dr. Gonzalo Terán Mejía", 8),
+                ("9001000006", "Dra. Mónica Carvajal Ruiz", 8),
+                
+                // Nefrología (índice 9) - 2 doctores
+                ("9001000007", "Dr. Óscar Maldonado Cruz", 9),
+                ("9001000008", "Dra. Silvia Proaño Díaz", 9),
+                
+                // Reumatología (índice 10) - 2 doctores
+                ("9001000009", "Dr. Arturo Benítez Lara", 10),
+                ("9001000010", "Dra. Lorena Jaramillo Paz", 10),
+                
+                // Endocrinología (índice 11) - 2 doctores
+                ("9001000011", "Dr. Raúl Espinoza Vaca", 11),
+                ("9001000012", "Dra. Diana Cevallos Mora", 11),
+                
+                // Gastroenterología (índice 12) - 2 doctores
+                ("9001000013", "Dr. Fabián Narváez Ríos", 12),
+                ("9001000014", "Dra. Adriana Suárez Luna", 12),
+                
+                // Urología (índice 13) - 2 doctores
+                ("9001000015", "Dr. Ernesto Calderón Vega", 13),
+                ("9001000016", "Dra. Paola Rivas Mejía", 13),
+                
+                // Oftalmología (índice 14) - 2 doctores
+                ("9001000017", "Dr. Víctor Aguirre Paz", 14),
+                ("9001000018", "Dra. Margarita León Cruz", 14),
+                
+                // Oncología (índice 15) - 2 doctores
+                ("9001000019", "Dr. César Paredes Díaz", 15),
+                ("9001000020", "Dra. Verónica Salazar Mora", 15)
             };
+
+            var doctors = doctorData.Select(d => new Doctor(
+                Guid.NewGuid(),
+                d.Identification,
+                d.Name,
+                EmploymentStatus.Active,
+                departments[d.DeptIndex].DepartmentId
+            )).ToList();
 
             await _context.Doctors.AddRangeAsync(doctors);
             await _context.SaveChangesAsync();
@@ -264,11 +399,11 @@ public class DatabaseSeeder
         {
             var nurses = new List<Nurse>
             {
-                new Nurse(Guid.NewGuid(), "7890123456", "Enf. Andrea Silva", EmploymentStatus.Active),
-                new Nurse(Guid.NewGuid(), "8901234567", "Enf. Carlos Mendoza", EmploymentStatus.Active),
-                new Nurse(Guid.NewGuid(), "9012345678", "Enf. Diana Ortiz", EmploymentStatus.Active),
-                new Nurse(Guid.NewGuid(), "0123456780", "Enf. Eduardo Paredes", EmploymentStatus.Inactive),
-                new Nurse(Guid.NewGuid(), "1234567891", "Enf. Gabriela Ruiz", EmploymentStatus.Active)
+                new Nurse(Guid.NewGuid(), "7001234561", "Enf. Andrea Silva Moreno", EmploymentStatus.Active),
+                new Nurse(Guid.NewGuid(), "7001234562", "Enf. Carlos Mendoza Ríos", EmploymentStatus.Active),
+                new Nurse(Guid.NewGuid(), "7001234563", "Enf. Diana Ortiz Luna", EmploymentStatus.Active),
+                new Nurse(Guid.NewGuid(), "7001234564", "Enf. Eduardo Paredes Vega", EmploymentStatus.Inactive),
+                new Nurse(Guid.NewGuid(), "7001234565", "Enf. Gabriela Ruiz Castro", EmploymentStatus.Active)
             };
 
             await _context.Nurses.AddRangeAsync(nurses);
@@ -283,8 +418,8 @@ public class DatabaseSeeder
         {
             var managers = new List<WarehouseManager>
             {
-                new WarehouseManager(Guid.NewGuid(), "2345678902", "Ing. José Álvarez", EmploymentStatus.Active, DateTime.UtcNow.AddMonths(-6)),
-                new WarehouseManager(Guid.NewGuid(), "3456789013", "Ing. Martha Jiménez", EmploymentStatus.Active, DateTime.UtcNow.AddMonths(-12))
+                new WarehouseManager(Guid.NewGuid(), "8001234561", "Ing. José Álvarez Medina", EmploymentStatus.Active, DateTime.UtcNow.AddMonths(-6)),
+                new WarehouseManager(Guid.NewGuid(), "8001234562", "Ing. Martha Jiménez Soto", EmploymentStatus.Active, DateTime.UtcNow.AddMonths(-12))
             };
 
             await _context.WarehouseManagers.AddRangeAsync(managers);
@@ -297,22 +432,31 @@ public class DatabaseSeeder
     {
         if (!await _context.DepartmentHeads.AnyAsync())
         {
-            var doctors = await _context.Doctors.Include(d => d.Department).ToListAsync();
             var departments = await _context.Departments.ToListAsync();
+            var doctors = await _context.Doctors
+                .Where(d => d.EmploymentStatus == EmploymentStatus.Active)
+                .ToListAsync();
             
             if (doctors.Count == 0 || departments.Count == 0) return;
 
             var heads = new List<DepartmentHead>();
             
-            // Asignar los primeros doctores como jefes de sus respectivos departamentos
-            for (int i = 0; i < Math.Min(doctors.Count, departments.Count); i++)
+            // Asignar un jefe de departamento por cada departamento
+            // Seleccionamos el primer doctor de cada departamento como jefe
+            foreach (var department in departments)
             {
-                heads.Add(new DepartmentHead(
-                    Guid.NewGuid(),
-                    doctors[i].EmployeeId,
-                    doctors[i].DepartmentId,
-                    DateTime.UtcNow.AddMonths(-3)
-                ));
+                var doctorInDept = doctors.FirstOrDefault(d => d.DepartmentId == department.DepartmentId);
+                
+                if (doctorInDept != null)
+                {
+                    heads.Add(new DepartmentHead(
+                        Guid.NewGuid(),
+                        doctorInDept.EmployeeId,
+                        department.DepartmentId,
+                        DateTime.UtcNow.AddMonths(-6) // Asignado hace 6 meses
+                    ));
+                    Console.WriteLine($"✓ Jefe de departamento asignado: {doctorInDept.Name} -> {department.Name}");
+                }
             }
 
             await _context.DepartmentHeads.AddRangeAsync(heads);
@@ -406,25 +550,26 @@ public class DatabaseSeeder
 
             var stocks = new List<StockDepartment>();
 
-            // Asignar stock de los primeros 3 medicamentos a cada departamento
+            // Asignar stock de TODOS los medicamentos a CADA departamento
+            // Esto simula un inventario inicial completo antes de las consultas
             foreach (var dept in departments)
             {
-                for (int i = 0; i < Math.Min(3, medications.Count); i++)
+                foreach (var med in medications)
                 {
                     stocks.Add(new StockDepartment(
                         Guid.NewGuid(),
-                        200 + (i * 50), // Cantidad variada
+                        500, // Cantidad inicial alta para soportar las recetas
                         dept.DepartmentId,
-                        medications[i].MedicationId,
+                        med.MedicationId,
                         50,  // Min
-                        500  // Max
+                        1000 // Max
                     ));
                 }
             }
 
             await _context.StockDepartments.AddRangeAsync(stocks);
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {stocks.Count} registros de stock departamental creados");
+            Console.WriteLine($"✓ {stocks.Count} registros de stock departamental creados (todos los medicamentos en todos los departamentos)");
         }
     }
 
@@ -437,34 +582,50 @@ public class DatabaseSeeder
 
             if (departments.Count < 2 || patients.Count == 0) return;
 
-            var derivations = new List<Derivation>
+            var derivations = new List<Derivation>();
+            var random = new Random(123); // Seed fijo para reproducibilidad
+            var patientIndex = 0;
+
+            // Crear derivaciones para los últimos 5 meses
+            // Cada departamento genera derivaciones hacia otros departamentos
+            for (int monthOffset = 0; monthOffset < 5; monthOffset++)
             {
-                new Derivation(
-                    Guid.NewGuid(),
-                    departments[0].DepartmentId, // De Cardiología
-                    DateTime.UtcNow.AddDays(-5),
-                    patients[0].PatientId,
-                    departments[1].DepartmentId  // A Pediatría
-                ),
-                new Derivation(
-                    Guid.NewGuid(),
-                    departments[2].DepartmentId, // De Medicina General
-                    DateTime.UtcNow.AddDays(-3),
-                    patients[1].PatientId,
-                    departments[3].DepartmentId  // A Traumatología
-                ),
-                new Derivation(
-                    Guid.NewGuid(),
-                    departments[1].DepartmentId,
-                    DateTime.UtcNow.AddDays(-1),
-                    patients[2].PatientId,
-                    departments[0].DepartmentId
-                )
-            };
+                var baseDate = DateTime.UtcNow.AddMonths(-monthOffset);
+                var daysInMonth = DateTime.DaysInMonth(baseDate.Year, baseDate.Month);
+
+                // Generar entre 20-30 derivaciones por mes
+                var derivationsThisMonth = random.Next(20, 31);
+                
+                for (int i = 0; i < derivationsThisMonth; i++)
+                {
+                    var fromDeptIndex = random.Next(departments.Count);
+                    var toDeptIndex = random.Next(departments.Count);
+                    
+                    // Asegurar que origen y destino sean diferentes
+                    while (toDeptIndex == fromDeptIndex)
+                    {
+                        toDeptIndex = random.Next(departments.Count);
+                    }
+
+                    var dayOfMonth = random.Next(1, Math.Min(daysInMonth, 28) + 1);
+                    var hour = random.Next(8, 18); // Entre 8am y 6pm
+                    var derivationDate = new DateTime(baseDate.Year, baseDate.Month, dayOfMonth, hour, random.Next(0, 60), 0, DateTimeKind.Utc);
+
+                    derivations.Add(new Derivation(
+                        Guid.NewGuid(),
+                        departments[fromDeptIndex].DepartmentId,
+                        derivationDate,
+                        patients[patientIndex % patients.Count].PatientId,
+                        departments[toDeptIndex].DepartmentId
+                    ));
+
+                    patientIndex++;
+                }
+            }
 
             await _context.Derivations.AddRangeAsync(derivations);
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {derivations.Count} derivaciones creadas");
+            Console.WriteLine($"✓ {derivations.Count} derivaciones creadas para 5 meses");
         }
     }
 
@@ -478,34 +639,43 @@ public class DatabaseSeeder
 
             if (departments.Count == 0 || patients.Count == 0 || externalPosts.Count == 0) return;
 
-            var referrals = new List<Referral>
+            var referrals = new List<Referral>();
+            var random = new Random(456); // Seed fijo diferente para variedad
+            var patientIndex = 100; // Comenzar desde otro índice para usar diferentes pacientes
+
+            // Crear remisiones para los últimos 5 meses
+            for (int monthOffset = 0; monthOffset < 5; monthOffset++)
             {
-                new Referral(
-                    Guid.NewGuid(),
-                    patients[3].PatientId,
-                    DateTime.UtcNow.AddDays(-7),
-                    externalPosts[0].ExternalMedicalPostId,
-                    departments[0].DepartmentId
-                ),
-                new Referral(
-                    Guid.NewGuid(),
-                    patients[4].PatientId,
-                    DateTime.UtcNow.AddDays(-4),
-                    externalPosts[1].ExternalMedicalPostId,
-                    departments[2].DepartmentId
-                ),
-                new Referral(
-                    Guid.NewGuid(),
-                    patients[5].PatientId,
-                    DateTime.UtcNow.AddDays(-2),
-                    externalPosts[2].ExternalMedicalPostId,
-                    departments[4].DepartmentId
-                )
-            };
+                var baseDate = DateTime.UtcNow.AddMonths(-monthOffset);
+                var daysInMonth = DateTime.DaysInMonth(baseDate.Year, baseDate.Month);
+
+                // Generar entre 25-35 remisiones por mes (desde puestos externos)
+                var referralsThisMonth = random.Next(25, 36);
+                
+                for (int i = 0; i < referralsThisMonth; i++)
+                {
+                    var externalPostIndex = random.Next(externalPosts.Count);
+                    var toDeptIndex = random.Next(departments.Count);
+
+                    var dayOfMonth = random.Next(1, Math.Min(daysInMonth, 28) + 1);
+                    var hour = random.Next(7, 20); // Entre 7am y 8pm
+                    var referralDate = new DateTime(baseDate.Year, baseDate.Month, dayOfMonth, hour, random.Next(0, 60), 0, DateTimeKind.Utc);
+
+                    referrals.Add(new Referral(
+                        Guid.NewGuid(),
+                        patients[patientIndex % patients.Count].PatientId,
+                        referralDate,
+                        externalPosts[externalPostIndex].ExternalMedicalPostId,
+                        departments[toDeptIndex].DepartmentId
+                    ));
+
+                    patientIndex++;
+                }
+            }
 
             await _context.Referrals.AddRangeAsync(referrals);
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {referrals.Count} remisiones creadas");
+            Console.WriteLine($"✓ {referrals.Count} remisiones creadas para 5 meses");
         }
     }
 
@@ -527,41 +697,62 @@ public class DatabaseSeeder
             if (derivations.Count == 0 || doctors.Count == 0 || departmentHeads.Count == 0) return;
 
             var consultations = new List<ConsultationDerivation>();
-
-            foreach (var derivation in derivations)
+            var diagnoses = new[]
             {
-                // Buscar el DepartmentHead que pertenece al departamento destino de la derivación
-                var matchingHead = departmentHeads.FirstOrDefault(dh => dh.DepartmentId == derivation.DepartmentToId);
+                "Paciente presenta síntomas estables, se recomienda seguimiento periódico",
+                "Evaluación completa realizada, requiere tratamiento especializado",
+                "Diagnóstico confirmado, se inicia protocolo de tratamiento",
+                "Control de rutina satisfactorio, continuar medicación actual",
+                "Se detectan signos de mejora, reducir dosis gradualmente",
+                "Requiere estudios complementarios para diagnóstico definitivo",
+                "Condición estabilizada, alta con indicaciones de cuidado",
+                "Evolución favorable, próxima cita en 30 días",
+                "Se ajusta tratamiento según resultados de laboratorio",
+                "Paciente respondiendo bien al tratamiento, mantener seguimiento"
+            };
+            
+            var random = new Random(789);
+
+            // Agrupar derivaciones por departamento destino
+            var derivationsByDept = derivations.GroupBy(d => d.DepartmentToId).ToList();
+
+            foreach (var deptGroup in derivationsByDept)
+            {
+                var deptId = deptGroup.Key;
                 
-                if (matchingHead == null) 
+                // Buscar el DepartmentHead del departamento destino
+                var matchingHead = departmentHeads.FirstOrDefault(dh => dh.DepartmentId == deptId);
+                if (matchingHead == null) continue;
+
+                // Obtener doctores del departamento destino
+                var deptDoctors = doctors.Where(d => d.DepartmentId == deptId).ToList();
+                if (deptDoctors.Count == 0) continue;
+
+                var derivationsInDept = deptGroup.ToList();
+                
+                // Distribuir las derivaciones entre los doctores del departamento
+                for (int i = 0; i < derivationsInDept.Count; i++)
                 {
-                    Console.WriteLine($"⚠ No se encontró DepartmentHead para el departamento {derivation.DepartmentTo?.Name ?? derivation.DepartmentToId.ToString()}");
-                    continue;
+                    var derivation = derivationsInDept[i];
+                    var doctor = deptDoctors[i % deptDoctors.Count]; // Distribución round-robin
+                    
+                    // La consulta ocurre 1-3 días después de la derivación
+                    var consultationDate = derivation.DateTimeDer.AddDays(random.Next(1, 4)).AddHours(random.Next(-2, 3));
+
+                    consultations.Add(new ConsultationDerivation(
+                        Guid.NewGuid(),
+                        diagnoses[random.Next(diagnoses.Length)],
+                        derivation.DerivationId,
+                        consultationDate,
+                        doctor.EmployeeId,
+                        matchingHead.DepartmentHeadId
+                    ));
                 }
-
-                // Buscar un doctor que pertenezca al departamento destino de la derivación
-                var matchingDoctor = doctors.FirstOrDefault(d => d.DepartmentId == derivation.DepartmentToId);
-                if (matchingDoctor == null)
-                {
-                    Console.WriteLine($"⚠ No se encontró Doctor para el departamento {derivation.DepartmentTo?.Name ?? derivation.DepartmentToId.ToString()}");
-                    continue;
-                }
-
-                Console.WriteLine($"✓ Creando consulta: Derivación a {derivation.DepartmentTo?.Name} -> DepartmentHead de {matchingHead.Department?.Name}, Doctor de {matchingDoctor.Department?.Name}");
-
-                consultations.Add(new ConsultationDerivation(
-                    Guid.NewGuid(),
-                    $"Diagnóstico de derivación: Requiere seguimiento especializado",
-                    derivation.DerivationId,
-                    DateTime.UtcNow.AddDays(-1),
-                    matchingDoctor.EmployeeId,
-                    matchingHead.DepartmentHeadId
-                ));
             }
 
             await _context.ConsultationDerivations.AddRangeAsync(consultations);
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {consultations.Count} consultas de derivación creadas");
+            Console.WriteLine($"✓ {consultations.Count} consultas de derivación creadas (distribuidas entre {doctors.Count} doctores)");
         }
     }
 
@@ -583,41 +774,62 @@ public class DatabaseSeeder
             if (referrals.Count == 0 || doctors.Count == 0 || departmentHeads.Count == 0) return;
 
             var consultations = new List<ConsultationReferral>();
-
-            foreach (var referral in referrals)
+            var diagnoses = new[]
             {
-                // Buscar el DepartmentHead que pertenece al departamento destino de la remisión
-                var matchingHead = departmentHeads.FirstOrDefault(dh => dh.DepartmentId == referral.DepartmentToId);
+                "Paciente referido evaluado, condición requiere atención especializada",
+                "Ingreso desde puesto externo procesado, se inicia tratamiento",
+                "Evaluación de remisión completa, estabilización lograda",
+                "Paciente de referencia presenta buena evolución",
+                "Diagnóstico de remisión confirmado, seguimiento programado",
+                "Atención de emergencia desde centro externo, paciente estabilizado",
+                "Condición del paciente referido bajo control, alta programada",
+                "Se confirma diagnóstico preliminar del puesto externo",
+                "Requiere hospitalización para observación continua",
+                "Tratamiento iniciado según protocolo de remisiones"
+            };
+            
+            var random = new Random(321);
+
+            // Agrupar remisiones por departamento destino
+            var referralsByDept = referrals.GroupBy(r => r.DepartmentToId).ToList();
+
+            foreach (var deptGroup in referralsByDept)
+            {
+                var deptId = deptGroup.Key;
                 
-                if (matchingHead == null) 
+                // Buscar el DepartmentHead del departamento destino
+                var matchingHead = departmentHeads.FirstOrDefault(dh => dh.DepartmentId == deptId);
+                if (matchingHead == null) continue;
+
+                // Obtener doctores del departamento destino
+                var deptDoctors = doctors.Where(d => d.DepartmentId == deptId).ToList();
+                if (deptDoctors.Count == 0) continue;
+
+                var referralsInDept = deptGroup.ToList();
+                
+                // Distribuir las remisiones entre los doctores del departamento
+                for (int i = 0; i < referralsInDept.Count; i++)
                 {
-                    Console.WriteLine($"⚠ No se encontró DepartmentHead para el departamento {referral.DepartmentTo?.Name ?? referral.DepartmentToId.ToString()}");
-                    continue;
+                    var referral = referralsInDept[i];
+                    var doctor = deptDoctors[i % deptDoctors.Count]; // Distribución round-robin
+                    
+                    // La consulta ocurre el mismo día o 1-2 días después de la remisión
+                    var consultationDate = referral.DateTimeRem.AddDays(random.Next(0, 3)).AddHours(random.Next(1, 5));
+
+                    consultations.Add(new ConsultationReferral(
+                        Guid.NewGuid(),
+                        diagnoses[random.Next(diagnoses.Length)],
+                        matchingHead.DepartmentHeadId,
+                        doctor.EmployeeId,
+                        referral.ReferralId,
+                        consultationDate
+                    ));
                 }
-
-                // Buscar un doctor que pertenezca al departamento destino de la remisión
-                var matchingDoctor = doctors.FirstOrDefault(d => d.DepartmentId == referral.DepartmentToId);
-                if (matchingDoctor == null)
-                {
-                    Console.WriteLine($"⚠ No se encontró Doctor para el departamento {referral.DepartmentTo?.Name ?? referral.DepartmentToId.ToString()}");
-                    continue;
-                }
-
-                Console.WriteLine($"✓ Creando consulta: Referral a {referral.DepartmentTo?.Name} -> DepartmentHead de {matchingHead.Department?.Name}, Doctor de {matchingDoctor.Department?.Name}");
-
-                consultations.Add(new ConsultationReferral(
-                    Guid.NewGuid(),
-                    $"Diagnóstico de remisión: Atención especializada requerida desde puesto externo",
-                    matchingHead.DepartmentHeadId,
-                    matchingDoctor.EmployeeId,
-                    referral.ReferralId,
-                    DateTime.UtcNow.AddDays(-1)
-                ));
             }
 
             await _context.ConsultationReferrals.AddRangeAsync(consultations);
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {consultations.Count} consultas de remisión creadas");
+            Console.WriteLine($"✓ {consultations.Count} consultas de remisión creadas (distribuidas entre {doctors.Count} doctores)");
         }
     }
 
@@ -625,30 +837,60 @@ public class DatabaseSeeder
     {
         if (!await _context.MedicationDerivations.AnyAsync())
         {
-            var consultationDerivations = await _context.ConsultationDerivations.ToListAsync();
+            var consultationDerivations = await _context.ConsultationDerivations
+                .Include(cd => cd.DepartmentHead)
+                .ThenInclude(dh => dh!.Department)
+                .ToListAsync();
             var medications = await _context.Medications.ToListAsync();
+            var stockDepartments = await _context.StockDepartments.ToListAsync();
 
             if (consultationDerivations.Count == 0 || medications.Count == 0) return;
 
             var medDerivations = new List<MedicationDerivation>();
+            var stockUpdates = new Dictionary<Guid, StockDepartment>(); // Para acumular cambios de stock
 
             foreach (var consultation in consultationDerivations)
             {
+                var departmentId = consultation.DepartmentHead?.DepartmentId;
+                if (departmentId == null) continue;
+
                 // Asignar 1-2 medicamentos por consulta
                 for (int i = 0; i < Math.Min(2, medications.Count); i++)
                 {
-                    medDerivations.Add(new MedicationDerivation(
-                        Guid.NewGuid(),
-                        10 + (i * 5), // Cantidad variada
-                        consultation.ConsultationDerivationId,
-                        medications[i].MedicationId
-                    ));
+                    var medication = medications[i];
+                    var quantity = 10 + (i * 5); // Cantidad variada
+
+                    // Buscar el stock del departamento para este medicamento
+                    var stock = stockDepartments.FirstOrDefault(s => 
+                        s.DepartmentId == departmentId && s.MedicationId == medication.MedicationId);
+                    
+                    if (stock != null && stock.Quantity >= quantity)
+                    {
+                        // Restar del stock (como lo hace el servicio)
+                        stock.UpdateQuantity(stock.Quantity - quantity);
+                        stockUpdates[stock.StockDepartmentId] = stock;
+
+                        medDerivations.Add(new MedicationDerivation(
+                            Guid.NewGuid(),
+                            quantity,
+                            consultation.ConsultationDerivationId,
+                            medication.MedicationId
+                        ));
+                    }
                 }
             }
 
+            // Guardar medicamentos recetados
             await _context.MedicationDerivations.AddRangeAsync(medDerivations);
+            
+            // Actualizar stocks
+            foreach (var stock in stockUpdates.Values)
+            {
+                _context.StockDepartments.Update(stock);
+            }
+            
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {medDerivations.Count} medicamentos de derivación creados");
+            Console.WriteLine($"✓ {medDerivations.Count} medicamentos de derivación creados (stock actualizado)");
         }
     }
 
@@ -656,30 +898,60 @@ public class DatabaseSeeder
     {
         if (!await _context.MedicationReferrals.AnyAsync())
         {
-            var consultationReferrals = await _context.ConsultationReferrals.ToListAsync();
+            var consultationReferrals = await _context.ConsultationReferrals
+                .Include(cr => cr.DepartmentHead)
+                .ThenInclude(dh => dh!.Department)
+                .ToListAsync();
             var medications = await _context.Medications.ToListAsync();
+            var stockDepartments = await _context.StockDepartments.ToListAsync();
 
             if (consultationReferrals.Count == 0 || medications.Count == 0) return;
 
             var medReferrals = new List<MedicationReferral>();
+            var stockUpdates = new Dictionary<Guid, StockDepartment>();
 
             foreach (var consultation in consultationReferrals)
             {
+                var departmentId = consultation.DepartmentHead?.DepartmentId;
+                if (departmentId == null) continue;
+
                 // Asignar 1-3 medicamentos por consulta
                 for (int i = 0; i < Math.Min(3, medications.Count); i++)
                 {
-                    medReferrals.Add(new MedicationReferral(
-                        Guid.NewGuid(),
-                        15 + (i * 7), // Cantidad variada
-                        consultation.ConsultationReferralId,
-                        medications[i].MedicationId
-                    ));
+                    var medication = medications[i];
+                    var quantity = 15 + (i * 7); // Cantidad variada
+
+                    // Buscar el stock del departamento para este medicamento
+                    var stock = stockDepartments.FirstOrDefault(s => 
+                        s.DepartmentId == departmentId && s.MedicationId == medication.MedicationId);
+                    
+                    if (stock != null && stock.Quantity >= quantity)
+                    {
+                        // Restar del stock (como lo hace el servicio)
+                        stock.UpdateQuantity(stock.Quantity - quantity);
+                        stockUpdates[stock.StockDepartmentId] = stock;
+
+                        medReferrals.Add(new MedicationReferral(
+                            Guid.NewGuid(),
+                            quantity,
+                            consultation.ConsultationReferralId,
+                            medication.MedicationId
+                        ));
+                    }
                 }
             }
 
+            // Guardar medicamentos recetados
             await _context.MedicationReferrals.AddRangeAsync(medReferrals);
+            
+            // Actualizar stocks
+            foreach (var stock in stockUpdates.Values)
+            {
+                _context.StockDepartments.Update(stock);
+            }
+            
             await _context.SaveChangesAsync();
-            Console.WriteLine($"✓ {medReferrals.Count} medicamentos de remisión creados");
+            Console.WriteLine($"✓ {medReferrals.Count} medicamentos de remisión creados (stock actualizado)");
         }
     }
 
@@ -826,5 +1098,264 @@ public class DatabaseSeeder
             await _context.SaveChangesAsync();
             Console.WriteLine($"✓ {medRequests.Count} solicitudes de medicamentos creadas");
         }
+    }
+
+    /// <summary>
+    /// Genera consultas de seguimiento para los 50 pacientes mayores (60-90 años).
+    /// - 25 pacientes: segunda consulta en menos de 3 meses (mismo doctor)
+    /// - 25 pacientes: segunda consulta en más de 3 meses (puede ser otro doctor)
+    /// - Cada consulta incluye al menos 1 medicamento recetado
+    /// </summary>
+    private async Task SeedElderlyPatientFollowUpConsultationsAsync()
+    {
+        // Obtener pacientes mayores (identificación empieza con "50")
+        var elderlyPatients = await _context.Patients
+            .Where(p => p.Identification.StartsWith("50"))
+            .ToListAsync();
+
+        if (elderlyPatients.Count == 0)
+        {
+            Console.WriteLine("⚠ No se encontraron pacientes mayores para consultas de seguimiento");
+            return;
+        }
+
+        var departments = await _context.Departments.ToListAsync();
+        var doctors = await _context.Doctors
+            .Where(d => d.EmploymentStatus == EmploymentStatus.Active)
+            .ToListAsync();
+        var departmentHeads = await _context.DepartmentHeads.ToListAsync();
+        var medications = await _context.Medications.ToListAsync();
+        var externalPosts = await _context.ExternalMedicalPosts.ToListAsync();
+        var stockDepartments = await _context.StockDepartments.ToListAsync();
+
+        if (departments.Count == 0 || doctors.Count == 0 || departmentHeads.Count == 0 || medications.Count == 0)
+        {
+            Console.WriteLine("⚠ Faltan datos necesarios para crear consultas de seguimiento");
+            return;
+        }
+
+        var random = new Random(777);
+        var elderlyDiagnoses = new[]
+        {
+            "Control de hipertensión arterial en adulto mayor",
+            "Seguimiento de diabetes mellitus tipo 2",
+            "Evaluación de función renal - paciente geriátrico",
+            "Control de artritis reumatoide",
+            "Seguimiento post-operatorio de fractura de cadera",
+            "Evaluación de deterioro cognitivo leve",
+            "Control de insuficiencia cardíaca congestiva",
+            "Seguimiento de EPOC en adulto mayor",
+            "Evaluación de osteoporosis y riesgo de fracturas",
+            "Control de enfermedad de Parkinson"
+        };
+
+        var derivationsToCreate = new List<Derivation>();
+        var referralsToCreate = new List<Referral>();
+        var consultationDerivationsToCreate = new List<ConsultationDerivation>();
+        var consultationReferralsToCreate = new List<ConsultationReferral>();
+        var medicationDerivationsToCreate = new List<MedicationDerivation>();
+        var medicationReferralsToCreate = new List<MedicationReferral>();
+        var stockUpdates = new Dictionary<Guid, StockDepartment>();
+
+        // Fecha base: 6 meses atrás para tener espacio para segundas consultas
+        var baseDate = DateTime.UtcNow.AddMonths(-6);
+
+        for (int i = 0; i < elderlyPatients.Count; i++)
+        {
+            var patient = elderlyPatients[i];
+            var isEarlyFollowUp = i < 25; // Primera mitad: seguimiento temprano (<3 meses)
+            
+            // Seleccionar departamento aleatorio (preferir los nuevos departamentos geriátricos)
+            var deptIndex = random.Next(6, departments.Count); // Índices 6-15 son los nuevos
+            var department = departments[deptIndex];
+            
+            // Obtener doctores del departamento
+            var deptDoctors = doctors.Where(d => d.DepartmentId == department.DepartmentId).ToList();
+            if (deptDoctors.Count == 0) continue;
+            
+            var firstDoctor = deptDoctors[random.Next(deptDoctors.Count)];
+            var departmentHead = departmentHeads.FirstOrDefault(dh => dh.DepartmentId == department.DepartmentId);
+            if (departmentHead == null) continue;
+
+            // ========== PRIMERA CONSULTA (tipo Derivación) ==========
+            var firstConsultDate = baseDate.AddDays(random.Next(1, 30));
+            
+            // Crear derivación
+            var derivation1 = new Derivation(
+                Guid.NewGuid(),
+                departments[2].DepartmentId, // Desde Medicina General
+                firstConsultDate.AddHours(-2),
+                patient.PatientId,
+                department.DepartmentId
+            );
+            derivationsToCreate.Add(derivation1);
+
+            // Crear consulta de derivación
+            var consultation1 = new ConsultationDerivation(
+                Guid.NewGuid(),
+                $"Primera consulta: {elderlyDiagnoses[random.Next(elderlyDiagnoses.Length)]}",
+                derivation1.DerivationId,
+                firstConsultDate,
+                firstDoctor.EmployeeId,
+                departmentHead.DepartmentHeadId
+            );
+            consultationDerivationsToCreate.Add(consultation1);
+
+            // Agregar medicamento(s) a la primera consulta (sin duplicados) - con actualización de stock
+            var numMeds1 = random.Next(1, Math.Min(4, medications.Count + 1)); // 1-3 medicamentos
+            var usedMedIds1 = new HashSet<Guid>();
+            for (int m = 0; m < numMeds1; m++)
+            {
+                Guid medId;
+                int attempts = 0;
+                do
+                {
+                    medId = medications[random.Next(medications.Count)].MedicationId;
+                    attempts++;
+                } while (usedMedIds1.Contains(medId) && attempts < 10);
+                
+                if (!usedMedIds1.Contains(medId))
+                {
+                    usedMedIds1.Add(medId);
+                    var quantity = random.Next(10, 60);
+                    
+                    // Buscar stock del departamento para este medicamento
+                    var stock = stockDepartments.FirstOrDefault(s => 
+                        s.MedicationId == medId && 
+                        s.DepartmentId == department.DepartmentId);
+                    
+                    if (stock != null && stock.Quantity >= quantity)
+                    {
+                        // Actualizar cantidad en stock (como hace el servicio)
+                        if (!stockUpdates.ContainsKey(stock.StockDepartmentId))
+                        {
+                            stockUpdates[stock.StockDepartmentId] = stock;
+                        }
+                        stock.UpdateQuantity(stock.Quantity - quantity);
+                        
+                        medicationDerivationsToCreate.Add(new MedicationDerivation(
+                            Guid.NewGuid(),
+                            quantity,
+                            consultation1.ConsultationDerivationId,
+                            medId
+                        ));
+                    }
+                }
+            }
+
+            // ========== SEGUNDA CONSULTA (tipo Remisión) ==========
+            DateTime secondConsultDate;
+            Doctor secondDoctor;
+
+            if (isEarlyFollowUp)
+            {
+                // Menos de 3 meses después, MISMO doctor
+                var daysUntilSecond = random.Next(14, 85); // 2 semanas a ~2.8 meses
+                secondConsultDate = firstConsultDate.AddDays(daysUntilSecond);
+                secondDoctor = firstDoctor; // Mismo doctor
+            }
+            else
+            {
+                // Más de 3 meses después, puede ser OTRO doctor
+                var daysUntilSecond = random.Next(92, 150); // 3+ meses
+                secondConsultDate = firstConsultDate.AddDays(daysUntilSecond);
+                // Puede ser otro doctor del mismo departamento
+                secondDoctor = deptDoctors[random.Next(deptDoctors.Count)];
+            }
+
+            // Crear remisión para segunda consulta
+            var referral2 = new Referral(
+                Guid.NewGuid(),
+                patient.PatientId,
+                secondConsultDate.AddHours(-1),
+                externalPosts[random.Next(externalPosts.Count)].ExternalMedicalPostId,
+                department.DepartmentId
+            );
+            referralsToCreate.Add(referral2);
+
+            // Crear consulta de remisión (segunda consulta)
+            var followUpDiagnosis = isEarlyFollowUp 
+                ? $"Seguimiento temprano (<3 meses): Paciente con buena evolución, continuar tratamiento"
+                : $"Seguimiento tardío (>3 meses): {elderlyDiagnoses[random.Next(elderlyDiagnoses.Length)]}";
+
+            var consultation2 = new ConsultationReferral(
+                Guid.NewGuid(),
+                followUpDiagnosis,
+                departmentHead.DepartmentHeadId,
+                secondDoctor.EmployeeId,
+                referral2.ReferralId,
+                secondConsultDate
+            );
+            consultationReferralsToCreate.Add(consultation2);
+
+            // Agregar medicamento(s) a la segunda consulta (sin duplicados) - con actualización de stock
+            var numMeds2 = random.Next(1, Math.Min(4, medications.Count + 1)); // 1-3 medicamentos
+            var usedMedIds2 = new HashSet<Guid>();
+            for (int m = 0; m < numMeds2; m++)
+            {
+                Guid medId;
+                int attempts = 0;
+                do
+                {
+                    medId = medications[random.Next(medications.Count)].MedicationId;
+                    attempts++;
+                } while (usedMedIds2.Contains(medId) && attempts < 10);
+                
+                if (!usedMedIds2.Contains(medId))
+                {
+                    usedMedIds2.Add(medId);
+                    var quantity = random.Next(10, 60);
+                    
+                    // Buscar stock del departamento para este medicamento
+                    var stock = stockDepartments.FirstOrDefault(s => 
+                        s.MedicationId == medId && 
+                        s.DepartmentId == department.DepartmentId);
+                    
+                    if (stock != null && stock.Quantity >= quantity)
+                    {
+                        // Actualizar cantidad en stock (como hace el servicio)
+                        if (!stockUpdates.ContainsKey(stock.StockDepartmentId))
+                        {
+                            stockUpdates[stock.StockDepartmentId] = stock;
+                        }
+                        stock.UpdateQuantity(stock.Quantity - quantity);
+                        
+                        medicationReferralsToCreate.Add(new MedicationReferral(
+                            Guid.NewGuid(),
+                            quantity,
+                            consultation2.ConsultationReferralId,
+                            medId
+                        ));
+                    }
+                }
+            }
+        }
+
+        // Guardar todo en orden de dependencias
+        await _context.Derivations.AddRangeAsync(derivationsToCreate);
+        await _context.Referrals.AddRangeAsync(referralsToCreate);
+        await _context.SaveChangesAsync();
+
+        await _context.ConsultationDerivations.AddRangeAsync(consultationDerivationsToCreate);
+        await _context.ConsultationReferrals.AddRangeAsync(consultationReferralsToCreate);
+        await _context.SaveChangesAsync();
+
+        await _context.MedicationDerivations.AddRangeAsync(medicationDerivationsToCreate);
+        await _context.MedicationReferrals.AddRangeAsync(medicationReferralsToCreate);
+        
+        // Actualizar stocks de departamentos (como hace el servicio)
+        _context.StockDepartments.UpdateRange(stockUpdates.Values);
+        await _context.SaveChangesAsync();
+
+        Console.WriteLine($"✓ Consultas de seguimiento para pacientes mayores creadas:");
+        Console.WriteLine($"  - {derivationsToCreate.Count} derivaciones (primera consulta)");
+        Console.WriteLine($"  - {referralsToCreate.Count} remisiones (segunda consulta)");
+        Console.WriteLine($"  - {consultationDerivationsToCreate.Count} consultas derivación");
+        Console.WriteLine($"  - {consultationReferralsToCreate.Count} consultas remisión");
+        Console.WriteLine($"  - {medicationDerivationsToCreate.Count} medicamentos en derivaciones");
+        Console.WriteLine($"  - {medicationReferralsToCreate.Count} medicamentos en remisiones");
+        Console.WriteLine($"  - {stockUpdates.Count} stocks de departamentos actualizados");
+        Console.WriteLine($"  - 25 pacientes con seguimiento <3 meses (mismo doctor)");
+        Console.WriteLine($"  - 25 pacientes con seguimiento >3 meses)");
     }
 }
