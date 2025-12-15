@@ -9,10 +9,16 @@ public class UnifiedConsultationDto
     public Guid Id { get; set; }
     public string Type { get; set; } // "Derivation" o "Referral"
     public DateTime Date { get; set; }
+    public string DateFormatted => Date.ToString("yyyy-MM-dd");
     public string Diagnosis { get; set; }
     public string PatientFullName { get; set; }
     public string DoctorFullName { get; set; }
     public string DepartmentName { get; set; }
 
     public List<MedicationInfoDto> Medications { get; set; } = new List<MedicationInfoDto>();
+
+    // Propiedad calculada para mostrar medicamentos como texto
+    public string MedicationsList => Medications != null && Medications.Any()
+        ? string.Join(", ", Medications.Select(m => $"{m.Name} ({m.Quantity})"))
+        : "Sin medicamentos";
 }

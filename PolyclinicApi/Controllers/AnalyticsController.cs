@@ -77,7 +77,7 @@ public class AnalyticsController : ControllerBase
                 "DoctorFullName",
                 "DepartmentName",
                 "Type",
-                "Medications"
+                "MedicationsList"
                 
             },
             Data = dataResult.Value!,
@@ -128,7 +128,7 @@ public class AnalyticsController : ControllerBase
             Format = "pdf",
             Fields = new List<string>
             {
-                "Date",
+                "DateFormatted",
                 "PatientFullName",
                 "DoctorFullName",
                 "DepartmentName",
@@ -185,7 +185,7 @@ public class AnalyticsController : ControllerBase
             Format = "pdf",
             Fields = new List<string>
             {
-                "Month",
+                "MonthNameCapitalized",
                 "Year",
                 "ScientificName",
                 "CommercialName",

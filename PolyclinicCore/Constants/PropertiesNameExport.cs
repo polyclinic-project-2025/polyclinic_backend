@@ -16,6 +16,7 @@ public static class PropertiesNameExport
         { "DepartmentHeadName", "Jefe de Departamento" },
         { "Diagnosis", "Diagnóstico" },
         { "Date", "Fecha"},
+        { "DateFormatted", "Fecha"},
         { "Doctor", "Doctor" },
         { "DoctorFullName", "Doctor"},
         { "DoctorName", "Doctor"},
@@ -26,7 +27,9 @@ public static class PropertiesNameExport
         { "Identification", "Identificación" },
         { "MaxQuantityWarehouse", "Cantidad máxima permitida"},
         { "Medications", "Medicamentos" },
+        { "MedicationsList", "Medicamentos" },
         { "MinQuantityWarehouse", "Cantdad mínima permitida"},
+        { "MonthNameCapitalized", "Mes"},
         { "Name", "Nombre" },
         { "PatientFullName", "Paciente" },
         { "ScientificName", "Nombre Científico" },
@@ -35,6 +38,7 @@ public static class PropertiesNameExport
         { "Type", "Tipo" },
         { "Quantity", "Cantidad" },
         { "QuantityNurse", "Cantidad en Enfermería" },
-        { "QuantityWarehouse", "Cantidad en Almacén" }
+        { "QuantityWarehouse", "Cantidad en Almacén" },
+        { "Year", "Año"}
     };
 }

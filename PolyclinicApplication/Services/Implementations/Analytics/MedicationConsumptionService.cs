@@ -37,8 +37,10 @@ public class MedicationConsumptionService : IMedicationConsumptionService
             
             if (result == null)
                 return Result<MedicationConsumptionReadModel>.Failure("No se encontró información de consumo para los parámetros especificados");
+                
+            var resultWithDate = result with { Month = month, Year = year };
 
-            return Result<MedicationConsumptionReadModel>.Success(result);
+            return Result<MedicationConsumptionReadModel>.Success(resultWithDate);
         }
         catch (Exception ex)
         {

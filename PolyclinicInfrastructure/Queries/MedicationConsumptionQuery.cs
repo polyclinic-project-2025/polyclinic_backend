@@ -47,19 +47,20 @@ public class MedicationConsumptionQuery : IMedicationConsumptionQuery
         // 4. Suma total de consumos
         var totalConsumption = derivationConsumption + referralConsumption + emergencyConsumption;
 
-        // 5. Obtener información del medicamento y niveles del almacén
+        // 5. Obtener información del medicamento y crear el ReadModel
         var medication = await _context.Set<Medication>()
             .Where(m => m.MedicationId == medicationId)
-            .Select(m => new MedicationConsumptionReadModel(
-                m.ScientificName,
-                m.CommercialName,
-                totalConsumption,
-                m.QuantityWarehouse,
-                m.MinQuantityWarehouse,
-                m.MaxQuantityWarehouse
-            ))
             .FirstAsync();
-
-        return medication;
+        
+        return new MedicationConsumptionReadModel(
+            Month: month,
+            Year: year,
+            ScientificName: medication.ScientificName,
+            CommercialName: medication.CommercialName,
+            TotalConsumption: totalConsumption,
+            QuantityWarehouse: medication.QuantityWarehouse,
+            MinQuantityWarehouse: medication.MinQuantityWarehouse,
+            MaxQuantityWarehouse: medication.MaxQuantityWarehouse
+        );
     }
 }
