@@ -38,8 +38,10 @@ public class RoleValidationService : IRoleValidationService
 
         foreach (var role in roles)
         {
+            Console.WriteLine($"Validando rol: {role}");
             if (!ApplicationRoles.IsValidRole(role))
             {
+                Console.WriteLine($"entro con rol: {role}");
                 invalidRoles.Add(role);
             }
         }
@@ -254,6 +256,28 @@ public class RoleValidationService : IRoleValidationService
                         }
 
                         entityId = patient.PatientId;
+                        
+                    }
+                    break;
+                case ApplicationRoles.WarehouseManager:
+                    if (validationData.TryGetValue("IdentificationNumber", out var managerId))
+                    {
+                        var managers = await _warehouseManagerRepository.FindAsync(
+                            w => w.Identification == managerId);
+
+                        var manager = managers.FirstOrDefault();
+                        if (manager == null)
+                        {
+                            return Result<Guid>.Failure(
+                                $"No existe un Encargado de Almacén con el número de identificación: {managerId}");
+                        }
+                        if (!string.IsNullOrEmpty(manager.UserId))
+                        {
+                            return Result<Guid>.Failure(
+                                "Este encargado de almacén ya tiene una cuenta de usuario asociada.");
+                        }
+
+                        entityId = manager.EmployeeId;
                         
                     }
                     break;

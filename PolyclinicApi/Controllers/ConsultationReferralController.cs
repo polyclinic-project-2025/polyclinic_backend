@@ -1,7 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using PolyclinicApplication.DTOs.Request.Consultations;
+using PolyclinicApplication.DTOs.Request.Export;
 using PolyclinicApplication.DTOs.Response.Consultations;
 using PolyclinicApplication.Services.Interfaces;
+using System.Text.Json;
+using PolyclinicApplication.Common.Results;
+using PolyclinicApplication.DTOs.Response.Export;
 
 namespace PolyclinicApi.Controllers;
 
@@ -10,96 +14,112 @@ namespace PolyclinicApi.Controllers;
 public class ConsultationReferralController : ControllerBase
 {
     private readonly IConsultationReferralService _consultationReferralService;
+    private readonly IExportService _exportService;
 
-    public ConsultationReferralController(IConsultationReferralService consultationReferralService)
+    public ConsultationReferralController(IConsultationReferralService consultationReferralService, IExportService exportService)
     {
         _consultationReferralService = consultationReferralService;
+        _exportService = exportService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ConsultationReferralResponse>>> GetAll()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-            
         var result = await _consultationReferralService.GetAllAsync();
-        return Ok(result.Value);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<ConsultationReferralResponse>>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<ConsultationReferralResponse>>.Ok(result.Value!, "Consultas obtenidas exitosamente"));
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ConsultationReferralResponse>> GetById(Guid id)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-            
         var result = await _consultationReferralService.GetByIdAsync(id);
         if (!result.IsSuccess)
-        {
-            return NotFound(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return NotFound(ApiResult<ConsultationReferralResponse>.NotFound(result.ErrorMessage!));
+        
+        return Ok(ApiResult<ConsultationReferralResponse>.Ok(result.Value!, "Consulta obtenida exitosamente"));
     }
 
     [HttpGet("recent")]
-
     public async Task<ActionResult<IEnumerable<ConsultationReferralResponse>>> GetLastTen()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-            
         var result = await _consultationReferralService.GetLastTen();
-        return Ok(result.Value);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<ConsultationReferralResponse>>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<ConsultationReferralResponse>>.Ok(result.Value!, "Últimas consultas obtenidas"));
     }
 
     [HttpGet("{in-range}")]
     public async Task<ActionResult<IEnumerable<ConsultationReferralResponse>>> GetInRange([FromQuery] DateTime start,
     [FromQuery] DateTime end)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
         var result = await _consultationReferralService.GetConsultationInRange(start, end);
-        return Ok(result.Value);
+        if (!result.IsSuccess)
+            return BadRequest(ApiResult<IEnumerable<ConsultationReferralResponse>>.Error(result.ErrorMessage!));
+        
+        return Ok(ApiResult<IEnumerable<ConsultationReferralResponse>>.Ok(result.Value!, "Consultas en rango obtenidas"));
     } 
 
     [HttpPost]
     public async Task<ActionResult<ConsultationReferralResponse>> Create([FromBody] CreateConsultationReferralDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-            
         var result = await _consultationReferralService.CreateAsync(request);
         if (!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-        return CreatedAtAction(nameof(GetById), new { id = result.Value!.ReferralId }, result.Value);
+            return BadRequest(ApiResult<ConsultationReferralResponse>.BadRequest(result.ErrorMessage!));
+        
+        return Ok(ApiResult<ConsultationReferralResponse>.Ok(result.Value!, "Consulta creada exitosamente"));
     }
 
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ConsultationReferralResponse>> Update(Guid id, [FromBody] UpdateConsultationReferralDto request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-            
         var result = await _consultationReferralService.UpdateAsync(id, request);
         if (!result.IsSuccess)
-        {
-            return BadRequest(result.ErrorMessage);
-        }
-        return Ok(result.Value);
+            return BadRequest(ApiResult<ConsultationReferralResponse>.BadRequest(result.ErrorMessage!));
+        
+        return Ok(ApiResult<ConsultationReferralResponse>.Ok(result.Value!, "Consulta actualizada exitosamente"));
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete(Guid id)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-            
         var result = await _consultationReferralService.DeleteAsync(id);
         if (!result.IsSuccess)
+            return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage ?? "Consulta no encontrada"));
+        
+        return Ok(ApiResult<bool>.Ok(true, "Consulta eliminada exitosamente"));
+    }
+
+    // ============================
+    // GET: api/consultationreferral/export
+    // Exportar todas las consultas de referencia a PDF
+    // ============================
+    [HttpGet("export")]
+    public async Task<ActionResult> ExportConsultationReferrals(
+        [FromQuery] string format = "pdf", 
+        [FromQuery] List<string>? columns = null,
+        [FromQuery] string name = "Consultas por Remisión")
+    {
+        var consultationsResult = await _consultationReferralService.GetAllAsync();
+        if (!consultationsResult.IsSuccess)
+            return BadRequest(ApiResult<ExportResponse>.Error(consultationsResult.ErrorMessage!));
+
+        // Crear el DTO de exportación
+        var exportDto = new ExportDto
         {
-            return NotFound(result.ErrorMessage);
-        }
-        return NoContent();
+            Format = format,
+            Fields = columns ?? new List<string>(),
+            Data = consultationsResult.Value!,
+            Name = name
+        };
+
+        var exportResult = await _exportService.ExportDataAsync(exportDto);
+        if (!exportResult.IsSuccess)
+            return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+
+        return Ok(ApiResult<ExportResponse>.Ok(exportResult.Value!, "Consultas exportadas exitosamente"));
     }
 }

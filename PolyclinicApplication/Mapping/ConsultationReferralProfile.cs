@@ -12,9 +12,11 @@ public class ConsultationReferralProfile : Profile
         // Entity -> Response
         CreateMap<ConsultationReferral, ConsultationReferralResponse>()
             .ForMember(dest => dest.DepartmentName, 
-                opt => opt.MapFrom(src => src.Doctor != null && src.Doctor.Department != null 
-                    ? src.Doctor.Department.Name 
+                opt => opt.MapFrom(src => src.DepartmentHead != null && src.DepartmentHead.Department != null 
+                    ? src.DepartmentHead.Department.Name 
                     : string.Empty))
+            .ForMember(dest => dest.DepartmentToId,
+                opt => opt.MapFrom(src => src.Referral!.DepartmentToId))        
             .ForMember(dest => dest.DoctorFullName, 
                 opt => opt.MapFrom(src => src.Doctor != null 
                     ? $"{src.Doctor.Name}" 

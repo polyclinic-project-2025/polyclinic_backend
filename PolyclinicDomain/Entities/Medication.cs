@@ -16,7 +16,7 @@ public class Medication
     [MaxLength(100)]
     public string CommercialCompany { get; private set; }
     [Required]
-    public DateTime ExpirationDate { get; private set; }
+    public DateOnly ExpirationDate { get; private set; }
     [Required]
     [MaxLength(100)]
     public string BatchNumber { get; private set; }
@@ -25,10 +25,14 @@ public class Medication
     public string ScientificName { get; private set; }
     [Required]
     [Range(0, 1000000)]
-    public int QuantityA { get; private set; }
+    public int QuantityWarehouse { get; private set; }
     [Required]
     [Range(0, 1000000)]
     public int QuantityNurse { get; private set; }
+    public int MinQuantityWarehouse { get; private set; } 
+    public int MinQuantityNurse { get; private set; }
+    public int MaxQuantityWarehouse { get; private set; }
+    public int MaxQuantityNurse { get; private set; }
     
     public virtual ICollection<MedicationDerivation> MedicationDerivations { get; private set; } = new List<MedicationDerivation>();
     public virtual ICollection<MedicationReferral> MedicationReferrals { get; private set; } = new List<MedicationReferral>();
@@ -41,22 +45,64 @@ public class Medication
         string format,
         string commercialName,
         string commercialCompany,
-        DateTime expirationDate,
         string batchNumber,
         string scientificName,
-        int quantityA,
-        int quantityNurse)
+        DateOnly expirationDate,    
+        int quantityWarehouse, // Renamed from quantityA
+        int quantityNurse,
+        int minQuantityWarehouse,
+        int minQuantityNurse,
+        int maxQuantityWarehouse,
+        int maxQuantityNurse)
     {
         MedicationId = medicationId;   
         Format = format;
         CommercialName = commercialName;
         CommercialCompany = commercialCompany;
-        ExpirationDate = expirationDate;
         BatchNumber = batchNumber;
         ScientificName = scientificName;
-        QuantityA = quantityA;
+        ExpirationDate = expirationDate;
+        QuantityWarehouse = quantityWarehouse; // Corrected property name
         QuantityNurse = quantityNurse;
+        MinQuantityWarehouse = minQuantityWarehouse;
+        MinQuantityNurse = minQuantityNurse;
+        MaxQuantityWarehouse = maxQuantityWarehouse;
+        MaxQuantityNurse = maxQuantityNurse;
     }
 
-    protected Medication(){}
+    public void UpdateFormat(string format)
+    {
+        Format = format;
+    }
+
+    public void UpdateCommercialName(string commercialName)
+    {
+        CommercialName = commercialName;
+    }
+
+    public void UpdateCommercialCompany(string commercialCompany)
+    {
+        CommercialCompany = commercialCompany;
+    }
+
+    public void UpdateExpirationDate(DateOnly expirationDate)
+    {
+        ExpirationDate = expirationDate;
+    }
+
+    public void UpdateScientificName(string scientificName)
+    {
+        ScientificName = scientificName;
+    }
+
+    public void UpdateQuantityWarehouse(int quantityWarehouse)
+    {
+        QuantityWarehouse = quantityWarehouse;
+    }
+
+    public void UpdateQuantityNurse(int quantityNurse)
+    {
+        QuantityNurse = quantityNurse;
+    }
+    
 }

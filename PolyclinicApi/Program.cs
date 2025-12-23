@@ -8,10 +8,16 @@ using Microsoft.OpenApi.Models;
 using PolyclinicInfrastructure.Persistence;
 using PolyclinicInfrastructure.Repositories;
 using PolyclinicInfrastructure.Identity;
+using PolyclinicInfrastructure.Export;
+using PolyclinicInfrastructure.Queries;
 using PolyclinicDomain.IRepositories;
 using PolyclinicApplication.Common.Interfaces;
 using PolyclinicApplication.Services.Interfaces;
+using PolyclinicApplication.Services.Interfaces.Analytics;
 using PolyclinicApplication.Services.Implementations;
+using PolyclinicApplication.Services.Implementations.Analytics;
+using PolyclinicApplication.QueryInterfaces;
+using PolyclinicApplication.ReadModels;
 using PolyclinicCore.Constants;
 using PolyclinicApplication.Mapping;
 using FluentValidation;
@@ -21,6 +27,7 @@ using PolyclinicDomain.Entities;
 using PolyclinicApplication.DTOs.Response;
 using PolyclinicApplication.DTOs.Request;
 using System.Text.Json.Serialization;
+using PolyclinicApplication.Mappings;
 
 IdentityModelEventSource.ShowPII = true;
 var builder = WebApplication.CreateBuilder(args);
@@ -29,10 +36,29 @@ var builder = WebApplication.CreateBuilder(args);
 // CONFIGURACIÓN DE SERVICIOS
 // ==========================================
 
-builder.Services.AddControllers()
+builder.Services.AddControllers(options =>
+    {
+        options.Filters.Add(new PolyclinicAPI.Filters.ValidationFilter());
+    })
     .AddJsonOptions(x => 
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
+
+// ==========================================
+// SEGURIDAD - HSTS
+// ==========================================
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+});
+
+// Homogeneizar manejo de errores de validación (evitar ProblemDetails por defecto)
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 // ==========================================
 // SWAGGER con soporte para JWT
@@ -111,7 +137,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = true; // ✓ HTTPS obligatorio para seguridad
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -176,7 +202,18 @@ builder.Services.AddAutoMapper(typeof(DerivationProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ReferralProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(NurseProfile).Assembly);
 builder.Services.AddAutoMapper(typeof(ConsultationReferralProfile).Assembly);
-
+builder.Services.AddAutoMapper(typeof(WarehouseManagerProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(WarehouseRequestProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationRequestProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationReferralProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ConsultationDerivationProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationDerivationProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(UnifiedConsultationProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(StockDepartmentProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmergencyRoomProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(EmergencyRoomCareProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(MedicationEmergencyProfile).Assembly);
 // ==========================================
 // APPLICATION - VALIDATION (FluentValidation)
 // ==========================================
@@ -189,10 +226,30 @@ builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Valid
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Referral.CreateReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateNurseRequestValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateNurseRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.MedicationReferrals.CreateMedicationReferralValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.MedicationReferrals.UpdateMedicationReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Consultations.CreateConsultationReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Consultations.UpdateConsultationReferralValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Auth.LoginValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.Auth.RegisterValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateConsultationDerivationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateConsultationDerivationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateWarehouseManagerRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateWarehouseManagerRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.MedicationDerivation.CreateMedicationDerivationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.MedicationDerivation.UpdateMedicationDerivationValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.CreateStockDepartmentValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.StockDepartment.UpdateStockDepartmentValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationRequestValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateEmergencyRoomValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateEmergencyRoomCareValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.CreateMedicationEmergencyValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateEmergencyRoomValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateEmergencyRoomCareValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<PolyclinicApplication.Validators.UpdateMedicationEmergencyValidator>();
 
 // ==========================================
 // INFRASTRUCTURE - REPOSITORIES
@@ -206,9 +263,36 @@ builder.Services.AddScoped<IPuestoExternoRepository,PuestoExternoRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<INurseRepository, NurseRepository>();
+builder.Services.AddScoped<IWarehouseManagerRepository, WarehouseManagerRepository>();
+builder.Services.AddScoped<IWarehouseRequestRepository, WarehouseRequestRepository>();
+builder.Services.AddScoped<IMedicationRequestRepository, MedicationRequestRepository>();
 builder.Services.AddScoped<IDepartmentHeadRepository, DepartmentHeadRepository>();
+builder.Services.AddScoped<IMedicationRepository, MedicationRepository>();
+builder.Services.AddScoped<IMedicationReferralRepository, MedicationReferralRepository>();
+builder.Services.AddScoped<IMedicationDerivationRepository, MedicationDerivationRepository>();
+builder.Services.AddScoped<IConsultationDerivationRepository, ConsultationDerivationRepository>();
+builder.Services.AddScoped<IStockDepartmentRepository, StockDepartmentRepository>();
+builder.Services.AddScoped<IEmergencyRoomRepository, EmergencyRoomRepository>();
+builder.Services.AddScoped<IEmergencyRoomCareRepository, EmergencyRoomCareRepository>();
+builder.Services.AddScoped<IMedicationEmergencyRepository, MedicationEmergencyRepository>();
+
+// Repositorio generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeRepository<Doctor>, DoctorRepository>();
 builder.Services.AddScoped<IEmployeeRepository<Nurse>, NurseRepository>();
+builder.Services.AddScoped<IEmployeeRepository<WarehouseManager>, WarehouseManagerRepository>();
+// Repositorio de perfil de usuario (optimizado para obtener empleado o paciente vinculado)
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+
+// ==========================================
+// INFRASTRUCTURE - QUERIES
+// ==========================================
+builder.Services.AddScoped<IDeniedWarehouseRequestsQuery, DeniedWarehouseRequestsQuery>();
+builder.Services.AddScoped<IDoctorMonthlyAverageQuery, DoctorMonthlyAverageQuery>();
+builder.Services.AddScoped<IDoctorSuccessRateQuery, DoctorSuccessRateQuery>();
+builder.Services.AddScoped<IMedicationConsumptionQuery, MedicationConsumptionQuery>();
+builder.Services.AddScoped<IPatientListQuery, PatientListQuery>();
+
+
 
 // ==========================================
 // APPLICATION - SERVICES
@@ -219,6 +303,7 @@ builder.Services.AddScoped<ITokenService, JwtTokenService>();
 builder.Services.AddScoped<IRoleValidationService, RoleValidationService>();
 builder.Services.AddScoped<IEntityLinkingService, EntityLinkingService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<IConsultationReferralService, ConsultationReferralService>();
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
@@ -227,190 +312,56 @@ builder.Services.AddScoped<IReferralService, ReferralService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<INurseService, NurseService>();
 builder.Services.AddScoped<IDepartmentHeadService, DepartmentHeadService>();
+builder.Services.AddScoped<IMedicationService, MedicationService>();
+builder.Services.AddScoped<IMedicationReferralService, MedicationReferralService>();
+builder.Services.AddScoped<IMedicationDerivationService, MedicationDerivationService>();
+builder.Services.AddScoped<IConsultationDerivationService, ConsultationDerivationService>();
+builder.Services.AddScoped<IWarehouseManagerService, WarehouseManagerService>();
+builder.Services.AddScoped<IWarehouseRequestService, WarehouseRequestService>();
+builder.Services.AddScoped<IMedicationRequestService, MedicationRequestService>();
+builder.Services.AddScoped<IStockDepartmentService, StockDepartmentService>();
+builder.Services.AddScoped<IUnifiedConsultationService, UnifiedConsultationService>();
+builder.Services.AddScoped<IEmergencyRoomService, EmergencyRoomService>();
+builder.Services.AddScoped<IEmergencyRoomCareService, EmergencyRoomCareService>();
+builder.Services.AddScoped<IMedicationEmergencyService, MedicationEmergencyService>();
+// Servico generico para empleados, definir para cada uno
 builder.Services.AddScoped<IEmployeeService<DoctorResponse>, EmployeeService<Doctor, DoctorResponse>>();
-builder.Services.AddScoped<IEmployeeService<NurseResponse>, EmployeeService<Nurse, NurseResponse>>();
+builder.Services.AddScoped<IEmployeeService<WarehouseManagerResponse>, EmployeeService<WarehouseManager, WarehouseManagerResponse>>();
+// Export services
+builder.Services.AddScoped<IExportService, ExportService>();
+builder.Services.AddSingleton<IExportStrategyFactory, ExportStrategyFactory>();
+// Analytics
+builder.Services.AddScoped<IDeniedWarehouseRequestsService, DeniedWarehouseRequestsService>();
+builder.Services.AddScoped<IDoctorMonthlyAverageService, DoctorMonthlyAverageService>();
+builder.Services.AddScoped<IDoctorSuccessRateService, DoctorSuccessRateService>();
+builder.Services.AddScoped<IMedicationConsumptionService, MedicationConsumptionService>();
+builder.Services.AddScoped<IPatientListService, PatientListService>();
+
 
 var app = builder.Build();
 
 // ==========================================
-// INICIALIZACIÓN DE ROLES Y USUARIO ADMIN
+// SEEDING DE BASE DE DATOS
 // ==========================================
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-    foreach (var role in ApplicationRoles.AllRoles)
+    var services = scope.ServiceProvider;
+    try
     {
-        if (!await roleManager.RoleExistsAsync(role))
-        {
-            await roleManager.CreateAsync(new IdentityRole(role));
-        }
-    }
-
-    var name = "Oscar";
-    var identificationNumber = "1234567890";
-    var age = 30;
-    var contactNumber = "0987654321";
-    var address = "Calle Falsa 123";
-    var patient = await scope.ServiceProvider
-        .GetRequiredService<IRepository<PolyclinicDomain.Entities.Patient>>()
-        .FindAsync(p => p.Identification == identificationNumber);
-    if (!patient.Any())
-    {
-        var newPatient = new PolyclinicDomain.Entities.Patient(
-            Guid.NewGuid(),
-            name,
-            identificationNumber,
-            age,
-            contactNumber,
-            address);
-        await scope.ServiceProvider
-            .GetRequiredService<IRepository<PolyclinicDomain.Entities.Patient>>()
-            .AddAsync(newPatient);
-        Console.WriteLine("✓ Paciente de prueba creado: Oscar");
-    }
-    else
-    {
-        Console.WriteLine("✓ Paciente de prueba ya existe: Oscar");
-    }
-    
-    // ==========================================
-    // SEEDING DE DATOS: ESCENARIO COMPLETO
-    // ==========================================
-    try 
-    {
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        // 1. Crear Departamento
-        var deptName = "Cardiología";
-        var department = await context.Set<Department>().FirstOrDefaultAsync(d => d.Name == deptName);
-        if (department == null)
-        {
-            // Nota: Ajusta los parámetros del constructor según tu entidad Department
-            department = new Department(Guid.NewGuid(), deptName);
-            context.Add(department);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✓ Departamento creado: {deptName}");
-        }
-
-        // 2. Crear Puesto Médico Externo
-        var puestoName = "Centro de Salud Norte";
-        var puesto = await context.Set<ExternalMedicalPost>().FirstOrDefaultAsync(p => p.Name == puestoName);
-        if (puesto == null)
-        {
-            // Nota: Ajusta los parámetros según tu entidad ExternalMedicalPost
-            puesto = new ExternalMedicalPost(Guid.NewGuid(), puestoName);
-            context.Add(puesto);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✓ Puesto Externo creado: {puestoName}");
-        }
-
-        // 3. Crear Doctor y Asignarlo al Departamento
-        var docId = "DOC-CARDIO-01";
-        var doctor = await context.Set<Doctor>().FirstOrDefaultAsync(d => d.Identification == docId);
-        if (doctor == null)
-        {
-            // Nota: Ajusta los parámetros (Guid, Nombre, Apellido, Email, Tel, ID, Tarjeta, DeptId) según tu entidad Doctor
-            doctor = new Doctor(
-                Guid.NewGuid(), 
-                "099123456", 
-                "Roberto Gomez",
-                EmploymentStatus.Active, 
-                department.DepartmentId
-            );
-            context.Add(doctor);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✓ Doctor creado y asignado a {deptName}: {doctor.Name}");
-        }
-
-        // 4. Asignar Doctor como Jefe de Departamento
-        var head = await context.Set<DepartmentHead>().FirstOrDefaultAsync(dh => dh.DepartmentId == department.DepartmentId);
-        if (head == null)
-        {
-            // Nota: Ajusta los parámetros según tu entidad DepartmentHead (Id, DoctorId, DeptId, Fecha)
-            head = new DepartmentHead(Guid.NewGuid(), doctor.EmployeeId, department.DepartmentId, DateTime.UtcNow);
-            context.Add(head);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✓ Jefe de Departamento asignado: {doctor.Name} es jefe de {deptName}");
-        }
-
-        // 5. Crear Nuevo Paciente
-        var patientId = "04080776679";
-        var patientRef = await context.Set<Patient>().FirstOrDefaultAsync(p => p.Identification == patientId);
-        if (patientRef == null)
-        {
-            patientRef = new Patient(
-                Guid.NewGuid(), 
-                "Maria Rodriguez", 
-                patientId, 
-                45, 
-                "098765432", 
-                "Calle La Paz 456"
-            );
-            context.Add(patientRef);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✓ Paciente creado para remisión: Maria Rodriguez");
-        }
-
-        // 6. Crear Remisión (Puesto Externo -> Departamento)
-        // Verificamos si ya existe una remisión hoy para este paciente a este departamento
-        var existsReferral = await context.Set<Referral>().AnyAsync(r => 
-            r.PatientId == patientRef.PatientId && 
-            r.DepartmentTo!.DepartmentId == department.DepartmentId &&
-            r.DateTimeRem.Date == DateTime.UtcNow.Date);
-
-        if (!existsReferral)
-        {
-            var referral = new Referral(
-                Guid.NewGuid(),
-                patientRef.PatientId,
-                DateTime.UtcNow,
-                puesto.ExternalMedicalPostId,
-                department.DepartmentId
-            );
-            context.Add(referral);
-            await context.SaveChangesAsync();
-            Console.WriteLine($"✓ Remisión creada con éxito: Maria -> {deptName} (desde {puestoName})");
-        }
+        var context = services.GetRequiredService<AppDbContext>();
+        var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        
+        var seeder = new DatabaseSeeder(context, userManager, roleManager);
+        await seeder.SeedAsync();
+        
+        Console.WriteLine("✓ Inicialización de base de datos completada");
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Error durante el seeding de datos de prueba: {ex.Message}");
-    }
-
-    var adminEmail = "admin@polyclinic.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-
-    if (adminUser == null)
-    {
-        var defaultAdmin = new IdentityUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            EmailConfirmed = true
-        };
-
-        var result = await userManager.CreateAsync(defaultAdmin, "Admin123!");
-
-        if (result.Succeeded)
-        {
-            await userManager.AddToRoleAsync(defaultAdmin, ApplicationRoles.Admin);
-            Console.WriteLine($"✓ Usuario administrador creado: {adminEmail}");
-            Console.WriteLine("  Contraseña por defecto: Admin123!");
-        }
-        else
-        {
-            Console.WriteLine("✗ Error al crear usuario administrador:");
-            foreach (var error in result.Errors)
-            {
-                Console.WriteLine($"  - {error.Description}");
-            }
-        }
-    }
-    else
-    {
-        Console.WriteLine($"✓ Usuario administrador ya existe: {adminEmail}");
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "❌ Ocurrió un error al sembrar la base de datos");
+        throw;
     }
 }
 
@@ -425,11 +376,19 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Polyclinic API V1");
     });
 }
+else
+{
+    // En producción, forzar HSTS (HTTP Strict Transport Security)
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
 
 app.UseCors(policy => policy
-    .WithOrigins("http://localhost:3000")
+    .WithOrigins(
+        "http://localhost:3000",  // HTTP en desarrollo
+        "https://localhost:3000"   // HTTPS en desarrollo
+    )
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());

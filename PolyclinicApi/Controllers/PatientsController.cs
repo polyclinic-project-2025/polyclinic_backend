@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
+using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Request.Patients;
+using PolyclinicApplication.DTOs.Request.Export;
+using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.DTOs.Response.Patients;
 using PolyclinicApplication.Services.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 using PolyclinicDomain.Entities;
 
@@ -14,10 +19,12 @@ namespace PolyclinicApi.Controllers
     public class PatientsController : ControllerBase
     {
         private readonly IPatientService _patientService;
+        private readonly IExportService _exportService;
 
-        public PatientsController(IPatientService patientService)
+        public PatientsController(IPatientService patientService, IExportService exportService)
         {
             _patientService = patientService;
+            _exportService = exportService;
         }
 
         // ============================
@@ -25,10 +32,15 @@ namespace PolyclinicApi.Controllers
         // Obtener todos los pacientes
         // ============================
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PatientDto>>> GetAll()
+        [ProducesResponseType(typeof(ApiResult<IEnumerable<PatientDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        public async Task<ActionResult<ApiResult<IEnumerable<PatientDto>>>> GetAll()
         {
             var patients = await _patientService.GetAllAsync();
-            return Ok(patients.Value);
+            if (!patients.IsSuccess)
+                return BadRequest(ApiResult<IEnumerable<PatientDto>>.Error(patients.ErrorMessage!));
+
+            return Ok(ApiResult<IEnumerable<PatientDto>>.Ok(patients.Value!, "Pacientes obtenidos exitosamente"));
         }
 
         // ============================
@@ -36,14 +48,16 @@ namespace PolyclinicApi.Controllers
         // Obtener paciente por Id
         // ============================
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<PatientDto>> GetById(Guid id)
+        [ProducesResponseType(typeof(ApiResult<PatientDto>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<PatientDto>>> GetById(Guid id)
         {
             var patient = await _patientService.GetByIdAsync(id);
             if(!patient.IsSuccess)
             {
-                return NotFound(patient.ErrorMessage);
+                return NotFound(ApiResult<PatientDto>.NotFound(patient.ErrorMessage!));
             }
-            return Ok(patient.Value);
+            return Ok(ApiResult<PatientDto>.Ok(patient.Value!, "Paciente obtenido exitosamente"));
         }
 
         // ============================
@@ -51,49 +65,58 @@ namespace PolyclinicApi.Controllers
         // Buscar pacientes por nombre, identificación o edad
         // ============================
         [HttpGet("search/name")]
-        public async Task<ActionResult<IEnumerable<PatientDto>>> SearchByName([FromQuery] string name)
+        [ProducesResponseType(typeof(ApiResult<IEnumerable<PatientDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<IEnumerable<PatientDto>>>> SearchByName([FromQuery] string name)
         {
             var byName = await _patientService.GetByNameAsync(name);
             if(!byName.IsSuccess)
             {
-                return NotFound(byName.ErrorMessage);
+                return NotFound(ApiResult<IEnumerable<PatientDto>>.NotFound(byName.ErrorMessage!));
             }
-            return Ok(byName.Value);
+            return Ok(ApiResult<IEnumerable<PatientDto>>.Ok(byName.Value!, "Pacientes encontrados"));
         }
 
         [HttpGet("search/identification")]
-        public async Task<ActionResult<IEnumerable<PatientDto>>> SearchByIdentification([FromQuery] string identification)
+        [ProducesResponseType(typeof(ApiResult<PatientDto>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<PatientDto>>> SearchByIdentification([FromQuery] string identification)
         {
             var byIdentification = await _patientService.GetByIdentificationAsync(identification);
             if(!byIdentification.IsSuccess)
             {
-                return NotFound(byIdentification.ErrorMessage);
+                return NotFound(ApiResult<PatientDto>.NotFound(byIdentification.ErrorMessage!));
             }
-            return Ok(byIdentification.Value);
+            return Ok(ApiResult<PatientDto>.Ok(byIdentification.Value!, "Paciente encontrado"));
         }
         [HttpGet("search/age")]
-        public async Task<ActionResult<IEnumerable<PatientDto>>> SearchByAge([FromQuery] int age)
+        [ProducesResponseType(typeof(ApiResult<IEnumerable<PatientDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<IEnumerable<PatientDto>>>> SearchByAge([FromQuery] int age)
         {
             var byAge = await _patientService.GetByAgeAsync(age);
             if(!byAge.IsSuccess)
             {
-                return NotFound(byAge.ErrorMessage);
+                return NotFound(ApiResult<IEnumerable<PatientDto>>.NotFound(byAge.ErrorMessage!));
             }
-            return Ok(byAge.Value);
+            return Ok(ApiResult<IEnumerable<PatientDto>>.Ok(byAge.Value!, "Pacientes encontrados"));
         }
         // ============================
         // POST: api/patients
         // Crear paciente
         // ============================
         [HttpPost]
-        public async Task<ActionResult<PatientDto>> Create([FromBody] CreatePatientDto dto)
+        [ProducesResponseType(typeof(ApiResult<PatientDto>), 201)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        public async Task<ActionResult<ApiResult<PatientDto>>> Create([FromBody] CreatePatientDto dto)
         {
             var result = await _patientService.CreateAsync(dto);
             if(!result.IsSuccess)
             {
-                return BadRequest(result.ErrorMessage);
+                return BadRequest(ApiResult<PatientDto>.BadRequest(result.ErrorMessage!));
             }
-            return CreatedAtAction(nameof(GetById), new { id = result.Value.PatientId }, result.Value);
+            var apiResult = ApiResult<PatientDto>.Ok(result.Value!, "Paciente creado exitosamente");
+            return CreatedAtAction(nameof(GetById), new { id = result.Value!.PatientId }, apiResult);
         }
 
         // ============================
@@ -101,29 +124,72 @@ namespace PolyclinicApi.Controllers
         // Actualización parcial
         // ============================
         [HttpPut("{id:guid}")]
-        public async Task<ActionResult> Update(Guid id, [FromBody] UpdatePatientDto dto)
+        [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<bool>>> Update(Guid id, [FromBody] UpdatePatientDto dto)
         {
             var result = await _patientService.UpdateAsync(id, dto);
             if(!result.IsSuccess)
             {
-                return BadRequest(result.ErrorMessage);
+                if (result.ErrorMessage!.Contains("no encontrado"))
+                    return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+                
+                return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
             }
-            return NoContent();
+            return Ok(ApiResult<bool>.Ok(true, "Paciente actualizado exitosamente"));
         }
 
-        // ================ot============
+        // ============================
         // DELETE: api/patients/{id}
         // Eliminar paciente
         // ============================
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult> Delete(Guid id)
-    {
-        var result = await _patientService.DeleteAsync(id);
-        if(!result.IsSuccess)
+        [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<bool>>> Delete(Guid id)
         {
-            return NotFound(result.ErrorMessage);
+            var result = await _patientService.DeleteAsync(id);
+            if(!result.IsSuccess)
+            {
+                if (result.ErrorMessage!.Contains("no encontrado"))
+                    return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+                
+                return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
+            }
+            return Ok(ApiResult<bool>.Ok(true, "Paciente eliminado exitosamente"));
         }
-        return NoContent();
-    }
+
+        // ============================
+        // POST: api/patients/export
+        // Exportar pacientes a PDF con columnas seleccionadas
+        // ============================
+        [HttpPost("export")]
+        [ProducesResponseType(typeof(ApiResult<ExportResponse>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        public async Task<ActionResult<ApiResult<ExportResponse>>> ExportPatients([FromBody] ExportDto exportDto)
+        {
+            // Obtener todos los pacientes
+            var patientsResult = await _patientService.GetAllAsync();
+            if (!patientsResult.IsSuccess)
+            {
+                return BadRequest(ApiResult<ExportResponse>.Error(patientsResult.ErrorMessage!));
+            }
+
+            // Configurar el DTO de exportación
+            exportDto.Data = patientsResult.Value;
+            exportDto.Name = exportDto.Name ?? "Pacientes";
+
+            // Exportar usando el servicio
+            var exportResult = await _exportService.ExportDataAsync(exportDto);
+            
+            if (!exportResult.IsSuccess)
+            {
+                return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+            }
+
+            return Ok(ApiResult<ExportResponse>.Ok(exportResult.Value!, "Pacientes exportados exitosamente"));
+        }
     }
 }

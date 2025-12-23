@@ -1,7 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using PolyclinicApplication.Common.Results;
 using PolyclinicApplication.DTOs.Departments;
+using PolyclinicApplication.DTOs.Request.Export;
+using PolyclinicApplication.DTOs.Response;
+using PolyclinicApplication.DTOs.Response.Export;
 using PolyclinicApplication.Services.Interfaces;
+using PolyclinicDomain.Entities;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace PolyclinicAPI.Controllers
@@ -11,89 +19,151 @@ namespace PolyclinicAPI.Controllers
     public class DepartmentsController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;
+        private readonly IExportService _exportService;
 
-        public DepartmentsController(IDepartmentService departmentService)
+        public DepartmentsController(IDepartmentService departmentService, IExportService exportService)
         {
             _departmentService = departmentService;
+            _exportService = exportService;
         }
 
-        // ============================
-        // GET: api/departments
-        // ============================
+        /// <summary>
+        /// Obtiene todos los departamentos
+        /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DepartmentDto>>> GetAll()
+        [ProducesResponseType(typeof(ApiResult<IEnumerable<DepartmentDto>>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        public async Task<ActionResult<ApiResult<IEnumerable<DepartmentDto>>>> GetAll()
         {
             var result = await _departmentService.GetAllAsync();
-            return Ok(result);
+            
+            if (!result.IsSuccess)
+                return BadRequest(ApiResult<IEnumerable<DepartmentDto>>.Error(result.ErrorMessage!));
+
+            return Ok(ApiResult<IEnumerable<DepartmentDto>>.Ok(result.Value!, "Departamentos obtenidos exitosamente"));
         }
 
-        // ============================
-        // GET: api/departments/{id}
-        // ============================
+        /// <summary>
+        /// Obtiene un departamento por ID
+        /// </summary>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<DepartmentDto>> GetById(Guid id)
+        [ProducesResponseType(typeof(ApiResult<DepartmentDto>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<DepartmentDto>>> GetById(Guid id)
         {
-            var department = await _departmentService.GetByIdAsync(id);
-            if (department == null)
-                return NotFound("Department not found.");
+            var result = await _departmentService.GetByIdAsync(id);
+            
+            if (!result.IsSuccess)
+                return NotFound(ApiResult<DepartmentDto>.NotFound(result.ErrorMessage!));
 
-            return Ok(department);
+            return Ok(ApiResult<DepartmentDto>.Ok(result.Value!, "Departamento obtenido exitosamente"));
         }
 
-        // ============================
-        // POST: api/departments
-        // ============================
+        /// <summary>
+        /// Crea un nuevo departamento
+        /// </summary>
         [HttpPost]
-        public async Task<ActionResult<DepartmentDto>> Create([FromBody] CreateDepartmentDto dto)
+        [ProducesResponseType(typeof(ApiResult<DepartmentDto>), 201)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        public async Task<ActionResult<ApiResult<DepartmentDto>>> Create([FromBody] CreateDepartmentDto dto)
         {
-            try
-            {
-                var created = await _departmentService.CreateAsync(dto);
-                return CreatedAtAction(nameof(GetById), new { id = created.DepartmentId }, created);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var result = await _departmentService.CreateAsync(dto);
+            
+            if (!result.IsSuccess)
+                return BadRequest(ApiResult<DepartmentDto>.BadRequest(result.ErrorMessage!));
+
+            var apiResult = ApiResult<DepartmentDto>.Ok(result.Value!, "Departamento creado exitosamente");
+            return CreatedAtAction(nameof(GetById), new { id = result.Value!.DepartmentId }, apiResult);
         }
 
-        // ============================
-        // PUT: api/departments/{id}
-        // ============================
+        /// <summary>
+        /// Actualiza un departamento existente
+        /// </summary>
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateDepartmentDto dto)
+        [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<bool>>> Update(Guid id, [FromBody] UpdateDepartmentDto dto)
         {
-            try
+            var result = await _departmentService.UpdateAsync(id, dto);
+            
+            if (!result.IsSuccess)
             {
-                await _departmentService.UpdateAsync(id, dto);
-                return NoContent();
+                if (result.ErrorMessage!.Contains("no encontrado"))
+                    return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+                
+                return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            return Ok(ApiResult<bool>.Ok(true, "Departamento actualizado exitosamente"));
         }
 
-        // ============================
-        // DELETE: api/departments/{id}
-        // ============================
+        /// <summary>
+        /// Elimina un departamento
+        /// </summary>
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> Delete(Guid id)
+        [ProducesResponseType(typeof(ApiResult<bool>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        [ProducesResponseType(typeof(ApiResult<object>), 404)]
+        public async Task<ActionResult<ApiResult<bool>>> Delete(Guid id)
         {
-            await _departmentService.DeleteAsync(id);
-            return NoContent();
+            var result = await _departmentService.DeleteAsync(id);
+            
+            if (!result.IsSuccess)
+            {
+                if (result.ErrorMessage!.Contains("no encontrado"))
+                    return NotFound(ApiResult<bool>.NotFound(result.ErrorMessage));
+                
+                return BadRequest(ApiResult<bool>.BadRequest(result.ErrorMessage));
+            }
+
+            return Ok(ApiResult<bool>.Ok(true, "Departamento eliminado exitosamente"));
         }
 
-
-        [HttpGet("{id}/doctors")]
-        public async Task<IActionResult> GetDoctorsByDepartment(Guid id)
+        /// <summary>
+        /// Obtiene los doctores de un departamento específico
+        /// </summary>
+        [HttpGet("{id:guid}/doctors")]
+        [ProducesResponseType(typeof(ApiResult<List<DoctorResponse>>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        public async Task<ActionResult<ApiResult<List<DoctorResponse>>>> GetDoctorsByDepartment(Guid id)
         {
-            var doctors = await _departmentService.GetDoctorsByDepartmentIdAsync(id);
-            return Ok(doctors);
+            var result = await _departmentService.GetDoctorsByDepartmentIdAsync(id);
+            
+            if (!result.IsSuccess)
+                return BadRequest(ApiResult<List<DoctorResponse>>.Error(result.ErrorMessage!));
+
+            return Ok(ApiResult<List<DoctorResponse>>.Ok(result.Value!, "Doctores obtenidos exitosamente"));
+        }
+
+        /// <summary>
+        /// Exporta todos los departamentos a PDF con columnas seleccionadas
+        /// </summary>
+        [HttpPost("export")]
+        [ProducesResponseType(typeof(ApiResult<ExportResponse>), 200)]
+        [ProducesResponseType(typeof(ApiResult<object>), 400)]
+        public async Task<ActionResult<ApiResult<ExportResponse>>> ExportDepartments([FromBody] ExportDto exportDto)
+        {
+            // Obtener todos los departamentos
+            var departmentsResult = await _departmentService.GetAllAsync();
+            
+            if (!departmentsResult.IsSuccess)
+                return BadRequest(ApiResult<ExportResponse>.Error(departmentsResult.ErrorMessage!));
+
+            // Configurar el DTO de exportación
+            exportDto.Data = departmentsResult;
+            exportDto.Name = exportDto.Name ?? "Departamentos";
+            exportDto.Fields = exportDto.Fields ?? new List<string> { "Name"};
+
+            // Exportar usando el servicio
+            var exportResult = await _exportService.ExportDataAsync(exportDto);
+            
+            if (!exportResult.IsSuccess)
+            {
+                return BadRequest(ApiResult<ExportResponse>.Error(exportResult.ErrorMessage!));
+            }
+
+            return Ok(ApiResult<ExportResponse>.Ok(exportResult.Value!, "Departamentos exportados exitosamente"));
         }
     }
 }

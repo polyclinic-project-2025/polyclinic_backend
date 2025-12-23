@@ -10,6 +10,22 @@ public class AppDbContext : IdentityDbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
+
+    /// <summary>
+    /// Aplica todos los triggers y funciones de validación a la base de datos.
+    /// Este método debe llamarse después de aplicar las migraciones.
+    /// </summary>
+    public async Task ApplyDatabaseTriggersAsync()
+    {
+        // Trigger para validar ConsultationReferral
+        await Database.ExecuteSqlRawAsync(DatabaseTriggers.CreateConsultationReferralValidationFunction);
+        await Database.ExecuteSqlRawAsync(DatabaseTriggers.CreateConsultationReferralValidationTrigger);
+
+        // Trigger para validar ConsultationDerivation
+        await Database.ExecuteSqlRawAsync(DatabaseTriggers.CreateConsultationDerivationValidationFunction);
+        await Database.ExecuteSqlRawAsync(DatabaseTriggers.CreateConsultationDerivationValidationTrigger);
+    }
+
     // DbSets declaration (TABLES)
     // Usando Table-Per-Type (TPT) - cada entidad Employee en su propia tabla
     public DbSet<ConsultationDerivation> ConsultationDerivations { get; set; }
@@ -28,11 +44,9 @@ public class AppDbContext : IdentityDbContext
     public DbSet<MedicationReferral> MedicationReferrals { get; set; }
     public DbSet<MedicationRequest> MedicationRequests { get; set; }
     public DbSet<Nurse> Nurses { get; set; }
-    public DbSet<Nursing> Nursing { get; set; }
     public DbSet<Patient> Patients { get; set; }
     public DbSet<Referral> Referrals { get; set; }
     public DbSet<StockDepartment> StockDepartments { get; set; }
-    public DbSet<Warehouse> Warehouse { get; set; }
     public DbSet<WarehouseManager> WarehouseManagers { get; set; }
     public DbSet<WarehouseRequest> WarehouseRequests { get; set; }
 

@@ -19,5 +19,10 @@ public interface IConsultationReferralService
     Task<Result<IEnumerable<ConsultationReferralResponse>>> GetLastTen();
     Task<Result<IEnumerable<ConsultationReferralResponse>>> GetConsultationInRange(DateTime start, DateTime end);
 
+    Task<Result<IEnumerable<ConsultationReferralResponse>>> GetByDateRangeAsync(
+        Guid patientId, DateTime startDate, DateTime endDate);
+
+    Task<Result<IEnumerable<ConsultationReferralResponse>>> GetLast10ByPatientIdAsync(Guid patientId);        
+
 }
 

@@ -5,7 +5,4 @@ using System.Threading.Tasks;
 
 namespace PolyclinicApplication.DTOs.Request;
 
-public class CreateNurseRequest : CreateEmployeeRequest
-{
-    public Guid NursingId { get; set; }
-}
+public class CreateNurseRequest : CreateEmployeeRequest {}

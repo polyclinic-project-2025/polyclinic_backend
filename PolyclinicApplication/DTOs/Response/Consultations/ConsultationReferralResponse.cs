@@ -8,6 +8,7 @@ public record ConsultationReferralResponse
     public DateTime DateTimeCRem { get; set; }
     public Guid DepartmentHeadId { get; set; } = Guid.Empty;
     public string Diagnosis { get; set; } = string.Empty;
+    public Guid DepartmentToId {get;set;}
     public string DepartmentName { get; set; } = string.Empty;
     public string DoctorFullName { get; set; } = string.Empty;
     public string PatientFullName { get; set; } = string.Empty;

@@ -39,51 +39,65 @@ public class UserService : IUserService
 
     public async Task<Result<UserResponse>> UpdateUserValueAsync(string userId, UpdateUserDto updateUserDto)
     {
-        if (string.IsNullOrEmpty(userId))
-            return Result<UserResponse>.Failure("El ID del usuario es requerido");
-
-        if (updateUserDto.Operation != null && updateUserDto.Roles != null)
+        try
         {
-            return await HandleRoleOperation(userId, updateUserDto.Operation, updateUserDto.Roles);
-        }
+            if (string.IsNullOrEmpty(userId))
+                return Result<UserResponse>.Failure("El ID del usuario es requerido");
 
-        if (!string.IsNullOrEmpty(updateUserDto.Property) && updateUserDto.Value != null)
+            if (updateUserDto.Operation != null && updateUserDto.Roles != null)
+            {
+                return await HandleRoleOperation(userId, updateUserDto.Operation, updateUserDto.Roles);
+            }
+
+            if (!string.IsNullOrEmpty(updateUserDto.Property) && updateUserDto.Value != null)
+            {
+                return await UpdateSingleProperty(userId, updateUserDto.Property, updateUserDto.Value);
+            }
+
+            return Result<UserResponse>.Failure("Debe proporcionar una operación válida o propiedad con valor");
+        }
+        catch (Exception ex)
         {
-            return await UpdateSingleProperty(userId, updateUserDto.Property, updateUserDto.Value);
+            return Result<UserResponse>.Failure($"Error al actualizar usuario");
         }
-
-        return Result<UserResponse>.Failure("Debe proporcionar una operación válida o propiedad con valor");
     }
 
     private async Task<Result<UserResponse>> HandleRoleOperation(string userId, string operation, IList<string> roles)
     {
-        // Validar que el usuario esté vinculado a un empleado
-        var employees = await _employeeRepository.FindAsync(e => e.UserId == userId);
-        var patients = await _patientRepository.FindAsync(e => e.UserId == userId);
-        if (!employees.Any() && !patients.Any())
-            return Result<UserResponse>.Failure("El usuario no está vinculado a ningún empleado o paciente");
-
-        var Identification = employees.Any() ? employees.First().Identification : patients.First().Identification;
-        var validationData = new Dictionary<string, string>
+        try
         {
-            { "IdentificationNumber", Identification}
-        };
+            // Validar que el usuario esté vinculado a un empleado
+            var employees = await _employeeRepository.FindAsync(e => e.UserId == userId);
+            var patients = await _patientRepository.FindAsync(e => e.UserId == userId);
+            if (!employees.Any() && !patients.Any())
+                return Result<UserResponse>.Failure("El usuario no está vinculado a ningún empleado o paciente");
 
-        // Validar roles requeridos
-        var validationResult = await _roleValidationService.ValidateRequiredDataForRoles(roles, validationData);
-        if (!validationResult.IsSuccess)
-            return Result<UserResponse>.Failure(validationResult.ErrorMessage ?? "Error en la validación de roles");
+            var Identification = employees.Any() ? employees.First().Identification : patients.First().Identification;
+            var validationData = new Dictionary<string, string>
+            {
+                { "IdentificationNumber", Identification}
+            };
 
-        // Ejecutar operación según el tipo
-        Result<UserResponse> result = operation.ToLower() switch
+            // Validar roles requeridos
+            var validationResult = await _roleValidationService.ValidateRequiredDataForRoles(roles, validationData);
+            if (!validationResult.IsSuccess)
+                return Result<UserResponse>.Failure(validationResult.ErrorMessage ?? "Error en la validación de roles");
+
+            // Ejecutar operación según el tipo
+            Result<UserResponse> result = operation.ToLower() switch
+            {
+                "add" => await _identityRepository.AddRolesToUserAsync(userId, roles),
+                "remove" => await _identityRepository.RemoveRolesFromUserAsync(userId, roles),
+                "replace" => await _identityRepository.ReplaceUserRolesAsync(userId, roles),
+                _ => Result<UserResponse>.Failure($"Operación '{operation}' no válida. Use: add, remove, o replace")
+            };
+
+            return result;
+        }
+        catch (Exception ex)
         {
-            "add" => await _identityRepository.AddRolesToUserAsync(userId, roles),
-            "remove" => await _identityRepository.RemoveRolesFromUserAsync(userId, roles),
-            "replace" => await _identityRepository.ReplaceUserRolesAsync(userId, roles),
-            _ => Result<UserResponse>.Failure($"Operación '{operation}' no válida. Use: add, remove, o replace")
-        };
-
-        return result;
+            return Result<UserResponse>.Failure($"Error al manejar operación de roles");
+        }
     }
 
     private async Task<Result<UserResponse>> UpdateSingleProperty(string userId, string propertyName, string value)

@@ -9,8 +9,8 @@ namespace PolyclinicApplication.Validators.Departments
         public CreateDepartmentValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name is required.")
-                .MaximumLength(100).WithMessage("Name must be at most 100 characters.");
+                .NotEmpty().WithMessage("El nombre es obligatorio.")
+                .MaximumLength(100).WithMessage("El nombre debe tener como máximo 100 caracteres.");
         }
     }
 }
